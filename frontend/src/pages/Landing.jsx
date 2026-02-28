@@ -25,10 +25,10 @@ export default function Landing() {
                             <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Ventra AI</span>
                         </div>
                         <button
-                            onClick={() => navigate('/dashboard')}
+                            onClick={() => navigate('/login')}
                             className="px-5 py-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl hover:from-indigo-500 hover:to-indigo-400 transition-all font-medium text-sm shadow-lg shadow-indigo-500/40"
                         >
-                            Ver Demo
+                            Acceder
                         </button>
                     </div>
                 </div>
@@ -61,17 +61,11 @@ export default function Landing() {
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                         <button
-                            onClick={() => navigate('/dashboard')}
+                            onClick={() => navigate('/login')}
                             className="group px-8 py-4 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl hover:from-indigo-500 hover:to-indigo-400 transition-all font-semibold text-lg shadow-2xl shadow-indigo-500/40 flex items-center space-x-2"
                         >
-                            <span>Ver Demo en Vivo</span>
+                            <span>Acceder al Panel</span>
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </button>
-                        <button
-                            onClick={() => navigate('/settings')}
-                            className="px-8 py-4 bg-white/5 text-white rounded-xl hover:bg-white/10 transition-all font-semibold text-lg border border-white/10"
-                        >
-                            Configurar Agente
                         </button>
                     </div>
 
@@ -232,17 +226,11 @@ export default function Landing() {
                         </p>
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
                             <button
-                                onClick={() => navigate('/dashboard')}
+                                onClick={() => navigate('/login')}
                                 className="group px-9 py-4 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl hover:from-indigo-500 hover:to-indigo-400 transition-all font-bold text-lg shadow-xl shadow-indigo-500/30 flex items-center justify-center space-x-2"
                             >
-                                <span>Ver el Dashboard</span>
+                                <span>Acceder al Panel</span>
                                 <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                            </button>
-                            <button
-                                onClick={() => navigate('/settings')}
-                                className="px-9 py-4 bg-white/5 text-white rounded-xl hover:bg-white/10 transition-all font-bold text-lg border border-white/10"
-                            >
-                                Configurar Agente
                             </button>
                         </div>
                     </div>

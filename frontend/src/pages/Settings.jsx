@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Bot, Building, BookOpen, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { Save, Bot, Building, BookOpen, Loader2, CheckCircle2, XCircle, Zap } from 'lucide-react';
 import { fetchSettings, saveSettings } from '../api/client';
 import { fetchMe, getToken } from '../api/auth';
 
@@ -20,11 +20,29 @@ function Toast({ toast }) {
     );
 }
 
+const TONES = [
+    { value: 'cercano', label: 'Cercano', desc: 'Amigable y conversacional' },
+    { value: 'formal', label: 'Formal', desc: 'Profesional y ejecutivo' },
+    { value: 'agresivo', label: 'Directo', desc: 'Orientado al cierre rápido' },
+];
+
+function Field({ label, hint, children }) {
+    return (
+        <div>
+            <label className="block text-xs text-gray-400 font-medium mb-1.5">{label}</label>
+            {children}
+            {hint && <p className="text-xs text-gray-600 mt-1">{hint}</p>}
+        </div>
+    );
+}
+
 export default function Settings() {
     const [tenantId, setTenantId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [hasChanges, setHasChanges] = useState(false);
     const [toast, setToast] = useState(null);
+    const [original, setOriginal] = useState(null);
     const [config, setConfig] = useState({
         business_name: '',
         agent_name: '',
@@ -42,12 +60,9 @@ export default function Settings() {
 
     useEffect(() => {
         fetchMe(getToken())
-            .then(me => {
-                setTenantId(me.tenant_id);
-                return fetchSettings(me.tenant_id);
-            })
+            .then(me => { setTenantId(me.tenant_id); return fetchSettings(me.tenant_id); })
             .then(data => {
-                setConfig({
+                const loaded = {
                     business_name: data.business_name || '',
                     agent_name: data.agent_name || '',
                     assistant_name: data.assistant_name || '',
@@ -55,7 +70,9 @@ export default function Settings() {
                     specialty: data.specialty || '',
                     catalog_url: data.catalog_url || '',
                     knowledge_base: data.knowledge_base || ''
-                });
+                };
+                setConfig(loaded);
+                setOriginal(loaded);
                 setLoading(false);
             })
             .catch(() => {
@@ -64,19 +81,27 @@ export default function Settings() {
             });
     }, []);
 
-    const handleChange = e => setConfig({ ...config, [e.target.name]: e.target.value });
+    const handleChange = (name, value) => {
+        const updated = { ...config, [name]: value };
+        setConfig(updated);
+        setHasChanges(JSON.stringify(updated) !== JSON.stringify(original));
+    };
+
+    const handleInput = e => handleChange(e.target.name, e.target.value);
 
     const handleSave = async () => {
         setSaving(true);
         try {
             const { ok, data } = await saveSettings(tenantId, config);
             if (ok) {
+                setOriginal(config);
+                setHasChanges(false);
                 showToast('Configuración guardada. El bot ya usa los nuevos datos.');
             } else {
                 showToast(data.message || 'Error al guardar. Intentá de nuevo.', 'error');
             }
         } catch {
-            showToast('Error de conexión. Verificá que el backend esté corriendo.', 'error');
+            showToast('Error de conexión.', 'error');
         } finally {
             setSaving(false);
         }
@@ -93,160 +118,133 @@ export default function Settings() {
         );
     }
 
-    const inputBase = "w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:ring-2 transition-all placeholder-gray-600 text-sm";
+    const input = "w-full bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all";
 
     return (
-        <div className="min-h-full bg-black text-white p-6 overflow-y-auto">
+        <div className="h-full bg-black text-white overflow-y-auto">
             <Toast toast={toast} />
-            <div className="max-w-3xl mx-auto">
-                <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-white">Configuración del Agente</h2>
-                    <p className="text-gray-400 text-sm mt-1">Personalizá tu asistente de IA para que represente tu negocio</p>
+
+            {/* Header */}
+            <div className="sticky top-0 z-10 bg-black/80 backdrop-blur-xl border-b border-white/10 px-6 py-4 flex items-center justify-between">
+                <div>
+                    <h1 className="text-base font-bold text-white">Configuración del Agente</h1>
+                    <p className="text-xs text-gray-500 mt-0.5">Personalizá tu asistente de IA</p>
                 </div>
+                <button
+                    onClick={handleSave}
+                    disabled={saving || !hasChanges}
+                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                    {saving
+                        ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Guardando...</>
+                        : <><Save className="w-3.5 h-3.5" /> {hasChanges ? 'Guardar cambios' : 'Sin cambios'}</>
+                    }
+                </button>
+            </div>
 
-                <div className="space-y-5">
-                    {/* Identidad del negocio */}
-                    <section className="bg-white/[0.03] p-5 rounded-xl border border-white/10">
-                        <div className="flex items-center gap-2.5 mb-5 text-indigo-400">
-                            <Building className="w-5 h-5" />
-                            <h3 className="font-semibold">Identidad del Negocio</h3>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Nombre del Negocio</label>
-                                <input
-                                    name="business_name"
-                                    value={config.business_name}
-                                    onChange={handleChange}
-                                    className={`${inputBase} focus:ring-indigo-500/30 focus:border-indigo-500`}
-                                    placeholder="Ej: Inmobiliaria Branc"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Link del Catálogo / Web</label>
-                                <input
-                                    name="catalog_url"
-                                    value={config.catalog_url}
-                                    onChange={handleChange}
-                                    className={`${inputBase} focus:ring-indigo-500/30 focus:border-indigo-500`}
-                                    placeholder="https://tu-catalogo.com"
-                                />
-                            </div>
-                        </div>
-                    </section>
+            <div className="max-w-2xl mx-auto px-6 py-8 space-y-6">
 
-                    {/* Personalidad de la IA */}
-                    <section className="bg-white/[0.03] p-5 rounded-xl border border-white/10">
-                        <div className="flex items-center gap-2.5 mb-5 text-emerald-400">
-                            <Bot className="w-5 h-5" />
-                            <h3 className="font-semibold">Personalidad de la IA</h3>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Nombre del Asistente</label>
-                                <input
-                                    name="assistant_name"
-                                    value={config.assistant_name}
-                                    onChange={handleChange}
-                                    className={`${inputBase} focus:ring-emerald-500/30 focus:border-emerald-500`}
-                                    placeholder="Ej: Ana"
-                                />
-                                <p className="text-xs text-gray-600 mt-1">Nombre que usa el bot al presentarse</p>
-                            </div>
-                            <div>
-                                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Tono de Voz</label>
-                                <select
-                                    name="tone"
-                                    value={config.tone}
-                                    onChange={handleChange}
-                                    className={`${inputBase} focus:ring-emerald-500/30 focus:border-emerald-500`}
-                                >
-                                    <option value="cercano">Cercano y Amable (Recomendado)</option>
-                                    <option value="formal">Formal y Ejecutivo</option>
-                                    <option value="agresivo">Venta Directa / Rápida</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Nombre del Agente / Equipo</label>
-                                <input
-                                    name="agent_name"
-                                    value={config.agent_name}
-                                    onChange={handleChange}
-                                    className={`${inputBase} focus:ring-emerald-500/30 focus:border-emerald-500`}
-                                    placeholder="Ej: Equipo, Juan, María..."
-                                />
-                                <p className="text-xs text-gray-600 mt-1">El bot menciona este nombre al hacer handoff</p>
-                            </div>
-                            <div>
-                                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Especialidad / Regla de Oro</label>
-                                <textarea
-                                    name="specialty"
-                                    value={config.specialty}
-                                    onChange={handleChange}
-                                    rows={3}
-                                    className={`${inputBase} focus:ring-emerald-500/30 focus:border-emerald-500 resize-none`}
-                                    placeholder="Ej: Solo vendemos en Zona Norte. Especializados en deptos de 2 y 3 ambientes."
-                                />
-                            </div>
-                        </div>
-                    </section>
+                {/* Negocio */}
+                <section className="bg-white/[0.03] rounded-2xl border border-white/10 overflow-hidden">
+                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-white/10">
+                        <Building className="w-4 h-4 text-indigo-400" />
+                        <h2 className="text-sm font-semibold text-white">Negocio</h2>
+                    </div>
+                    <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Field label="Nombre del negocio">
+                            <input name="business_name" value={config.business_name} onChange={handleInput}
+                                className={input} placeholder="Ej: Inmobiliaria Sur" />
+                        </Field>
+                        <Field label="Link del catálogo / web">
+                            <input name="catalog_url" value={config.catalog_url} onChange={handleInput}
+                                className={input} placeholder="https://tu-sitio.com" />
+                        </Field>
+                    </div>
+                </section>
 
-                    {/* Base de conocimiento */}
-                    <section className="bg-white/[0.03] p-5 rounded-xl border border-white/10">
-                        <div className="flex items-center gap-2.5 mb-5 text-purple-400">
-                            <BookOpen className="w-5 h-5" />
-                            <h3 className="font-semibold">Base de Conocimiento</h3>
+                {/* Agente */}
+                <section className="bg-white/[0.03] rounded-2xl border border-white/10 overflow-hidden">
+                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-white/10">
+                        <Bot className="w-4 h-4 text-emerald-400" />
+                        <h2 className="text-sm font-semibold text-white">Agente de IA</h2>
+                    </div>
+                    <div className="p-5 space-y-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Field label="Nombre del asistente" hint="Así se presenta el bot con los clientes">
+                                <input name="assistant_name" value={config.assistant_name} onChange={handleInput}
+                                    className={input} placeholder="Ej: Ana" />
+                            </Field>
+                            <Field label="Nombre del equipo humano" hint="Mencionado al hacer handoff">
+                                <input name="agent_name" value={config.agent_name} onChange={handleInput}
+                                    className={input} placeholder="Ej: Juan, el Equipo..." />
+                            </Field>
                         </div>
-                        <label className="block text-xs text-gray-400 mb-1.5 font-medium">
-                            Inventario, precios y características
-                        </label>
-                        <textarea
-                            name="knowledge_base"
-                            value={config.knowledge_base}
-                            onChange={handleChange}
-                            rows={12}
-                            maxLength={10000}
-                            className={`${inputBase} focus:ring-purple-500/30 focus:border-purple-500 resize-none font-mono`}
-                            placeholder={`DEPARTAMENTO 2 AMBIENTES - PALERMO
-- Precio: $180.000/mes
-- Superficie: 65 m²
-- Características: Balcón, cocina integrada
-- Disponible: inmediato
 
-DEPARTAMENTO 3 AMBIENTES - BELGRANO
-- Precio: $250.000/mes
-- Superficie: 95 m²
-- Características: Terraza, 2 baños, garage`}
-                        />
-                        <div className="flex items-center justify-between mt-2">
-                            <p className="text-xs text-purple-400/70">
-                                El bot usa esta info para responder preguntas específicas. Si no sabe algo, no inventa.
-                            </p>
-                            <p className="text-xs text-gray-600">
+                        {/* Tono — selector visual */}
+                        <Field label="Tono de voz">
+                            <div className="grid grid-cols-3 gap-2 mt-0.5">
+                                {TONES.map(t => (
+                                    <button
+                                        key={t.value}
+                                        type="button"
+                                        onClick={() => handleChange('tone', t.value)}
+                                        className={`p-3 rounded-xl border text-left transition-all ${
+                                            config.tone === t.value
+                                                ? 'bg-indigo-500/20 border-indigo-500/60 text-white'
+                                                : 'bg-white/[0.02] border-white/10 text-gray-400 hover:border-white/20 hover:text-gray-200'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-1.5 mb-1">
+                                            {config.tone === t.value && <Zap className="w-3 h-3 text-indigo-400" />}
+                                            <span className="text-xs font-semibold">{t.label}</span>
+                                        </div>
+                                        <p className="text-xs opacity-60 leading-tight">{t.desc}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        </Field>
+
+                        <Field label="Especialidad / Regla de oro" hint="Restricciones del negocio que el bot debe respetar siempre">
+                            <textarea name="specialty" value={config.specialty} onChange={handleInput}
+                                rows={3} className={`${input} resize-none`}
+                                placeholder="Ej: Solo trabajamos en Zona Norte. Mínimo 2 ambientes." />
+                        </Field>
+                    </div>
+                </section>
+
+                {/* Base de conocimiento */}
+                <section className="bg-white/[0.03] rounded-2xl border border-white/10 overflow-hidden">
+                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-white/10">
+                        <BookOpen className="w-4 h-4 text-purple-400" />
+                        <h2 className="text-sm font-semibold text-white">Base de Conocimiento</h2>
+                    </div>
+                    <div className="p-5">
+                        <div className="flex items-center justify-between mb-2">
+                            <p className="text-xs text-gray-500">Productos, servicios, precios y características que el bot puede consultar</p>
+                            <span className={`text-xs font-mono ${config.knowledge_base.length > 9000 ? 'text-red-400' : 'text-gray-600'}`}>
                                 {config.knowledge_base.length}/10000
-                            </p>
+                            </span>
                         </div>
-                    </section>
+                        <textarea
+                            name="knowledge_base" value={config.knowledge_base} onChange={handleInput}
+                            rows={14} maxLength={10000}
+                            className={`${input} resize-none font-mono text-xs leading-relaxed`}
+                            placeholder={`PRODUCTO / SERVICIO A\n- Precio: ...\n- Características: ...\n\nPRODUCTO / SERVICIO B\n- Precio: ...\n- Características: ...`}
+                        />
+                        <p className="text-xs text-purple-400/60 mt-2">
+                            El bot usa esta info para responder preguntas. Si no encuentra algo, no inventa.
+                        </p>
+                    </div>
+                </section>
 
-                    {/* Guardar */}
-                    <button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3.5 rounded-xl font-semibold transition-colors shadow-lg shadow-indigo-500/20"
-                    >
-                        {saving ? (
-                            <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Guardando...
-                            </>
-                        ) : (
-                            <>
-                                <Save className="w-4 h-4" />
-                                Guardar Cambios
-                            </>
-                        )}
-                    </button>
-                </div>
+                {/* Guardar mobile */}
+                <button
+                    onClick={handleSave}
+                    disabled={saving || !hasChanges}
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-colors"
+                >
+                    {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Guardando...</> : <><Save className="w-4 h-4" /> Guardar cambios</>}
+                </button>
             </div>
         </div>
     );
