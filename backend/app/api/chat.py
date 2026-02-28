@@ -17,7 +17,7 @@ def ping():
 
 
 @router.post("/test-chat")
-def test_chat(input: MessageInput, db: Session = Depends(get_db)):
+def test_chat(input: MessageInput, db: Session = Depends(get_db), _=Depends(get_current_user)):
     tenant = db.query(Tenant).filter(Tenant.id == input.tenant_id).first()
     if not tenant:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
@@ -43,11 +43,13 @@ def test_chat(input: MessageInput, db: Session = Depends(get_db)):
 
 
 @router.post("/manual-message")
-def manual_message(input: ManualMessageInput, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def manual_message(input: ManualMessageInput, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     """El operador humano toma control y envía un mensaje directo al lead via WhatsApp."""
     lead = db.query(Lead).filter(Lead.id == input.lead_id).first()
     if not lead:
         raise HTTPException(status_code=404, detail="Lead no encontrado")
+    if lead.tenant_id != current_user.tenant_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
 
     # Guardar en historial como mensaje del asistente
     db.add(Conversation(lead_id=lead.id, role="assistant", content=input.message))

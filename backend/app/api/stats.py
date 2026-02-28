@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -10,8 +10,10 @@ router = APIRouter()
 
 
 @router.get("/stats/{tenant_id}")
-def get_stats(tenant_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def get_stats(tenant_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     """Obtiene estadísticas agregadas del tenant."""
+    if current_user.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
     total_leads = db.query(Lead).filter(Lead.tenant_id == tenant_id).count()
     qualified = db.query(Lead).filter(Lead.tenant_id == tenant_id, Lead.status == "QUALIFIED").count()
     lost = db.query(Lead).filter(Lead.tenant_id == tenant_id, Lead.status == "LOST").count()

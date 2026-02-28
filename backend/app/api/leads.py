@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.db.database import get_db
 from app.models import Lead, Conversation
@@ -18,7 +18,7 @@ STATUS_MAP = {
 
 
 def _format_time(dt: datetime) -> str:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     diff = now.date() - dt.date()
     if diff.days == 0:
         return dt.strftime("%H:%M")
@@ -29,8 +29,10 @@ def _format_time(dt: datetime) -> str:
 
 
 @router.get("/leads/{tenant_id}")
-def get_leads(tenant_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def get_leads(tenant_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     """Obtiene todos los leads de un tenant con su información completa."""
+    if current_user.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
     leads_db = db.query(Lead).filter(
         Lead.tenant_id == tenant_id
     ).order_by(Lead.created_at.desc()).all()
@@ -70,11 +72,13 @@ def get_leads(tenant_id: int, db: Session = Depends(get_db), _=Depends(get_curre
 
 
 @router.post("/leads/{lead_id}/restart")
-def restart_lead(lead_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def restart_lead(lead_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     """Retoma el lead con IA: vuelve a QUALIFYING y borra el motivo de rechazo."""
     lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:
         raise HTTPException(status_code=404, detail="Lead no encontrado")
+    if lead.tenant_id != current_user.tenant_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
 
     lead.status = "QUALIFYING"
     if lead.extracted_data and "motivo_rechazo" in lead.extracted_data:

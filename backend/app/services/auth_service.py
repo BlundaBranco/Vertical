@@ -1,6 +1,6 @@
 import os
 import bcrypt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
@@ -9,7 +9,12 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.db_models import User
 
-SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
+SECRET_KEY = os.getenv("SECRET_KEY", "")
+if not SECRET_KEY:
+    import warnings
+    warnings.warn("SECRET_KEY no configurada — usá una clave segura en producción", RuntimeWarning)
+    SECRET_KEY = "change-me-in-production"
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 7
 
@@ -25,7 +30,7 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 
 def create_token(user_id: int, tenant_id: int) -> str:
-    expire = datetime.utcnow() + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
+    expire = datetime.now(timezone.utc) + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
     payload = {"sub": str(user_id), "tenant_id": tenant_id, "exp": expire}
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 

@@ -1,7 +1,11 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Text, Boolean
 from sqlalchemy.orm import relationship
 from app.db.base import Base
-from datetime import datetime
+from datetime import datetime, timezone
+
+
+def _utcnow():
+    return datetime.now(timezone.utc)
 
 
 class VerticalTemplate(Base):
@@ -40,7 +44,7 @@ class Lead(Base):
 
     status = Column(String, default="NEW")
     extracted_data = Column(JSON, default={})
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
 
     tenant = relationship("Tenant", back_populates="leads")
     conversations = relationship("Conversation", back_populates="lead")
@@ -54,7 +58,7 @@ class Conversation(Base):
 
     role = Column(String)
     content = Column(Text)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(DateTime, default=_utcnow)
 
     lead = relationship("Lead", back_populates="conversations")
 
@@ -66,6 +70,6 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
     tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
 
     tenant = relationship("Tenant")

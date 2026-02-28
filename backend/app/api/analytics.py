@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func, case
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from app.db.database import get_db
 from app.models import Lead
@@ -11,8 +11,10 @@ router = APIRouter()
 
 
 @router.get("/analytics/{tenant_id}")
-def get_analytics(tenant_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
-    now = datetime.utcnow()
+def get_analytics(tenant_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    if current_user.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    now = datetime.now(timezone.utc)
     fourteen_days_ago = now - timedelta(days=14)
     week_ago = now - timedelta(days=7)
 

@@ -48,10 +48,16 @@ async def receive_whatsapp_message(request: Request, db: Session = Depends(get_d
         _log("[WEBHOOK] Mensaje recibido desde Meta")
         if "entry" not in body:
             return {"status": "unknown_format"}
-        val = body["entry"][0]["changes"][0]["value"]
+        entry = body.get("entry", [{}])
+        if not entry:
+            return {"status": "ok"}
+        val = entry[0].get("changes", [{}])[0].get("value", {})
         if "messages" not in val:
             return {"status": "ok"}
-        msg = val["messages"][0]
+        messages_list = val.get("messages", [])
+        if not messages_list:
+            return {"status": "ok"}
+        msg = messages_list[0]
         num = msg["from"]
         msg_type = msg.get("type", "text")
         txt = msg.get("text", {}).get("body", "")

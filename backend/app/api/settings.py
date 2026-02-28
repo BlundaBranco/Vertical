@@ -10,7 +10,9 @@ router = APIRouter()
 
 
 @router.get("/settings/{tenant_id}")
-def get_settings(tenant_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def get_settings(tenant_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    if current_user.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
     tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
     if not tenant:
         raise HTTPException(status_code=404, detail="Negocio no encontrado")
@@ -28,7 +30,9 @@ def get_settings(tenant_id: int, db: Session = Depends(get_db), _=Depends(get_cu
 
 
 @router.post("/settings/{tenant_id}")
-def update_settings(tenant_id: int, payload: SettingsUpdate, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def update_settings(tenant_id: int, payload: SettingsUpdate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    if current_user.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
     tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
     if not tenant:
         raise HTTPException(status_code=404, detail="Negocio no encontrado")
