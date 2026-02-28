@@ -109,7 +109,7 @@ export default function Settings() {
 
     if (loading) {
         return (
-            <div className="h-full flex items-center justify-center bg-black">
+            <div className="h-full flex items-center justify-center bg-[#0c0c0e]">
                 <div className="text-center">
                     <Loader2 className="w-10 h-10 animate-spin mx-auto mb-3 text-indigo-400" />
                     <p className="text-gray-400 text-sm">Cargando configuración...</p>
@@ -121,11 +121,11 @@ export default function Settings() {
     const input = "w-full bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all";
 
     return (
-        <div className="flex-1 bg-black text-white overflow-y-auto">
+        <div className="flex-1 bg-[#0c0c0e] text-white overflow-y-auto">
             <Toast toast={toast} />
 
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-black/80 backdrop-blur-xl border-b border-white/10 px-6 py-4 flex items-center justify-between">
+            <div className="sticky top-0 z-10 bg-[#0c0c0e]/90 backdrop-blur-xl border-b border-white/10 px-6 py-4 flex items-center justify-between">
                 <div>
                     <h1 className="text-base font-bold text-white">Configuración del Agente</h1>
                     <p className="text-xs text-gray-500 mt-0.5">Personalizá tu asistente de IA</p>
@@ -142,7 +142,7 @@ export default function Settings() {
                 </button>
             </div>
 
-            <div className="max-w-2xl mx-auto px-6 py-8 space-y-6">
+            <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
 
                 {/* Negocio */}
                 <section className="bg-white/[0.03] rounded-2xl border border-white/10 overflow-hidden">

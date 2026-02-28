@@ -155,7 +155,7 @@ export default function Dashboard() {
 
     if (loading) {
         return (
-            <div className="h-full flex items-center justify-center bg-black">
+            <div className="h-full flex items-center justify-center bg-[#0c0c0e]">
                 <div className="text-center">
                     <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
                     <p className="text-gray-400 text-sm">Cargando datos...</p>
@@ -167,7 +167,7 @@ export default function Dashboard() {
     const cfg = selectedLead ? (STATUS_CONFIG[selectedLead.status] || FALLBACK_STATUS) : null;
 
     return (
-        <div className="flex-1 flex flex-col bg-black text-white overflow-hidden">
+        <div className="flex-1 flex flex-col bg-[#0c0c0e] text-white overflow-hidden">
 
             {/* Header */}
             <header className="shrink-0 bg-gray-900/30 border-b border-white/10 px-5 py-3 backdrop-blur-xl flex items-center justify-between">
@@ -407,7 +407,7 @@ export default function Dashboard() {
                             </div>
 
                             {/* Input */}
-                            <div className="shrink-0 p-3 border-t border-white/10 bg-black/20">
+                            <div className="shrink-0 p-3 border-t border-white/10 bg-[#0c0c0e]/20">
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="text"

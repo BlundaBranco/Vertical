@@ -54,7 +54,7 @@ export default function Analytics() {
 
     if (loading) {
         return (
-            <div className="flex-1 flex items-center justify-center bg-black">
+            <div className="flex-1 flex items-center justify-center bg-[#0c0c0e]">
                 <div className="text-center">
                     <Loader2 className="w-10 h-10 animate-spin mx-auto mb-3 text-indigo-400" />
                     <p className="text-gray-400 text-sm">Cargando datos...</p>
@@ -65,7 +65,7 @@ export default function Analytics() {
 
     if (!data) {
         return (
-            <div className="flex-1 flex items-center justify-center bg-black">
+            <div className="flex-1 flex items-center justify-center bg-[#0c0c0e]">
                 <p className="text-gray-500 text-sm">No se pudieron cargar los datos.</p>
             </div>
         );
@@ -107,7 +107,7 @@ export default function Analytics() {
     ];
 
     return (
-        <div className="flex-1 bg-black text-white overflow-y-auto">
+        <div className="flex-1 bg-[#0c0c0e] text-white overflow-y-auto">
             {/* Header */}
             <div className="border-b border-white/10 px-6 py-4">
                 <h1 className="text-base font-bold text-white">Analytics</h1>

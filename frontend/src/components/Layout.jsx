@@ -22,7 +22,7 @@ export default function Layout({ children }) {
     };
 
     return (
-        <div className="h-screen bg-black text-white flex overflow-hidden">
+        <div className="h-screen bg-[#0c0c0e] text-white flex overflow-hidden">
 
             {/* Mobile overlay */}
             {sidebarOpen && (
