@@ -1,25 +1,39 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import Privacy from './pages/Privacy';
+import Login from './pages/Login';
 import Layout from './components/Layout';
+import { getToken } from './api/auth';
+
+function PrivateRoute({ children }) {
+    if (!getToken()) return <Navigate to="/login" replace />;
+    return children;
+}
 
 function App() {
-  return (
-    <Router>
-      <Routes>
-        {/* La Landing no lleva el menú lateral */}
-        <Route path="/" element={<Landing />} />
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/privacy" element={<Privacy />} />
 
-        {/* Las páginas internas SI llevan el menú lateral */}
-        <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-        <Route path="/settings" element={<Layout><Settings /></Layout>} />
-        <Route path="/privacy" element={<Privacy />} />
-      </Routes>
-    </Router>
-  );
+                <Route path="/dashboard" element={
+                    <PrivateRoute>
+                        <Layout><Dashboard /></Layout>
+                    </PrivateRoute>
+                } />
+                <Route path="/settings" element={
+                    <PrivateRoute>
+                        <Layout><Settings /></Layout>
+                    </PrivateRoute>
+                } />
+            </Routes>
+        </Router>
+    );
 }
 
 export default App;

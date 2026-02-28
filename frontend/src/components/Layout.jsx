@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Settings, LogOut, Sparkles, Bot, Menu, X } from 'lucide-react';
+import { logout } from '../api/client';
 
 export default function Layout({ children }) {
     const navigate = useNavigate();
@@ -90,7 +91,7 @@ export default function Layout({ children }) {
                 {/* Logout */}
                 <div className="p-4 border-t border-white/10">
                     <button
-                        onClick={() => handleNav('/')}
+                        onClick={logout}
                         className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all"
                     >
                         <LogOut className="w-5 h-5" />

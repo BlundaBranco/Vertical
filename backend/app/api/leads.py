@@ -4,6 +4,7 @@ from datetime import datetime
 
 from app.db.database import get_db
 from app.models import Lead, Conversation
+from app.services.auth_service import get_current_user
 
 router = APIRouter()
 
@@ -28,7 +29,7 @@ def _format_time(dt: datetime) -> str:
 
 
 @router.get("/leads/{tenant_id}")
-def get_leads(tenant_id: int, db: Session = Depends(get_db)):
+def get_leads(tenant_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
     """Obtiene todos los leads de un tenant con su información completa."""
     leads_db = db.query(Lead).filter(
         Lead.tenant_id == tenant_id
@@ -69,7 +70,7 @@ def get_leads(tenant_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/leads/{lead_id}/restart")
-def restart_lead(lead_id: int, db: Session = Depends(get_db)):
+def restart_lead(lead_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
     """Retoma el lead con IA: vuelve a QUALIFYING y borra el motivo de rechazo."""
     lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:

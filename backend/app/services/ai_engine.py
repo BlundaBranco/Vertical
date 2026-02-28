@@ -47,7 +47,7 @@ def extract_information(lead_data_actual: dict, user_message: str):
         return {}
 
 
-def generate_response(tenant, lead, user_message: str):
+def generate_response(tenant, lead, user_message: str, conversations=None):
     """
     PASE 2: El Conversador Dinámico.
     Construye el prompt basado en la configuración del cliente y responde.
@@ -104,13 +104,20 @@ def generate_response(tenant, lead, user_message: str):
 
     print(f"Ventra AI generando respuesta para: {business_name} (Asistente: {assistant_name})")
 
+    # Construir historial de conversación (últimos 10 turnos)
+    history = []
+    if conversations:
+        for conv in conversations[-10:]:
+            role = "assistant" if conv.role == "assistant" else "user"
+            history.append({"role": role, "content": conv.content})
+    # El último mensaje del usuario ya está en el historial; evitar duplicarlo
+    if not history or history[-1]["content"] != user_message:
+        history.append({"role": "user", "content": user_message})
+
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message}
-            ],
+            messages=[{"role": "system", "content": system_prompt}] + history,
             temperature=0.7,
             max_tokens=200
         )

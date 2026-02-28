@@ -4,12 +4,13 @@ from sqlalchemy import func
 
 from app.db.database import get_db
 from app.models import Lead, Conversation
+from app.services.auth_service import get_current_user
 
 router = APIRouter()
 
 
 @router.get("/stats/{tenant_id}")
-def get_stats(tenant_id: int, db: Session = Depends(get_db)):
+def get_stats(tenant_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
     """Obtiene estadísticas agregadas del tenant."""
     total_leads = db.query(Lead).filter(Lead.tenant_id == tenant_id).count()
     qualified = db.query(Lead).filter(Lead.tenant_id == tenant_id, Lead.status == "QUALIFIED").count()

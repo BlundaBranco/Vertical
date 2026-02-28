@@ -5,8 +5,8 @@ import {
     TrendingUp, XCircle, RefreshCw, RotateCcw, Sparkles, Search
 } from 'lucide-react';
 import { fetchLeads, fetchStats, sendManualMessage, restartLead } from '../api/client';
+import { fetchMe, getToken } from '../api/auth';
 
-const TENANT_ID = 1;
 const REFRESH_INTERVAL = 10000;
 
 const STATUS_CONFIG = {
@@ -53,6 +53,7 @@ const FILTERS = [
 ];
 
 export default function Dashboard() {
+    const [tenantId, setTenantId] = useState(null);
     const [leads, setLeads] = useState([]);
     const [stats, setStats] = useState({
         totalLeads: 0, qualified: 0, lost: 0,
@@ -68,8 +69,10 @@ export default function Dashboard() {
     const [lastRefresh, setLastRefresh] = useState(null);
     const messagesEndRef = useRef(null);
     const selectedLeadIdRef = useRef(selectedLeadId);
+    const tenantIdRef = useRef(tenantId);
 
     useEffect(() => { selectedLeadIdRef.current = selectedLeadId; }, [selectedLeadId]);
+    useEffect(() => { tenantIdRef.current = tenantId; }, [tenantId]);
 
     const selectedLead = leads.find(l => l.id === selectedLeadId) || null;
 
@@ -84,10 +87,12 @@ export default function Dashboard() {
     }, {});
 
     const loadData = useCallback(async () => {
+        const tid = tenantIdRef.current;
+        if (!tid) return;
         try {
             const [leadsData, statsData] = await Promise.all([
-                fetchLeads(TENANT_ID),
-                fetchStats(TENANT_ID)
+                fetchLeads(tid),
+                fetchStats(tid)
             ]);
             setLeads(leadsData);
             setStats(statsData);
@@ -101,11 +106,22 @@ export default function Dashboard() {
         }
     }, []);
 
+    // On mount: resolve tenant_id from JWT, then load data
     useEffect(() => {
+        fetchMe(getToken())
+            .then(me => {
+                setTenantId(me.tenant_id);
+                tenantIdRef.current = me.tenant_id;
+            })
+            .catch(() => setLoading(false));
+    }, []);
+
+    useEffect(() => {
+        if (!tenantId) return;
         loadData();
         const interval = setInterval(loadData, REFRESH_INTERVAL);
         return () => clearInterval(interval);
-    }, [loadData]);
+    }, [tenantId, loadData]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Bot, Building, BookOpen, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { fetchSettings, saveSettings } from '../api/client';
-
-const TENANT_ID = 1;
+import { fetchMe, getToken } from '../api/auth';
 
 function Toast({ toast }) {
     if (!toast) return null;
@@ -22,6 +21,7 @@ function Toast({ toast }) {
 }
 
 export default function Settings() {
+    const [tenantId, setTenantId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [toast, setToast] = useState(null);
@@ -41,7 +41,11 @@ export default function Settings() {
     };
 
     useEffect(() => {
-        fetchSettings(TENANT_ID)
+        fetchMe(getToken())
+            .then(me => {
+                setTenantId(me.tenant_id);
+                return fetchSettings(me.tenant_id);
+            })
             .then(data => {
                 setConfig({
                     business_name: data.business_name || '',
@@ -65,7 +69,7 @@ export default function Settings() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            const { ok, data } = await saveSettings(TENANT_ID, config);
+            const { ok, data } = await saveSettings(tenantId, config);
             if (ok) {
                 showToast('Configuración guardada. El bot ya usa los nuevos datos.');
             } else {

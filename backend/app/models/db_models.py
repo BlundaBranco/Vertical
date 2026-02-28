@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Text
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Text, Boolean
 from sqlalchemy.orm import relationship
 from app.db.base import Base
 from datetime import datetime
@@ -57,3 +57,15 @@ class Conversation(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     lead = relationship("Lead", back_populates="conversations")
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    tenant = relationship("Tenant")

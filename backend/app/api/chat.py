@@ -6,6 +6,7 @@ from app.models import Tenant, Lead, Conversation
 from app.schemas.chat import MessageInput, ManualMessageInput
 from app.services.message_handler import process_message
 from app.services import whatsapp
+from app.services.auth_service import get_current_user
 
 router = APIRouter()
 
@@ -42,7 +43,7 @@ def test_chat(input: MessageInput, db: Session = Depends(get_db)):
 
 
 @router.post("/manual-message")
-def manual_message(input: ManualMessageInput, db: Session = Depends(get_db)):
+def manual_message(input: ManualMessageInput, db: Session = Depends(get_db), _=Depends(get_current_user)):
     """El operador humano toma control y envía un mensaje directo al lead via WhatsApp."""
     lead = db.query(Lead).filter(Lead.id == input.lead_id).first()
     if not lead:

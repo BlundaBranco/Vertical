@@ -4,12 +4,13 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models import Tenant
 from app.schemas.settings import SettingsUpdate
+from app.services.auth_service import get_current_user
 
 router = APIRouter()
 
 
 @router.get("/settings/{tenant_id}")
-def get_settings(tenant_id: int, db: Session = Depends(get_db)):
+def get_settings(tenant_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
     tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
     if not tenant:
         raise HTTPException(status_code=404, detail="Negocio no encontrado")
@@ -27,7 +28,7 @@ def get_settings(tenant_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/settings/{tenant_id}")
-def update_settings(tenant_id: int, payload: SettingsUpdate, db: Session = Depends(get_db)):
+def update_settings(tenant_id: int, payload: SettingsUpdate, db: Session = Depends(get_db), _=Depends(get_current_user)):
     tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
     if not tenant:
         raise HTTPException(status_code=404, detail="Negocio no encontrado")

@@ -78,6 +78,23 @@ async def receive_whatsapp_message(request: Request, db: Session = Depends(get_d
             db.commit()
             db.refresh(lead)
 
+        # Si el operador tomó control, solo registrar el mensaje sin que el bot responda
+        if lead.status == "HUMAN_HANDOFF":
+            from app.models import Conversation
+            db.add(Conversation(lead_id=lead.id, role="user", content=txt))
+            db.commit()
+            _log(f"[WEBHOOK] Lead en HUMAN_HANDOFF — mensaje registrado, bot silenciado")
+            return {"status": "human_handoff_silenced"}
+
+        # Si el lead estaba LOST y vuelve a escribir, resucitarlo automáticamente
+        if lead.status == "LOST":
+            data = dict(lead.extracted_data or {})
+            data.pop("motivo_rechazo", None)
+            lead.extracted_data = data
+            lead.status = "QUALIFYING"
+            db.commit()
+            _log(f"[WEBHOOK] Lead LOST resucitado a QUALIFYING")
+
         ai_response = process_message(tenant, lead, txt, db)
         whatsapp.send_whatsapp_message(num, ai_response)
 

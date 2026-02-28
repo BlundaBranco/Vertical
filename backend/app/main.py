@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import webhook, leads, stats, settings, chat
+from app.api import webhook, leads, stats, settings, chat, auth
 
 app = FastAPI(title="Ventra AI - Sistema de Agentes IA para WhatsApp")
 
@@ -13,6 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
 app.include_router(webhook.router)
 app.include_router(leads.router)
 app.include_router(stats.router)

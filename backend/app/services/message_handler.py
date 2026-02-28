@@ -26,8 +26,11 @@ def process_message(tenant, lead, user_message: str, db: Session):
         elif nuevo_estado == "LOST":
             print(f"[LEAD] Lead PERDIDO: {lead.extracted_data.get('motivo_rechazo')}")
 
-    # PASE 2: Respuesta
-    ai_response_text = ai_engine.generate_response(tenant, lead, user_message)
+    # PASE 2: Respuesta (con historial de conversación)
+    conversations = db.query(Conversation).filter(
+        Conversation.lead_id == lead.id
+    ).order_by(Conversation.timestamp).all()
+    ai_response_text = ai_engine.generate_response(tenant, lead, user_message, conversations)
     db.add(Conversation(lead_id=lead.id, role="assistant", content=ai_response_text))
     db.commit()
 
