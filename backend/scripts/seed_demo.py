@@ -25,15 +25,13 @@ db = SessionLocal()
 Base.metadata.create_all(bind=engine)
 
 # ---------------------------------------------------------------------------
-# 2. LIMPIAR DATOS (sin dropear tablas)
+# 2. LIMPIAR DATOS y resetear secuencias (sin dropear tablas)
 # ---------------------------------------------------------------------------
 print("Limpiando datos existentes...")
-db.query(Conversation).delete()
-db.query(Lead).delete()
-db.query(Tenant).delete()
-db.query(VerticalTemplate).delete()
+from sqlalchemy import text
+db.execute(text("TRUNCATE TABLE conversations, leads, tenants, vertical_templates RESTART IDENTITY CASCADE"))
 db.commit()
-print("Datos borrados.")
+print("Datos borrados, secuencias reseteadas.")
 
 # ---------------------------------------------------------------------------
 # 3. PLANTILLA
@@ -209,6 +207,7 @@ add_conv(lead4.id, [
 print("Lead 4: Daniela Torres — HUMAN_HANDOFF")
 
 # ---------------------------------------------------------------------------
+tenant_id = tenant.id
 db.close()
-print(f"\nSeed demo completo. Tenant ID={tenant.id}, 4 leads cargados.")
+print(f"\nSeed demo completo. Tenant ID={tenant_id}, 4 leads cargados.")
 print("Abrí el dashboard — debería mostrar los leads ahora.")

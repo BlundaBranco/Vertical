@@ -33,3 +33,5 @@ Thumbs.db
 
 # Binarios locales
 cloudflared.exe
+cloudflared-darwin-amd64.tgz
+start.bat
