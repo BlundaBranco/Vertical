@@ -1,6 +1,7 @@
 import os
 import smtplib
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,6 +11,7 @@ SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASS = os.getenv("SMTP_PASS")
+DASHBOARD_URL = os.getenv("DASHBOARD_URL", "https://somosvertical.ar/dashboard")
 
 
 def send_email_notification(tenant, lead):
@@ -19,27 +21,44 @@ def send_email_notification(tenant, lead):
         return
 
     datos = lead.extracted_data or {}
-    subject = f"[Ventra AI] Nuevo lead calificado — {tenant.name}"
+    nombre = datos.get("nombre", "Sin nombre")
+    clean_number = str(lead.whatsapp_id).replace("whatsapp:", "").replace("+", "").replace(" ", "")
+    wa_link = f"https://wa.me/{clean_number}"
+
+    subject = f"[Ventra AI] Lead calificado: {nombre} — {tenant.name}"
+
     body = f"""Nuevo lead calificado para {tenant.name}
 
-Nombre: {datos.get('nombre', 'N/A')}
-WhatsApp: {lead.whatsapp_id}
-Zona: {datos.get('zona', 'N/A')}
-Presupuesto: {datos.get('presupuesto', 'N/A')}
-Tipo de propiedad: {datos.get('tipo_propiedad', 'N/A')}
+DATOS DEL LEAD
+--------------
+Nombre:         {nombre}
+WhatsApp:       +{clean_number}
+Presupuesto:    {datos.get('presupuesto', 'N/A')}
+Zona:           {datos.get('zona', 'N/A')}
+Tipo propiedad: {datos.get('tipo_propiedad', 'N/A')}
+Intención:      {datos.get('intencion', 'N/A')}
+
+ACCIONES
+--------
+Abrir chat en WhatsApp:  {wa_link}
+Ver en dashboard:        {DASHBOARD_URL}
+
+---
+Ventra AI — Sistema de Agentes IA para WhatsApp
 """
 
     try:
-        msg = MIMEText(body, "plain", "utf-8")
+        msg = MIMEMultipart()
         msg["Subject"] = subject
         msg["From"] = SMTP_USER
         msg["To"] = NOTIFY_EMAIL
+        msg.attach(MIMEText(body, "plain", "utf-8"))
 
         with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as smtp:
             smtp.starttls()
             smtp.login(SMTP_USER, SMTP_PASS)
             smtp.sendmail(SMTP_USER, NOTIFY_EMAIL, msg.as_string())
 
-        print(f"[NOTIF] Email enviado a {NOTIFY_EMAIL}")
+        print(f"[NOTIF] Email enviado a {NOTIFY_EMAIL} — Lead: {nombre}")
     except Exception as e:
         print(f"[NOTIF] Error enviando email: {e}")

@@ -5,13 +5,15 @@ def check_lead_qualification(lead):
     """Analiza los datos extraídos y decide el estado: QUALIFIED o LOST."""
     datos = lead.extracted_data or {}
 
+    # Un lead ya QUALIFIED no retrocede automáticamente — el operador decide manualmente
+    if lead.status == "QUALIFIED":
+        return "QUALIFIED"
+
     if datos.get("motivo_rechazo"):
         return "LOST"
 
     required_fields = ["nombre", "presupuesto", "zona"]
-    is_qualified = all(datos.get(field) for field in required_fields)
-
-    if is_qualified and lead.status != "QUALIFIED":
+    if all(datos.get(field) for field in required_fields):
         return "QUALIFIED"
 
     return lead.status

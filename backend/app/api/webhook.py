@@ -4,7 +4,7 @@ from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.models import Tenant, Lead
+from app.models import Tenant, Lead, Conversation
 from app.services.message_handler import process_message
 from app.services import whatsapp
 
@@ -53,10 +53,15 @@ async def receive_whatsapp_message(request: Request, db: Session = Depends(get_d
             return {"status": "ok"}
         msg = val["messages"][0]
         num = msg["from"]
+        msg_type = msg.get("type", "text")
         txt = msg.get("text", {}).get("body", "")
 
+        # Audio u otros tipos no soportados: responder informando al usuario
         if not txt:
-            return {"status": "empty_message"}
+            if msg_type == "audio":
+                whatsapp.send_whatsapp_message(num, "Por ahora solo puedo procesar mensajes de texto. Escribime tu consulta y te respondo enseguida.")
+                _log(f"[WEBHOOK] Audio recibido de {num} — respondido con mensaje informativo")
+            return {"status": "unsupported_type", "type": msg_type}
 
         _log(f"[WEBHOOK] De {num}: {txt[:50]}...")
 
@@ -80,7 +85,6 @@ async def receive_whatsapp_message(request: Request, db: Session = Depends(get_d
 
         # Si el operador tomó control, solo registrar el mensaje sin que el bot responda
         if lead.status == "HUMAN_HANDOFF":
-            from app.models import Conversation
             db.add(Conversation(lead_id=lead.id, role="user", content=txt))
             db.commit()
             _log(f"[WEBHOOK] Lead en HUMAN_HANDOFF — mensaje registrado, bot silenciado")
