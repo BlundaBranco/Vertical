@@ -167,7 +167,7 @@ export default function Dashboard() {
     const cfg = selectedLead ? (STATUS_CONFIG[selectedLead.status] || FALLBACK_STATUS) : null;
 
     return (
-        <div className="h-full flex flex-col bg-black text-white overflow-hidden">
+        <div className="flex-1 flex flex-col bg-black text-white overflow-hidden">
 
             {/* Header */}
             <header className="shrink-0 bg-gray-900/30 border-b border-white/10 px-5 py-3 backdrop-blur-xl flex items-center justify-between">

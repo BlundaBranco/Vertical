@@ -121,7 +121,7 @@ export default function Settings() {
     const input = "w-full bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all";
 
     return (
-        <div className="h-full bg-black text-white overflow-y-auto">
+        <div className="flex-1 bg-black text-white overflow-y-auto">
             <Toast toast={toast} />
 
             {/* Header */}
