@@ -73,8 +73,8 @@ export default function Privacy() {
             <h2 style={{ fontSize: 18, fontWeight: 600, color: '#fff', marginBottom: 12 }}>8. Contacto</h2>
             <p style={{ color: '#aaa', lineHeight: 1.7 }}>
               Para consultas sobre esta política o el tratamiento de datos personales, escribinos a{' '}
-              <a href="mailto:hola@somosvertical.ar" style={{ color: '#888', textDecoration: 'underline' }}>
-                hola@somosvertical.ar
+              <a href="mailto:info@somosvertical.ar" style={{ color: '#888', textDecoration: 'underline' }}>
+                info@somosvertical.ar
               </a>
             </p>
           </section>
