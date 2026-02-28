@@ -63,6 +63,11 @@ export async function restartLead(leadId) {
     return handleResponse(res);
 }
 
+export async function fetchAnalytics(tenantId) {
+    const res = await fetch(`${BASE_URL}/analytics/${tenantId}`, { headers: authHeaders() });
+    return handleResponse(res);
+}
+
 export function logout() {
     clearToken();
     window.location.href = '/login';

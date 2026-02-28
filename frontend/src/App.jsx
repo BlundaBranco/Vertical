@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
+import Analytics from './pages/Analytics';
 import Privacy from './pages/Privacy';
 import Login from './pages/Login';
 import Layout from './components/Layout';
@@ -29,6 +30,11 @@ function App() {
                 <Route path="/settings" element={
                     <PrivateRoute>
                         <Layout><Settings /></Layout>
+                    </PrivateRoute>
+                } />
+                <Route path="/analytics" element={
+                    <PrivateRoute>
+                        <Layout><Analytics /></Layout>
                     </PrivateRoute>
                 } />
             </Routes>

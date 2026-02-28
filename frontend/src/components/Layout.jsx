@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Settings, LogOut, Sparkles, Bot, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Settings, BarChart2, LogOut, Sparkles, Bot, Menu, X } from 'lucide-react';
 import { logout } from '../api/client';
 
 export default function Layout({ children }) {
@@ -10,6 +10,7 @@ export default function Layout({ children }) {
 
     const menuItems = [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+        { id: 'analytics', label: 'Analytics', icon: BarChart2, path: '/analytics' },
         { id: 'settings', label: 'Configuración', icon: Settings, path: '/settings' },
     ];
 
