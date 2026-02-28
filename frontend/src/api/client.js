@@ -1,6 +1,6 @@
 import { getToken, clearToken } from './auth';
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
 function authHeaders(extra = {}) {
     const token = getToken();
