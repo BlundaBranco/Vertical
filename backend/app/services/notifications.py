@@ -27,16 +27,20 @@ def send_email_notification(tenant, lead):
 
     subject = f"[Ventra AI] Lead calificado: {nombre} — {tenant.name}"
 
+    # Construir sección de datos de forma genérica — funciona para cualquier vertical
+    CAMPOS_IGNORAR = {"motivo_rechazo"}
+    datos_lines = "\n".join(
+        f"{k.replace('_', ' ').capitalize():<16}{v}"
+        for k, v in datos.items()
+        if k not in CAMPOS_IGNORAR and v
+    ) or "Sin datos extraídos."
+
     body = f"""Nuevo lead calificado para {tenant.name}
 
 DATOS DEL LEAD
 --------------
-Nombre:         {nombre}
+{datos_lines}
 WhatsApp:       +{clean_number}
-Presupuesto:    {datos.get('presupuesto', 'N/A')}
-Zona:           {datos.get('zona', 'N/A')}
-Tipo propiedad: {datos.get('tipo_propiedad', 'N/A')}
-Intención:      {datos.get('intencion', 'N/A')}
 
 ACCIONES
 --------

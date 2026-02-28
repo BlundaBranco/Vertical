@@ -2,7 +2,10 @@ from app.services.notifications import send_email_notification
 
 
 def check_lead_qualification(lead):
-    """Analiza los datos extraídos y decide el estado: QUALIFIED o LOST."""
+    """Analiza los datos extraídos y decide el estado: QUALIFIED o LOST.
+    Los campos requeridos se leen del template del tenant (required_fields_schema),
+    no están hardcodeados — así funciona para cualquier vertical.
+    """
     datos = lead.extracted_data or {}
 
     # Un lead ya QUALIFIED no retrocede automáticamente — el operador decide manualmente
@@ -12,7 +15,12 @@ def check_lead_qualification(lead):
     if datos.get("motivo_rechazo"):
         return "LOST"
 
-    required_fields = ["nombre", "presupuesto", "zona"]
+    # Leer campos requeridos del template del tenant (multi-vertical)
+    template = lead.tenant.template if lead.tenant else None
+    required_fields = (
+        template.required_fields_schema if template and template.required_fields_schema
+        else ["nombre", "presupuesto", "zona"]  # fallback para compatibilidad
+    )
     if all(datos.get(field) for field in required_fields):
         return "QUALIFIED"
 
