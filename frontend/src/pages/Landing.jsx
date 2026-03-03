@@ -177,28 +177,37 @@ export default function Landing() {
                 </section>
 
                 {/* ── Problema ──────────────────────────────────────────── */}
-                <section className="py-24 px-4 sm:px-6 lg:px-8">
-                    <div className="max-w-5xl mx-auto">
+                <section className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+                    {/* Luz ambiente rojiza de sección */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-red-800/8 rounded-full blur-3xl" />
+                    </div>
+                    <div className="max-w-5xl mx-auto relative">
                         <Reveal>
-                            <p className="text-xs text-violet-400 uppercase tracking-widest mb-4 font-medium">El problema</p>
+                            <p className="text-xs text-red-400/80 uppercase tracking-widest mb-4 font-medium">El problema</p>
                             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-12">
                                 Los leads llegan, pero se enfrían.<br />
                                 <span className="text-zinc-400">Tu equipo no da abasto.</span>
                             </h2>
                         </Reveal>
-                        <div className="grid sm:grid-cols-3 gap-4">
+                        <div className="grid sm:grid-cols-3 gap-6">
                             {[
                                 { title: 'Horas sin responder', desc: 'Mientras atendés una consulta, otros tres leads se van a la competencia.' },
                                 { title: 'Curiosos que no compran', desc: 'Tu equipo pierde tiempo con leads sin presupuesto ni intención real de compra.' },
                                 { title: 'Información desactualizada', desc: 'Clientes preguntan por productos o servicios que ya no están disponibles. Mala experiencia.' },
                             ].map(({ title, desc }, i) => (
-                                <Reveal key={title} style={{ transitionDelay: `${i * 100}ms` }}>
-                                    <div className="p-5 bg-red-500/[0.07] border border-red-500/20 rounded-xl hover:-translate-y-0.5 transition-transform duration-200">
-                                        <div className="w-7 h-7 bg-red-500/15 rounded-lg flex items-center justify-center mb-3">
-                                            <X className="w-3.5 h-3.5 text-red-400" />
+                                <Reveal key={title} style={{ transitionDelay: `${i * 100}ms` }} className="h-full">
+                                    <div className="relative group h-full">
+                                        {/* Bomba de luz roja */}
+                                        <div className="absolute -inset-3 bg-red-500/20 rounded-2xl blur-2xl transition-opacity duration-500 opacity-70 group-hover:opacity-100" />
+                                        {/* Card */}
+                                        <div className="relative h-full p-5 bg-red-950/50 border border-red-500/25 rounded-2xl hover:-translate-y-1 transition-transform duration-200 backdrop-blur-sm">
+                                            <div className="w-7 h-7 bg-red-500/20 rounded-lg flex items-center justify-center mb-3">
+                                                <X className="w-3.5 h-3.5 text-red-400" />
+                                            </div>
+                                            <h3 className="text-sm font-semibold text-white mb-1.5">{title}</h3>
+                                            <p className="text-xs text-zinc-300 leading-relaxed">{desc}</p>
                                         </div>
-                                        <h3 className="text-sm font-semibold text-white mb-1.5">{title}</h3>
-                                        <p className="text-xs text-zinc-300 leading-relaxed">{desc}</p>
                                     </div>
                                 </Reveal>
                             ))}
@@ -307,28 +316,45 @@ export default function Landing() {
                 </section>
 
                 {/* ── CTA final ─────────────────────────────────────────── */}
-                <section className="py-24 px-4 sm:px-6 lg:px-8 relative">
+                <section className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/15 to-transparent pointer-events-none" />
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(124,58,237,0.14)_0%,transparent_65%)] pointer-events-none" />
-                    <div className="max-w-2xl mx-auto text-center relative">
+                    {/* Orbs de fondo para el CTA */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-violet-600/15 rounded-full blur-3xl" />
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[300px] bg-indigo-600/12 rounded-full blur-3xl" />
+                    </div>
+                    <div className="max-w-2xl mx-auto relative">
                         <Reveal>
-                            <div className="inline-flex items-center gap-2 bg-violet-500/12 border border-violet-500/25 text-violet-300 px-3 py-1.5 rounded-full text-xs font-medium mb-6">
-                                <Zap className="w-3.5 h-3.5" />
-                                Empezá hoy
+                            {/* Card iluminado */}
+                            <div className="relative">
+                                <div className="absolute -inset-4 bg-violet-500/15 rounded-3xl blur-2xl" />
+                                <div className="relative text-center bg-violet-950/40 border border-violet-500/25 rounded-3xl px-8 py-12 backdrop-blur-sm">
+                                    <div className="inline-flex items-center gap-2 bg-violet-500/15 border border-violet-500/30 text-violet-300 px-3 py-1.5 rounded-full text-xs font-medium mb-6">
+                                        <Zap className="w-3.5 h-3.5" />
+                                        Empezá hoy
+                                    </div>
+                                    <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
+                                        Tu agente listo<br />en 24 horas.
+                                    </h2>
+                                    <p className="text-zinc-300 text-sm mb-8 leading-relaxed">
+                                        Sin contratos largos. Sin sorpresas.<br className="hidden sm:block" />
+                                        Calificando leads desde el día uno.
+                                    </p>
+                                    <button
+                                        onClick={() => navigate('/register')}
+                                        className="inline-flex items-center gap-2.5 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.03] active:scale-[0.98] shadow-2xl shadow-violet-600/50"
+                                    >
+                                        Crear cuenta gratis
+                                        <ArrowRight className="w-4 h-4" />
+                                    </button>
+                                    {/* Social proof mini */}
+                                    <div className="flex flex-wrap items-center justify-center gap-5 mt-7 text-xs text-zinc-500">
+                                        <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/70" /> API oficial WhatsApp</span>
+                                        <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/70" /> Sin contratos</span>
+                                        <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/70" /> Activo en 24h</span>
+                                    </div>
+                                </div>
                             </div>
-                            <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-                                Tu agente listo<br />en 24 horas.
-                            </h2>
-                            <p className="text-zinc-300 text-sm mb-8 leading-relaxed">
-                                Sin contratos largos. Sin sorpresas. Calificando leads desde el día uno.
-                            </p>
-                            <button
-                                onClick={() => navigate('/register')}
-                                className="inline-flex items-center gap-2.5 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.03] active:scale-[0.98] shadow-xl shadow-violet-600/35"
-                            >
-                                Crear cuenta gratis
-                                <ArrowRight className="w-4 h-4" />
-                            </button>
                         </Reveal>
                     </div>
                 </section>
