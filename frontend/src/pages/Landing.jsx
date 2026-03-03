@@ -27,11 +27,9 @@ export default function Landing() {
             {/* ── Fondo global ──────────────────────────────────────────── */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0 bg-grid" />
-                {/* Orbs más brillantes */}
                 <div className="absolute -top-40 right-0 w-[800px] h-[800px] bg-violet-600/28 rounded-full blur-3xl" />
                 <div className="absolute top-1/3 -left-40 w-[600px] h-[600px] bg-indigo-600/18 rounded-full blur-3xl" />
                 <div className="absolute bottom-1/4 right-1/3 w-[500px] h-[500px] bg-violet-500/15 rounded-full blur-3xl" />
-                {/* Vignette reducida para que el fondo se vea */}
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,#060612_100%)]" />
             </div>
 
@@ -61,7 +59,6 @@ export default function Landing() {
                 </div>
             </nav>
 
-            {/* ── Todo el contenido sobre el fondo ────────────────────── */}
             <div className="relative z-10">
 
                 {/* ── Hero ─────────────────────────────────────────────── */}
@@ -71,7 +68,6 @@ export default function Landing() {
                     <div className="max-w-6xl mx-auto relative">
                         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-                            {/* Texto */}
                             <div className="text-center lg:text-left">
                                 <div className="inline-flex items-center gap-2 bg-violet-500/12 border border-violet-500/25 text-violet-300 px-3 py-1.5 rounded-full text-xs font-medium mb-7 animate-fade-in anim-d100">
                                     <Sparkles className="w-3 h-3" />
@@ -84,7 +80,7 @@ export default function Landing() {
                                 </h1>
 
                                 <p className="text-base text-zinc-300 mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0 animate-fade-in-up anim-d300">
-                                    Un agente de IA entrenado para tu negocio que opera en WhatsApp 24/7. Califica leads, responde clientes y te avisa cuando hay una oportunidad real.
+                                    Un asistente de IA para tu negocio que atiende consultas en WhatsApp las 24 horas. Identifica quién realmente quiere comprar y te avisa cuando hay una oportunidad concreta.
                                 </p>
 
                                 <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-fade-in-up anim-d400">
@@ -104,7 +100,7 @@ export default function Landing() {
                                 </div>
 
                                 <div className="mt-8 flex flex-wrap gap-5 text-xs text-zinc-400 justify-center lg:justify-start animate-fade-in anim-d500">
-                                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> API oficial de WhatsApp</span>
+                                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> WhatsApp oficial</span>
                                     <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Sin contratos</span>
                                     <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Activo en 24h</span>
                                 </div>
@@ -120,7 +116,7 @@ export default function Landing() {
                                                 <span className="text-sm font-bold text-white">A</span>
                                             </div>
                                             <div>
-                                                <p className="text-sm font-semibold text-white">Ana · Agente Inmobiliaria</p>
+                                                <p className="text-sm font-semibold text-white">Ana · Asistente Virtual</p>
                                                 <p className="text-xs text-emerald-400 flex items-center gap-1">
                                                     <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse inline-block" />
                                                     Activa ahora
@@ -143,8 +139,8 @@ export default function Landing() {
                                             <div className="flex items-center gap-2 bg-emerald-500/12 border border-emerald-500/25 rounded-xl px-3 py-2.5">
                                                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                                                 <div>
-                                                    <p className="text-xs text-emerald-300 font-semibold">Lead calificado</p>
-                                                    <p className="text-xs text-zinc-400">Notificación enviada · 10:24</p>
+                                                    <p className="text-xs text-emerald-300 font-semibold">¡Cliente listo! Notificaste a tu equipo.</p>
+                                                    <p className="text-xs text-zinc-400">10:24 · respuesta automática</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -162,9 +158,9 @@ export default function Landing() {
                         <Reveal>
                             <div className="grid grid-cols-3 gap-8 text-center">
                                 {[
-                                    { value: '24/7', label: 'Siempre activo', color: 'text-violet-400' },
+                                    { value: '24/7', label: 'Siempre disponible', color: 'text-violet-400' },
                                     { value: '< 30 seg', label: 'Tiempo de respuesta', color: 'text-indigo-400' },
-                                    { value: '0', label: 'Configuración técnica', color: 'text-emerald-400' },
+                                    { value: '0', label: 'Conocimientos técnicos', color: 'text-emerald-400' },
                                 ].map(({ value, label, color }) => (
                                     <div key={label}>
                                         <p className={`text-2xl sm:text-3xl font-bold ${color} tracking-tight`}>{value}</p>
@@ -178,7 +174,6 @@ export default function Landing() {
 
                 {/* ── Problema ──────────────────────────────────────────── */}
                 <section className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-                    {/* Luz ambiente rojiza de sección */}
                     <div className="absolute inset-0 pointer-events-none">
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-red-800/8 rounded-full blur-3xl" />
                     </div>
@@ -186,21 +181,19 @@ export default function Landing() {
                         <Reveal>
                             <p className="text-xs text-red-400/80 uppercase tracking-widest mb-4 font-medium">El problema</p>
                             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-12">
-                                Los leads llegan, pero se enfrían.<br />
+                                Las consultas llegan, pero se enfrían.<br />
                                 <span className="text-zinc-400">Tu equipo no da abasto.</span>
                             </h2>
                         </Reveal>
                         <div className="grid sm:grid-cols-3 gap-6">
                             {[
-                                { title: 'Horas sin responder', desc: 'Mientras atendés una consulta, otros tres leads se van a la competencia.' },
-                                { title: 'Curiosos que no compran', desc: 'Tu equipo pierde tiempo con leads sin presupuesto ni intención real de compra.' },
-                                { title: 'Información desactualizada', desc: 'Clientes preguntan por productos o servicios que ya no están disponibles. Mala experiencia.' },
+                                { title: 'Horas sin responder', desc: 'Mientras atendés una consulta, otros tres posibles clientes se van a la competencia.' },
+                                { title: 'Curiosos que no compran', desc: 'Tu equipo pierde horas con gente que nunca iba a comprar. Tiempo que no volvés a recuperar.' },
+                                { title: 'Preguntas sin respuesta', desc: 'Clientes que preguntan a las 11 de la noche o el fin de semana. Y nadie los atiende.' },
                             ].map(({ title, desc }, i) => (
                                 <Reveal key={title} style={{ transitionDelay: `${i * 100}ms` }} className="h-full">
                                     <div className="relative group h-full">
-                                        {/* Bomba de luz roja */}
                                         <div className="absolute -inset-3 bg-red-500/20 rounded-2xl blur-2xl transition-opacity duration-500 opacity-70 group-hover:opacity-100" />
-                                        {/* Card */}
                                         <div className="relative h-full p-5 bg-red-950/50 border border-red-500/25 rounded-2xl hover:-translate-y-1 transition-transform duration-200 backdrop-blur-sm">
                                             <div className="w-7 h-7 bg-red-500/20 rounded-lg flex items-center justify-center mb-3">
                                                 <X className="w-3.5 h-3.5 text-red-400" />
@@ -217,26 +210,23 @@ export default function Landing() {
 
                 {/* ── Cómo funciona ─────────────────────────────────────── */}
                 <section id="como-funciona" className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-                    {/* Luz ambiente de sección */}
                     <div className="absolute inset-0 pointer-events-none">
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-violet-700/10 rounded-full blur-3xl" />
                         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
                     </div>
-
                     <div className="max-w-5xl mx-auto relative">
                         <Reveal className="text-center sm:text-left">
                             <p className="text-xs text-violet-400 uppercase tracking-widest mb-4 font-medium">Cómo funciona</p>
                             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-12">
-                                Tres pasos. Tu agente operando.
+                                Tres pasos. Tu asistente operando.
                             </h2>
                         </Reveal>
-
                         <div className="grid sm:grid-cols-3 gap-6">
                             {[
                                 {
                                     n: '01',
-                                    title: 'Configurás en 3 minutos',
-                                    desc: 'Nombre del agente, tono, zonas. Sin código, sin técnicos.',
+                                    title: 'Lo configurás en minutos',
+                                    desc: 'Le ponés nombre, tono y le contás sobre tu negocio. Sin código ni técnicos.',
                                     glowClass: 'bg-violet-500/25',
                                     borderClass: 'border-violet-500/30',
                                     bgClass: 'bg-violet-950/55',
@@ -244,8 +234,8 @@ export default function Landing() {
                                 },
                                 {
                                     n: '02',
-                                    title: 'Vinculamos tu WhatsApp',
-                                    desc: 'Nuestro equipo conecta tu número Business en menos de 24 horas.',
+                                    title: 'Conectamos tu WhatsApp',
+                                    desc: 'Nuestro equipo vincula tu número en menos de 24 horas. Vos no hacés nada.',
                                     glowClass: 'bg-indigo-500/25',
                                     borderClass: 'border-indigo-500/30',
                                     bgClass: 'bg-indigo-950/55',
@@ -253,8 +243,8 @@ export default function Landing() {
                                 },
                                 {
                                     n: '03',
-                                    title: 'Recibís leads calificados',
-                                    desc: 'El agente conversa, filtra y te notifica solo cuando hay una oportunidad real.',
+                                    title: 'Recibís clientes listos',
+                                    desc: 'El asistente atiende, filtra y te avisa solo cuando hay alguien con ganas reales de comprar.',
                                     glowClass: 'bg-emerald-500/20',
                                     borderClass: 'border-emerald-500/30',
                                     bgClass: 'bg-emerald-950/50',
@@ -263,9 +253,7 @@ export default function Landing() {
                             ].map(({ n, title, desc, glowClass, borderClass, bgClass, numClass }, i) => (
                                 <Reveal key={n} style={{ transitionDelay: `${i * 150}ms` }} className="h-full">
                                     <div className="relative group h-full">
-                                        {/* Bomba de luz — glow detrás de la card */}
                                         <div className={`absolute -inset-3 ${glowClass} rounded-2xl blur-2xl transition-opacity duration-500 opacity-75 group-hover:opacity-100`} />
-                                        {/* Card */}
                                         <div className={`relative h-full p-6 ${bgClass} border ${borderClass} rounded-2xl hover:-translate-y-1 transition-transform duration-200 backdrop-blur-sm`}>
                                             <div className={`text-6xl font-black ${numClass} opacity-20 mb-5 leading-none tracking-tighter select-none`}>{n}</div>
                                             <h3 className="text-base font-semibold text-white mb-2">{title}</h3>
@@ -284,18 +272,18 @@ export default function Landing() {
                     <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
                     <div className="max-w-5xl mx-auto relative">
                         <Reveal>
-                            <p className="text-xs text-violet-400 uppercase tracking-widest mb-4 font-medium">Features</p>
+                            <p className="text-xs text-violet-400 uppercase tracking-widest mb-4 font-medium">Por qué funciona</p>
                             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-12">
-                                Construido para cerrar ventas,<br />
+                                Pensado para vender,<br />
                                 <span className="text-zinc-400">no para experimentar.</span>
                             </h2>
                         </Reveal>
                         <div className="grid sm:grid-cols-2 gap-4">
                             {[
-                                { icon: Sparkles, title: 'Entrenado para tu rubro', desc: 'El agente entiende el vocabulario y las objeciones de tu industria. Sin configuración técnica inicial.', violet: true },
-                                { icon: Users, title: 'Handoff inteligente', desc: 'Cuando el lead califica, el bot te avisa y tu equipo toma el control. Sin fricción.', violet: false },
-                                { icon: MessageSquare, title: 'WhatsApp nativo', desc: 'API oficial de Meta. Tus clientes hablan donde ya están, sin instalar nada nuevo.', violet: false },
-                                { icon: Shield, title: 'Nunca inventa datos', desc: 'Solo responde con información de tu knowledge base. Sin alucinaciones ni errores de precios.', violet: true },
+                                { icon: Sparkles, title: 'Habla como de tu rubro', desc: 'Lo entrenamos con el lenguaje de tu industria. Desde el primer día sabe de qué hablar.', violet: true },
+                                { icon: Users, title: 'Te avisa cuando hay oportunidad', desc: 'Cuando alguien está listo para comprar, te lo dice. Tu equipo entra justo cuando hace falta.', violet: false },
+                                { icon: MessageSquare, title: 'Vive en WhatsApp', desc: 'Tus clientes no instalan nada. Lo usan donde ya están, como si fuera una persona real.', violet: false },
+                                { icon: Shield, title: 'Nunca inventa información', desc: 'Solo responde con lo que vos le enseñaste. Sin errores de precios ni datos falsos.', violet: true },
                             ].map(({ icon: Icon, title, desc, violet }, i) => (
                                 <Reveal key={title} style={{ transitionDelay: `${i * 100}ms` }}>
                                     <div className={`group p-5 rounded-xl border transition-all duration-200 cursor-default hover:-translate-y-0.5 ${
@@ -316,44 +304,37 @@ export default function Landing() {
                 </section>
 
                 {/* ── CTA final ─────────────────────────────────────────── */}
-                <section className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+                <section className="py-28 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/15 to-transparent pointer-events-none" />
-                    {/* Orbs de fondo para el CTA */}
+                    {/* Spotlight difuminado — sin cuadrado, solo luz */}
                     <div className="absolute inset-0 pointer-events-none">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-violet-600/15 rounded-full blur-3xl" />
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[300px] bg-indigo-600/12 rounded-full blur-3xl" />
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[700px] bg-violet-600/18 rounded-full blur-3xl" />
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[400px] bg-violet-500/12 rounded-full blur-2xl" />
                     </div>
-                    <div className="max-w-2xl mx-auto relative">
+                    <div className="max-w-2xl mx-auto relative text-center">
                         <Reveal>
-                            {/* Card iluminado */}
-                            <div className="relative">
-                                <div className="absolute -inset-4 bg-violet-500/15 rounded-3xl blur-2xl" />
-                                <div className="relative text-center bg-violet-950/40 border border-violet-500/25 rounded-3xl px-8 py-12 backdrop-blur-sm">
-                                    <div className="inline-flex items-center gap-2 bg-violet-500/15 border border-violet-500/30 text-violet-300 px-3 py-1.5 rounded-full text-xs font-medium mb-6">
-                                        <Zap className="w-3.5 h-3.5" />
-                                        Empezá hoy
-                                    </div>
-                                    <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-                                        Tu agente listo<br />en 24 horas.
-                                    </h2>
-                                    <p className="text-zinc-300 text-sm mb-8 leading-relaxed">
-                                        Sin contratos largos. Sin sorpresas.<br className="hidden sm:block" />
-                                        Calificando leads desde el día uno.
-                                    </p>
-                                    <button
-                                        onClick={() => navigate('/register')}
-                                        className="inline-flex items-center gap-2.5 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.03] active:scale-[0.98] shadow-2xl shadow-violet-600/50"
-                                    >
-                                        Crear cuenta gratis
-                                        <ArrowRight className="w-4 h-4" />
-                                    </button>
-                                    {/* Social proof mini */}
-                                    <div className="flex flex-wrap items-center justify-center gap-5 mt-7 text-xs text-zinc-500">
-                                        <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/70" /> API oficial WhatsApp</span>
-                                        <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/70" /> Sin contratos</span>
-                                        <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/70" /> Activo en 24h</span>
-                                    </div>
-                                </div>
+                            <div className="inline-flex items-center gap-2 bg-violet-500/15 border border-violet-500/30 text-violet-300 px-3 py-1.5 rounded-full text-xs font-medium mb-6">
+                                <Zap className="w-3.5 h-3.5" />
+                                Empezá hoy
+                            </div>
+                            <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
+                                Tu asistente listo<br />en 24 horas.
+                            </h2>
+                            <p className="text-zinc-300 text-sm mb-8 leading-relaxed">
+                                Sin contratos. Sin sorpresas.<br className="hidden sm:block" />
+                                Atendiendo clientes desde el primer día.
+                            </p>
+                            <button
+                                onClick={() => navigate('/register')}
+                                className="inline-flex items-center gap-2.5 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.03] active:scale-[0.98] shadow-2xl shadow-violet-600/50"
+                            >
+                                Crear cuenta gratis
+                                <ArrowRight className="w-4 h-4" />
+                            </button>
+                            <div className="flex flex-wrap items-center justify-center gap-5 mt-7 text-xs text-zinc-500">
+                                <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/70" /> WhatsApp oficial</span>
+                                <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/70" /> Sin contratos</span>
+                                <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/70" /> Activo en 24h</span>
                             </div>
                         </Reveal>
                     </div>
@@ -375,7 +356,7 @@ export default function Landing() {
                     </div>
                 </footer>
 
-            </div>{/* fin relative z-10 */}
+            </div>
         </div>
     );
 }
