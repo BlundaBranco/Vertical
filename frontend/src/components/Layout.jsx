@@ -22,88 +22,94 @@ export default function Layout({ children }) {
     };
 
     return (
-        <div className="h-screen bg-[#0c0c0e] text-white flex overflow-hidden">
+        <div className="h-screen bg-[#060612] text-white flex overflow-hidden relative">
+
+            {/* Fondo global de la app */}
+            <div className="fixed inset-0 pointer-events-none -z-10">
+                <div className="absolute inset-0 bg-grid-sm" />
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-violet-600/6 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-64 w-[400px] h-[400px] bg-indigo-600/5 rounded-full blur-3xl" />
+            </div>
 
             {/* Mobile overlay */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+                    className="fixed inset-0 bg-black/70 z-40 lg:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}
 
             {/* Sidebar */}
             <aside className={`
-                fixed h-full z-50 w-64 bg-gray-900/95 border-r border-white/10 flex flex-col backdrop-blur-xl
+                fixed h-full z-50 w-64 flex flex-col
+                bg-[#060612]/95 border-r border-violet-500/10 backdrop-blur-xl
                 transition-transform duration-300 ease-in-out
                 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `}>
                 {/* Logo */}
-                <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 via-purple-500 to-emerald-500 rounded-xl flex items-center justify-center relative">
-                            <Sparkles className="w-6 h-6 text-white relative z-10" />
-                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-emerald-500 rounded-xl blur-lg opacity-50"></div>
+                <div className="p-5 border-b border-violet-500/10 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 bg-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-600/30">
+                            <Sparkles className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <span className="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Ventra AI</span>
-                            <p className="text-xs text-gray-500">Agentes IA</p>
+                            <span className="text-base font-bold text-white tracking-tight">Ventra AI</span>
+                            <p className="text-xs text-zinc-500">Agentes IA</p>
                         </div>
                     </div>
-                    {/* Mobile close */}
                     <button
                         onClick={() => setSidebarOpen(false)}
-                        className="lg:hidden text-gray-400 hover:text-white transition-colors p-1"
+                        className="lg:hidden text-zinc-400 hover:text-white transition-colors p-1"
                     >
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 p-4 space-y-1">
+                <nav className="flex-1 p-3 space-y-0.5">
                     {menuItems.map((item) => (
                         <button
                             key={item.id}
                             onClick={() => handleNav(item.path)}
-                            className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-all ${
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
                                 isActive(item.path)
-                                    ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 shadow-lg shadow-indigo-500/10'
-                                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                    ? 'bg-violet-500/15 text-violet-300 border border-violet-500/25'
+                                    : 'text-zinc-400 hover:bg-violet-500/8 hover:text-white'
                             }`}
                         >
-                            <item.icon className="w-5 h-5" />
+                            <item.icon className={`w-4 h-4 ${isActive(item.path) ? 'text-violet-400' : ''}`} />
                             <span className="font-medium text-sm">{item.label}</span>
                         </button>
                     ))}
                 </nav>
 
                 {/* Plan badge */}
-                <div className="px-4 pb-2">
-                    <div className="bg-indigo-500/8 border border-indigo-500/20 rounded-lg px-3 py-2">
-                        <p className="text-xs text-indigo-400 font-medium">Plan Inmobiliaria</p>
-                        <p className="text-xs text-gray-600 mt-0.5">Agente Ana activo</p>
+                <div className="px-3 pb-2">
+                    <div className="bg-violet-500/8 border border-violet-500/15 rounded-xl px-3 py-2.5">
+                        <p className="text-xs text-violet-400 font-semibold">Plan Inmobiliaria</p>
+                        <p className="text-xs text-zinc-600 mt-0.5">Agente Ana activo</p>
                     </div>
                 </div>
 
                 {/* Status Bot */}
-                <div className="px-4 pb-4">
-                    <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 flex items-center space-x-2">
-                        <div className="relative flex h-2 w-2">
+                <div className="px-3 pb-3">
+                    <div className="bg-emerald-500/8 border border-emerald-500/20 rounded-xl p-3 flex items-center gap-2.5">
+                        <div className="relative flex h-2 w-2 shrink-0">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                         </div>
-                        <Bot className="w-4 h-4 text-emerald-400" />
+                        <Bot className="w-3.5 h-3.5 text-emerald-400" />
                         <span className="text-xs text-emerald-400 font-medium">Bot Activo</span>
                     </div>
                 </div>
 
                 {/* Logout */}
-                <div className="p-4 border-t border-white/10">
+                <div className="p-3 border-t border-violet-500/10">
                     <button
                         onClick={logout}
-                        className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-500 hover:bg-white/5 hover:text-zinc-300 transition-all"
                     >
-                        <LogOut className="w-5 h-5" />
+                        <LogOut className="w-4 h-4" />
                         <span className="font-medium text-sm">Salir</span>
                     </button>
                 </div>
@@ -112,18 +118,18 @@ export default function Layout({ children }) {
             {/* Main content */}
             <div className="flex-1 flex flex-col lg:ml-64 min-w-0 h-screen overflow-hidden">
                 {/* Mobile top bar */}
-                <div className="lg:hidden flex items-center px-4 py-3 bg-gray-900/50 border-b border-white/10 shrink-0">
+                <div className="lg:hidden flex items-center px-4 py-3 bg-[#060612]/80 border-b border-violet-500/10 shrink-0 backdrop-blur-xl">
                     <button
                         onClick={() => setSidebarOpen(true)}
-                        className="text-gray-400 hover:text-white transition-colors p-1 mr-3"
+                        className="text-zinc-400 hover:text-white transition-colors p-1 mr-3"
                     >
-                        <Menu className="w-6 h-6" />
+                        <Menu className="w-5 h-5" />
                     </button>
-                    <div className="flex items-center space-x-2">
-                        <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                    <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 bg-violet-600 rounded-lg flex items-center justify-center">
                             <Sparkles className="w-4 h-4 text-white" />
                         </div>
-                        <span className="font-bold text-white">Ventra AI</span>
+                        <span className="font-bold text-white text-sm">Ventra AI</span>
                     </div>
                 </div>
 

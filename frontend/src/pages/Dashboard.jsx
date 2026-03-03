@@ -155,9 +155,9 @@ export default function Dashboard() {
 
     if (loading) {
         return (
-            <div className="h-full flex items-center justify-center bg-[#0c0c0e]">
+            <div className="h-full flex items-center justify-center bg-transparent">
                 <div className="text-center">
-                    <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                    <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
                     <p className="text-gray-400 text-sm">Cargando datos...</p>
                 </div>
             </div>
@@ -167,10 +167,10 @@ export default function Dashboard() {
     const cfg = selectedLead ? (STATUS_CONFIG[selectedLead.status] || FALLBACK_STATUS) : null;
 
     return (
-        <div className="flex-1 flex flex-col bg-[#0c0c0e] text-white overflow-hidden">
+        <div className="flex-1 flex flex-col bg-transparent text-white overflow-hidden">
 
             {/* Header */}
-            <header className="shrink-0 bg-gray-900/30 border-b border-white/10 px-5 py-3 backdrop-blur-xl flex items-center justify-between">
+            <header className="shrink-0 bg-violet-950/10 border-b border-violet-500/10 px-5 py-3 backdrop-blur-xl flex items-center justify-between">
                 <div>
                     <h1 className="text-lg font-bold text-white">Bandeja de Entrada</h1>
                     <p className="text-xs text-gray-500">
@@ -191,7 +191,7 @@ export default function Dashboard() {
             {/* KPI Cards */}
             <div className="shrink-0 px-4 pt-3 pb-2 grid grid-cols-2 lg:grid-cols-4 gap-2">
                 {[
-                    { label: 'Total Leads', value: stats.totalLeads, sub: 'conversaciones', color: 'text-white', border: 'border-white/10', icon: MessageSquare, iconColor: 'text-indigo-400' },
+                    { label: 'Total Leads', value: stats.totalLeads, sub: 'conversaciones', color: 'text-white', border: 'border-violet-500/10', icon: MessageSquare, iconColor: 'text-violet-400' },
                     { label: 'Calificados', value: stats.qualified, sub: 'listos para contacto', color: 'text-emerald-400', border: 'border-emerald-500/20', icon: CheckCircle2, iconColor: 'text-emerald-400' },
                     { label: 'Conversando', value: stats.qualifying, sub: 'en proceso', color: 'text-blue-400', border: 'border-blue-500/20', icon: Clock, iconColor: 'text-blue-400' },
                     { label: 'Conversión', value: `${stats.conversionRate}%`, sub: 'de calificación', color: 'text-purple-400', border: 'border-purple-500/20', icon: TrendingUp, iconColor: 'text-purple-400' },
@@ -211,37 +211,37 @@ export default function Dashboard() {
             <div className="flex-1 flex overflow-hidden px-4 pb-4 gap-3 min-h-0">
 
                 {/* Leads list */}
-                <div className="w-72 shrink-0 flex flex-col bg-gray-900/30 rounded-xl border border-white/10 overflow-hidden">
+                <div className="w-72 shrink-0 flex flex-col bg-violet-950/10 rounded-xl border border-violet-500/10 overflow-hidden">
 
                     {/* Search */}
-                    <div className="shrink-0 p-3 border-b border-white/10">
+                    <div className="shrink-0 p-3 border-b border-violet-500/10">
                         <div className="relative">
                             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
                             <input
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
                                 placeholder="Buscar lead..."
-                                className="w-full bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                className="w-full bg-white/5 border border-violet-500/10 rounded-lg pl-8 pr-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
                             />
                         </div>
                     </div>
 
                     {/* Filter tabs */}
-                    <div className="shrink-0 flex overflow-x-auto border-b border-white/10 px-2 py-1.5 gap-1">
+                    <div className="shrink-0 flex overflow-x-auto border-b border-violet-500/10 px-2 py-1.5 gap-1">
                         {FILTERS.map(f => (
                             <button
                                 key={f.key}
                                 onClick={() => setFilter(f.key)}
                                 className={`shrink-0 text-xs px-2.5 py-1 rounded-full font-medium transition-all flex items-center gap-1 ${
                                     filter === f.key
-                                        ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/40'
+                                        ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
                                         : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
                                 }`}
                             >
                                 {f.label}
                                 {counts[f.key] > 0 && (
                                     <span className={`text-xs rounded-full px-1.5 py-0 min-w-[18px] text-center ${
-                                        filter === f.key ? 'bg-indigo-500/40 text-indigo-200' : 'bg-white/10 text-gray-400'
+                                        filter === f.key ? 'bg-violet-500/40 text-violet-200' : 'bg-white/10 text-gray-400'
                                     }`}>
                                         {counts[f.key]}
                                     </span>
@@ -271,13 +271,13 @@ export default function Dashboard() {
                                         key={lead.id}
                                         onClick={() => setSelectedLeadId(lead.id)}
                                         className={`w-full p-3 border-b border-white/5 hover:bg-white/5 transition-all text-left ${
-                                            isSelected ? 'bg-indigo-500/10 border-l-2 border-l-indigo-500' : ''
+                                            isSelected ? 'bg-violet-500/10 border-l-2 border-l-violet-500' : ''
                                         }`}
                                     >
                                         <div className="flex items-start justify-between mb-1.5">
                                             <div className="flex items-center gap-2 flex-1 min-w-0">
-                                                <div className="w-8 h-8 bg-indigo-500/15 border border-indigo-500/20 rounded-full flex items-center justify-center shrink-0">
-                                                    <span className="text-xs font-semibold text-indigo-300">
+                                                <div className="w-8 h-8 bg-violet-500/15 border border-violet-500/20 rounded-full flex items-center justify-center shrink-0">
+                                                    <span className="text-xs font-semibold text-violet-300">
                                                         {lead.name && lead.name !== 'Sin nombre'
                                                             ? lead.name.trim().slice(0, 2).toUpperCase()
                                                             : '?'}
@@ -304,15 +304,15 @@ export default function Dashboard() {
                 </div>
 
                 {/* Chat panel */}
-                <div className="flex-1 flex flex-col bg-gray-900/30 rounded-xl border border-white/10 overflow-hidden min-w-0">
+                <div className="flex-1 flex flex-col bg-violet-950/10 rounded-xl border border-violet-500/10 overflow-hidden min-w-0">
                     {selectedLead ? (
                         <>
                             {/* Chat header */}
-                            <div className="shrink-0 p-4 border-b border-white/10">
+                            <div className="shrink-0 p-4 border-b border-violet-500/10">
                                 <div className="flex items-start justify-between gap-3 mb-3">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-indigo-500/15 border border-indigo-500/20 rounded-full flex items-center justify-center shrink-0">
-                                            <span className="text-sm font-semibold text-indigo-300">
+                                        <div className="w-10 h-10 bg-violet-500/15 border border-violet-500/20 rounded-full flex items-center justify-center shrink-0">
+                                            <span className="text-sm font-semibold text-violet-300">
                                                 {selectedLead.name && selectedLead.name !== 'Sin nombre'
                                                     ? selectedLead.name.trim().slice(0, 2).toUpperCase()
                                                     : '?'}
@@ -336,7 +336,7 @@ export default function Dashboard() {
                                         <button
                                             onClick={handleRestart}
                                             disabled={restarting}
-                                            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-lg text-xs font-medium hover:bg-indigo-500/20 transition-all disabled:opacity-40"
+                                            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-violet-500/10 border border-violet-500/30 text-violet-400 rounded-lg text-xs font-medium hover:bg-violet-500/20 transition-all disabled:opacity-40"
                                         >
                                             <RotateCcw className={`w-3.5 h-3.5 ${restarting ? 'animate-spin' : ''}`} />
                                             {restarting ? 'Retomando...' : 'Retomar con IA'}
@@ -348,8 +348,8 @@ export default function Dashboard() {
                                 {(selectedLead.budget !== 'N/A' || selectedLead.zone !== 'N/A' || selectedLead.propertyType !== 'N/A' || selectedLead.rejectionReason) && (
                                     <div className="flex flex-wrap gap-2">
                                         {selectedLead.budget !== 'N/A' && (
-                                            <div className="flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-lg">
-                                                <DollarSign className="w-3.5 h-3.5 text-indigo-400" />
+                                            <div className="flex items-center gap-1.5 bg-violet-500/10 border border-violet-500/20 px-2.5 py-1 rounded-lg">
+                                                <DollarSign className="w-3.5 h-3.5 text-violet-400" />
                                                 <span className="text-xs text-gray-300">Presupuesto: <span className="text-white font-medium">{selectedLead.budget}</span></span>
                                             </div>
                                         )}
@@ -384,7 +384,7 @@ export default function Dashboard() {
                                                 <div className={`flex items-end gap-2 max-w-[75%] ${msg.sender === 'bot' ? 'flex-row-reverse' : ''}`}>
                                                     <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
                                                         msg.sender === 'bot'
-                                                            ? 'bg-gradient-to-br from-indigo-500 to-purple-500'
+                                                            ? 'bg-gradient-to-br from-violet-500 to-purple-600'
                                                             : 'bg-gray-700'
                                                     }`}>
                                                         {msg.sender === 'bot'
@@ -395,8 +395,8 @@ export default function Dashboard() {
                                                     <div>
                                                         <div className={`px-3 py-2 rounded-xl text-sm leading-relaxed ${
                                                             msg.sender === 'bot'
-                                                                ? 'bg-indigo-500/15 border border-indigo-500/25 text-gray-100'
-                                                                : 'bg-white/5 border border-white/10 text-gray-200'
+                                                                ? 'bg-violet-500/15 border border-violet-500/25 text-gray-100'
+                                                                : 'bg-white/5 border border-violet-500/10 text-gray-200'
                                                         }`}>
                                                             {msg.text}
                                                         </div>
@@ -415,7 +415,7 @@ export default function Dashboard() {
                             </div>
 
                             {/* Input */}
-                            <div className="shrink-0 p-3 border-t border-white/10 bg-[#0c0c0e]/20">
+                            <div className="shrink-0 p-3 border-t border-violet-500/10 bg-transparent/20">
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="text"
@@ -425,12 +425,12 @@ export default function Dashboard() {
                                         disabled={sending}
                                         maxLength={1000}
                                         placeholder="Intervenir como humano... (Enter para enviar)"
-                                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
+                                        className="flex-1 bg-white/5 border border-violet-500/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-violet-500 disabled:opacity-50"
                                     />
                                     <button
                                         onClick={handleSend}
                                         disabled={!message.trim() || sending}
-                                        className="px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors font-medium text-sm flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                                        className="px-4 py-2.5 bg-violet-600 text-white rounded-lg hover:bg-violet-500 transition-colors font-medium text-sm flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                                     >
                                         <Send className="w-4 h-4" />
                                         <span className="hidden sm:inline">{sending ? 'Enviando...' : 'Enviar'}</span>

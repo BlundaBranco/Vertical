@@ -115,23 +115,23 @@ export default function Settings() {
 
     if (loading) {
         return (
-            <div className="h-full flex items-center justify-center bg-[#0c0c0e]">
+            <div className="h-full flex items-center justify-center bg-transparent">
                 <div className="text-center">
-                    <Loader2 className="w-10 h-10 animate-spin mx-auto mb-3 text-indigo-400" />
+                    <Loader2 className="w-10 h-10 animate-spin mx-auto mb-3 text-violet-400" />
                     <p className="text-gray-400 text-sm">Cargando configuración...</p>
                 </div>
             </div>
         );
     }
 
-    const input = "w-full bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all";
+    const input = "w-full bg-white/[0.04] border border-violet-500/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500 transition-all";
 
     return (
-        <div className="flex-1 bg-[#0c0c0e] text-white overflow-y-auto">
+        <div className="flex-1 bg-transparent text-white overflow-y-auto">
             <Toast toast={toast} />
 
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-[#0c0c0e]/90 backdrop-blur-xl border-b border-white/10 px-6 py-4 flex items-center justify-between">
+            <div className="sticky top-0 z-10 bg-transparent/90 backdrop-blur-xl border-b border-violet-500/10 px-6 py-4 flex items-center justify-between">
                 <div>
                     <h1 className="text-base font-bold text-white">Configuración del Agente</h1>
                     <p className="text-xs text-gray-500 mt-0.5">Personalizá tu asistente de IA</p>
@@ -139,7 +139,7 @@ export default function Settings() {
                 <button
                     onClick={handleSave}
                     disabled={saving || !hasChanges}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
                 >
                     {saving
                         ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Guardando...</>
@@ -151,9 +151,9 @@ export default function Settings() {
             <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
 
                 {/* Negocio */}
-                <section className="bg-white/[0.03] rounded-2xl border border-white/10 overflow-hidden">
-                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-white/10">
-                        <Building className="w-4 h-4 text-indigo-400" />
+                <section className="bg-white/[0.03] rounded-2xl border border-violet-500/10 overflow-hidden">
+                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/10">
+                        <Building className="w-4 h-4 text-violet-400" />
                         <h2 className="text-sm font-semibold text-white">Negocio</h2>
                     </div>
                     <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -169,8 +169,8 @@ export default function Settings() {
                 </section>
 
                 {/* Agente */}
-                <section className="bg-white/[0.03] rounded-2xl border border-white/10 overflow-hidden">
-                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-white/10">
+                <section className="bg-white/[0.03] rounded-2xl border border-violet-500/10 overflow-hidden">
+                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/10">
                         <Bot className="w-4 h-4 text-emerald-400" />
                         <h2 className="text-sm font-semibold text-white">Agente de IA</h2>
                     </div>
@@ -196,12 +196,12 @@ export default function Settings() {
                                         onClick={() => handleChange('tone', t.value)}
                                         className={`p-3 rounded-xl border text-left transition-all ${
                                             config.tone === t.value
-                                                ? 'bg-indigo-500/20 border-indigo-500/60 text-white'
-                                                : 'bg-white/[0.02] border-white/10 text-gray-400 hover:border-white/20 hover:text-gray-200'
+                                                ? 'bg-violet-500/20 border-violet-500/50 text-white'
+                                                : 'bg-white/[0.02] border-violet-500/10 text-gray-400 hover:border-white/20 hover:text-gray-200'
                                         }`}
                                     >
                                         <div className="flex items-center gap-1.5 mb-1">
-                                            {config.tone === t.value && <Zap className="w-3 h-3 text-indigo-400" />}
+                                            {config.tone === t.value && <Zap className="w-3 h-3 text-violet-400" />}
                                             <span className="text-xs font-semibold">{t.label}</span>
                                         </div>
                                         <p className="text-xs opacity-60 leading-tight">{t.desc}</p>
@@ -219,8 +219,8 @@ export default function Settings() {
                 </section>
 
                 {/* Base de conocimiento */}
-                <section className="bg-white/[0.03] rounded-2xl border border-white/10 overflow-hidden">
-                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-white/10">
+                <section className="bg-white/[0.03] rounded-2xl border border-violet-500/10 overflow-hidden">
+                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/10">
                         <BookOpen className="w-4 h-4 text-purple-400" />
                         <h2 className="text-sm font-semibold text-white">Base de Conocimiento</h2>
                     </div>
@@ -275,8 +275,8 @@ export default function Settings() {
                 </section>
 
                 {/* WhatsApp */}
-                <section className="bg-white/[0.03] rounded-2xl border border-white/10 overflow-hidden">
-                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-white/10">
+                <section className="bg-white/[0.03] rounded-2xl border border-violet-500/10 overflow-hidden">
+                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/10">
                         <Phone className="w-4 h-4 text-emerald-400" />
                         <h2 className="text-sm font-semibold text-white">WhatsApp</h2>
                         <span className={`ml-auto text-xs px-2 py-0.5 rounded-full border ${
@@ -306,7 +306,7 @@ export default function Settings() {
                         </Field>
                         <p className="text-xs text-gray-600">
                             Para vincular tu número escribinos a{' '}
-                            <a href="mailto:info@somosvertical.ar" className="text-indigo-400 hover:underline">info@somosvertical.ar</a>
+                            <a href="mailto:info@somosvertical.ar" className="text-violet-400 hover:underline">info@somosvertical.ar</a>
                         </p>
                     </div>
                 </section>
@@ -315,7 +315,7 @@ export default function Settings() {
                 <button
                     onClick={handleSave}
                     disabled={saving || !hasChanges}
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-colors"
                 >
                     {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Guardando...</> : <><Save className="w-4 h-4" /> Guardar cambios</>}
                 </button>

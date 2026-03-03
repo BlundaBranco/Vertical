@@ -21,7 +21,7 @@ function ProgressBar({ step }) {
             </div>
             <div className="w-full h-1 bg-white/[0.06] rounded-full overflow-hidden">
                 <div
-                    className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+                    className="h-full bg-violet-500 rounded-full transition-all duration-500"
                     style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
                 />
             </div>
@@ -58,7 +58,7 @@ function StepWrapper({ step, title, subtitle, children, onNext, onBack, nextLabe
                     <button
                         onClick={onNext}
                         disabled={nextDisabled || saving}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-colors"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-colors"
                     >
                         {saving ? 'Guardando...' : nextLabel}
                         {!saving && <ChevronRight className="w-4 h-4" />}
@@ -69,7 +69,7 @@ function StepWrapper({ step, title, subtitle, children, onNext, onBack, nextLabe
     );
 }
 
-const inputClass = "w-full bg-white/[0.04] border border-white/[0.07] rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500/50 transition-all";
+const inputClass = "w-full bg-white/[0.04] border border-white/[0.07] rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500/50 transition-all";
 
 export default function Onboarding() {
     const navigate = useNavigate();
@@ -126,18 +126,22 @@ export default function Onboarding() {
     // Success screen
     if (step === TOTAL_STEPS + 1) {
         return (
-            <div className="min-h-screen bg-[#09090b] flex items-center justify-center px-4">
+            <div className="min-h-screen bg-[#060612] flex items-center justify-center px-4 relative">
+                <div className="fixed inset-0 -z-10">
+                    <div className="absolute inset-0 bg-grid" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-3xl" />
+                </div>
                 <div className="text-center max-w-sm">
-                    <div className="w-16 h-16 bg-emerald-500/15 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <div className="w-16 h-16 bg-emerald-500/15 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/10">
                         <CheckCircle2 className="w-8 h-8 text-emerald-400" />
                     </div>
-                    <h2 className="text-2xl font-semibold text-white mb-3 tracking-tight">¡Todo listo!</h2>
-                    <p className="text-gray-400 text-sm mb-8 leading-relaxed">
+                    <h2 className="text-2xl font-bold text-white mb-3 tracking-tight">¡Todo listo!</h2>
+                    <p className="text-zinc-400 text-sm mb-8 leading-relaxed">
                         Tu agente está configurado. En breve nuestro equipo vinculará tu WhatsApp.
                     </p>
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="flex items-center gap-2 mx-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl transition-colors"
+                        className="flex items-center gap-2 mx-auto px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-xl transition-colors shadow-lg shadow-violet-600/25"
                     >
                         Ir al Dashboard
                         <ArrowRight className="w-4 h-4" />
@@ -148,11 +152,18 @@ export default function Onboarding() {
     }
 
     return (
-        <div className="min-h-screen bg-[#09090b] flex flex-col">
+        <div className="min-h-screen bg-[#060612] flex flex-col relative">
+            {/* Fondo */}
+            <div className="fixed inset-0 pointer-events-none -z-10">
+                <div className="absolute inset-0 bg-grid" />
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-600/8 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-600/6 rounded-full blur-3xl" />
+            </div>
+
             {/* Top logo */}
             <div className="p-6">
                 <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center shadow-lg shadow-violet-600/25">
                         <Sparkles className="w-4 h-4 text-white" />
                     </div>
                     <span className="text-base font-semibold text-white tracking-tight">Ventra AI</span>
@@ -165,8 +176,8 @@ export default function Onboarding() {
                     {/* Step 0: Bienvenida */}
                     {step === 0 && (
                         <div className="text-center max-w-lg mx-auto">
-                            <div className="w-14 h-14 bg-indigo-500/15 border border-indigo-500/25 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                                <Sparkles className="w-7 h-7 text-indigo-400" />
+                            <div className="w-14 h-14 bg-violet-500/15 border border-violet-500/25 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-violet-500/10">
+                                <Sparkles className="w-7 h-7 text-violet-400" />
                             </div>
                             <h1 className="text-3xl font-semibold text-white tracking-tight mb-3">
                                 Bienvenido a Ventra AI
@@ -176,7 +187,7 @@ export default function Onboarding() {
                             </p>
                             <button
                                 onClick={next}
-                                className="flex items-center gap-2 mx-auto px-7 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl transition-colors"
+                                className="flex items-center gap-2 mx-auto px-7 py-3 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-xl transition-colors"
                             >
                                 Empezar
                                 <ChevronRight className="w-4 h-4" />
@@ -204,12 +215,12 @@ export default function Onboarding() {
                                         onClick={active ? next : undefined}
                                         className={`p-4 rounded-xl border text-left transition-all ${
                                             active
-                                                ? 'bg-indigo-500/10 border-indigo-500/40 text-white hover:bg-indigo-500/15 cursor-pointer'
+                                                ? 'bg-violet-500/10 border-violet-500/40 text-white hover:bg-violet-500/15 cursor-pointer'
                                                 : 'bg-white/[0.02] border-white/[0.06] text-gray-600 cursor-not-allowed'
                                         }`}
                                     >
                                         <div className="flex items-center gap-2 mb-1.5">
-                                            <Icon className={`w-4 h-4 ${active ? 'text-indigo-400' : 'text-gray-600'}`} />
+                                            <Icon className={`w-4 h-4 ${active ? 'text-violet-400' : 'text-gray-600'}`} />
                                             <span className="text-sm font-medium">{label}</span>
                                             {!active && <span className="text-xs bg-white/5 text-gray-600 px-1.5 py-0.5 rounded-full ml-auto">Próximo</span>}
                                         </div>
@@ -262,7 +273,7 @@ export default function Onboarding() {
                                         onClick={() => set('assistant_name', name)}
                                         className={`px-3 py-1.5 rounded-lg text-xs border transition-all ${
                                             answers.assistant_name === name
-                                                ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300'
+                                                ? 'bg-violet-500/20 border-violet-500/40 text-violet-300'
                                                 : 'bg-white/[0.03] border-white/[0.07] text-gray-400 hover:border-white/20 hover:text-gray-200'
                                         }`}
                                     >
@@ -286,12 +297,12 @@ export default function Onboarding() {
                                         onClick={() => set('tone', t.value)}
                                         className={`p-4 rounded-xl border text-left transition-all ${
                                             answers.tone === t.value
-                                                ? 'bg-indigo-500/10 border-indigo-500/40 text-white'
+                                                ? 'bg-violet-500/10 border-violet-500/40 text-white'
                                                 : 'bg-white/[0.02] border-white/[0.07] text-gray-300 hover:border-white/20'
                                         }`}
                                     >
                                         <div className="flex items-center gap-2 mb-1">
-                                            {answers.tone === t.value && <Zap className="w-3.5 h-3.5 text-indigo-400" />}
+                                            {answers.tone === t.value && <Zap className="w-3.5 h-3.5 text-violet-400" />}
                                             <span className="text-sm font-medium">{t.label}</span>
                                         </div>
                                         <p className="text-xs text-gray-500">{t.desc}</p>
@@ -341,12 +352,12 @@ export default function Onboarding() {
                                     onClick={() => { setKbMode('sheets'); set('knowledge_base', ''); }}
                                     className={`w-full p-4 rounded-xl border text-left transition-all ${
                                         kbMode === 'sheets'
-                                            ? 'bg-indigo-500/10 border-indigo-500/40'
+                                            ? 'bg-violet-500/10 border-violet-500/40'
                                             : 'bg-white/[0.02] border-white/[0.07] hover:border-white/20'
                                     }`}
                                 >
                                     <div className="flex items-center gap-2.5 mb-1">
-                                        <Link2 className={`w-4 h-4 ${kbMode === 'sheets' ? 'text-indigo-400' : 'text-gray-500'}`} />
+                                        <Link2 className={`w-4 h-4 ${kbMode === 'sheets' ? 'text-violet-400' : 'text-gray-500'}`} />
                                         <span className="text-sm font-medium text-white">Google Sheets</span>
                                         <span className="ml-auto text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 px-1.5 py-0.5 rounded-full">Recomendado</span>
                                     </div>
@@ -373,12 +384,12 @@ export default function Onboarding() {
                                     onClick={() => { setKbMode('manual'); set('knowledge_base_url', ''); }}
                                     className={`w-full p-4 rounded-xl border text-left transition-all ${
                                         kbMode === 'manual'
-                                            ? 'bg-indigo-500/10 border-indigo-500/40'
+                                            ? 'bg-violet-500/10 border-violet-500/40'
                                             : 'bg-white/[0.02] border-white/[0.07] hover:border-white/20'
                                     }`}
                                 >
                                     <div className="flex items-center gap-2.5 mb-1">
-                                        <FileText className={`w-4 h-4 ${kbMode === 'manual' ? 'text-indigo-400' : 'text-gray-500'}`} />
+                                        <FileText className={`w-4 h-4 ${kbMode === 'manual' ? 'text-violet-400' : 'text-gray-500'}`} />
                                         <span className="text-sm font-medium text-white">Pegar texto</span>
                                     </div>
                                     <p className="text-xs text-gray-500 ml-6.5">Copiá y pegá tu inventario directamente</p>
@@ -441,10 +452,10 @@ export default function Onboarding() {
                                     className={inputClass}
                                     placeholder="+54 9 11 XXXX XXXX"
                                 />
-                                <div className="mt-4 p-3.5 bg-indigo-500/8 border border-indigo-500/20 rounded-xl">
+                                <div className="mt-4 p-3.5 bg-violet-500/8 border border-violet-500/20 rounded-xl">
                                     <p className="text-xs text-gray-400 leading-relaxed">
                                         Nuestro equipo vincula tu número en <strong className="text-white">menos de 24 horas</strong>. Te avisamos por email cuando esté activo.
-                                        Podés contactarnos en <a href="mailto:info@somosvertical.ar" className="text-indigo-400 hover:underline">info@somosvertical.ar</a>
+                                        Podés contactarnos en <a href="mailto:info@somosvertical.ar" className="text-violet-400 hover:underline">info@somosvertical.ar</a>
                                     </p>
                                 </div>
                             </div>

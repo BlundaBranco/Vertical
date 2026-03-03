@@ -9,7 +9,7 @@ import { fetchMe, getToken } from '../api/auth';
 
 const STATUS_COLORS = {
     'Calificados': '#10b981',
-    'Conversando': '#6366f1',
+    'Conversando': '#7C3AED',
     'Nuevos': '#6b7280',
     'Perdidos': '#ef4444',
     'En Atención': '#f59e0b',
@@ -30,7 +30,7 @@ function Delta({ value }) {
 const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
     return (
-        <div className="bg-gray-900 border border-white/10 rounded-xl px-3 py-2 text-xs shadow-xl">
+        <div className="bg-gray-900 border border-violet-500/10 rounded-xl px-3 py-2 text-xs shadow-xl">
             <p className="text-gray-400 mb-1">{label}</p>
             {payload.map(p => (
                 <p key={p.name} style={{ color: p.fill || p.color }}>
@@ -54,9 +54,9 @@ export default function Analytics() {
 
     if (loading) {
         return (
-            <div className="flex-1 flex items-center justify-center bg-[#0c0c0e]">
+            <div className="flex-1 flex items-center justify-center bg-transparent">
                 <div className="text-center">
-                    <Loader2 className="w-10 h-10 animate-spin mx-auto mb-3 text-indigo-400" />
+                    <Loader2 className="w-10 h-10 animate-spin mx-auto mb-3 text-violet-400" />
                     <p className="text-gray-400 text-sm">Cargando datos...</p>
                 </div>
             </div>
@@ -65,7 +65,7 @@ export default function Analytics() {
 
     if (!data) {
         return (
-            <div className="flex-1 flex items-center justify-center bg-[#0c0c0e]">
+            <div className="flex-1 flex items-center justify-center bg-transparent">
                 <p className="text-gray-500 text-sm">No se pudieron cargar los datos.</p>
             </div>
         );
@@ -77,8 +77,8 @@ export default function Analytics() {
             value: data.this_week,
             delta: data.leads_change,
             icon: Users,
-            color: 'text-indigo-400',
-            border: 'border-indigo-500/20'
+            color: 'text-violet-400',
+            border: 'border-violet-500/20'
         },
         {
             label: 'Calificados esta semana',
@@ -107,9 +107,9 @@ export default function Analytics() {
     ];
 
     return (
-        <div className="flex-1 bg-[#0c0c0e] text-white overflow-y-auto">
+        <div className="flex-1 bg-transparent text-white overflow-y-auto">
             {/* Header */}
-            <div className="border-b border-white/10 px-6 py-4">
+            <div className="border-b border-violet-500/10 px-6 py-4">
                 <h1 className="text-base font-bold text-white">Analytics</h1>
                 <p className="text-xs text-gray-500 mt-0.5">Últimos 14 días</p>
             </div>
@@ -131,7 +131,7 @@ export default function Analytics() {
                 </div>
 
                 {/* Bar chart */}
-                <div className="bg-white/[0.03] rounded-2xl border border-white/10 p-5">
+                <div className="bg-white/[0.03] rounded-2xl border border-violet-500/10 p-5">
                     <h2 className="text-sm font-semibold text-white mb-1">Leads por día</h2>
                     <p className="text-xs text-gray-500 mb-5">Últimos 14 días — total vs calificados</p>
                     <ResponsiveContainer width="100%" height={220}>
@@ -139,12 +139,12 @@ export default function Analytics() {
                             <XAxis dataKey="fecha" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
                             <YAxis allowDecimals={false} tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} width={24} />
                             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
-                            <Bar dataKey="leads" name="Total" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                            <Bar dataKey="leads" name="Total" fill="#7C3AED" radius={[4, 4, 0, 0]} maxBarSize={28} />
                             <Bar dataKey="calificados" name="Calificados" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={28} />
                         </BarChart>
                     </ResponsiveContainer>
                     <div className="flex items-center gap-5 mt-3 justify-end">
-                        <span className="flex items-center gap-1.5 text-xs text-gray-500"><span className="w-2.5 h-2.5 rounded bg-indigo-500 inline-block" /> Total</span>
+                        <span className="flex items-center gap-1.5 text-xs text-gray-500"><span className="w-2.5 h-2.5 rounded bg-violet-500 inline-block" /> Total</span>
                         <span className="flex items-center gap-1.5 text-xs text-gray-500"><span className="w-2.5 h-2.5 rounded bg-emerald-500 inline-block" /> Calificados</span>
                     </div>
                 </div>
@@ -153,7 +153,7 @@ export default function Analytics() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                     {/* Distribución actual */}
-                    <div className="bg-white/[0.03] rounded-2xl border border-white/10 p-5">
+                    <div className="bg-white/[0.03] rounded-2xl border border-violet-500/10 p-5">
                         <h2 className="text-sm font-semibold text-white mb-1">Estado actual de leads</h2>
                         <p className="text-xs text-gray-500 mb-4">Todos los leads históricos</p>
                         {data.distribution.length === 0 ? (
@@ -183,12 +183,12 @@ export default function Analytics() {
                     </div>
 
                     {/* Comparativa semanal */}
-                    <div className="bg-white/[0.03] rounded-2xl border border-white/10 p-5">
+                    <div className="bg-white/[0.03] rounded-2xl border border-violet-500/10 p-5">
                         <h2 className="text-sm font-semibold text-white mb-1">Esta semana vs anterior</h2>
                         <p className="text-xs text-gray-500 mb-5">Comparativa directa</p>
                         <div className="space-y-4">
                             {[
-                                { label: 'Leads totales', current: data.this_week, prev: data.last_week, color: 'bg-indigo-500' },
+                                { label: 'Leads totales', current: data.this_week, prev: data.last_week, color: 'bg-violet-500' },
                                 { label: 'Calificados', current: data.this_week_qualified, prev: data.last_week_qualified, color: 'bg-emerald-500' },
                             ].map(({ label, current, prev, color }) => {
                                 const max = Math.max(current, prev, 1);
