@@ -109,9 +109,9 @@ export default function Analytics() {
     return (
         <div className="flex-1 bg-transparent text-white overflow-y-auto">
             {/* Header */}
-            <div className="border-b border-violet-500/10 px-6 py-4">
+            <div className="border-b border-violet-500/15 px-6 py-4">
                 <h1 className="text-base font-bold text-white">Analytics</h1>
-                <p className="text-xs text-gray-500 mt-0.5">Últimos 14 días</p>
+                <p className="text-xs text-zinc-400 mt-0.5">Últimos 14 días</p>
             </div>
 
             <div className="px-5 py-6 space-y-6 max-w-5xl mx-auto">
@@ -119,9 +119,9 @@ export default function Analytics() {
                 {/* KPIs */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     {kpis.map(({ label, value, delta, icon: Icon, color, border }) => (
-                        <div key={label} className={`bg-white/[0.03] rounded-xl p-4 border ${border}`}>
+                        <div key={label} className={`bg-white/[0.04] rounded-xl p-4 border ${border}`}>
                             <div className="flex items-center justify-between mb-2">
-                                <p className="text-gray-400 text-xs">{label}</p>
+                                <p className="text-zinc-400 text-xs">{label}</p>
                                 <Icon className={`w-4 h-4 ${color}`} />
                             </div>
                             <p className={`text-2xl font-bold ${color}`}>{value}</p>
@@ -131,9 +131,9 @@ export default function Analytics() {
                 </div>
 
                 {/* Bar chart */}
-                <div className="bg-white/[0.03] rounded-2xl border border-violet-500/10 p-5">
+                <div className="bg-white/[0.04] rounded-2xl border border-violet-500/15 p-5">
                     <h2 className="text-sm font-semibold text-white mb-1">Leads por día</h2>
-                    <p className="text-xs text-gray-500 mb-5">Últimos 14 días — total vs calificados</p>
+                    <p className="text-xs text-zinc-400 mb-5">Últimos 14 días — total vs calificados</p>
                     <ResponsiveContainer width="100%" height={220}>
                         <BarChart data={data.daily} barGap={2}>
                             <XAxis dataKey="fecha" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -144,8 +144,8 @@ export default function Analytics() {
                         </BarChart>
                     </ResponsiveContainer>
                     <div className="flex items-center gap-5 mt-3 justify-end">
-                        <span className="flex items-center gap-1.5 text-xs text-gray-500"><span className="w-2.5 h-2.5 rounded bg-violet-500 inline-block" /> Total</span>
-                        <span className="flex items-center gap-1.5 text-xs text-gray-500"><span className="w-2.5 h-2.5 rounded bg-emerald-500 inline-block" /> Calificados</span>
+                        <span className="flex items-center gap-1.5 text-xs text-zinc-400"><span className="w-2.5 h-2.5 rounded bg-violet-500 inline-block" /> Total</span>
+                        <span className="flex items-center gap-1.5 text-xs text-zinc-400"><span className="w-2.5 h-2.5 rounded bg-emerald-500 inline-block" /> Calificados</span>
                     </div>
                 </div>
 
@@ -153,9 +153,9 @@ export default function Analytics() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                     {/* Distribución actual */}
-                    <div className="bg-white/[0.03] rounded-2xl border border-violet-500/10 p-5">
+                    <div className="bg-white/[0.04] rounded-2xl border border-violet-500/15 p-5">
                         <h2 className="text-sm font-semibold text-white mb-1">Estado actual de leads</h2>
-                        <p className="text-xs text-gray-500 mb-4">Todos los leads históricos</p>
+                        <p className="text-xs text-zinc-400 mb-4">Todos los leads históricos</p>
                         {data.distribution.length === 0 ? (
                             <p className="text-gray-600 text-sm text-center py-10">Sin datos</p>
                         ) : (
@@ -183,9 +183,9 @@ export default function Analytics() {
                     </div>
 
                     {/* Comparativa semanal */}
-                    <div className="bg-white/[0.03] rounded-2xl border border-violet-500/10 p-5">
+                    <div className="bg-white/[0.04] rounded-2xl border border-violet-500/15 p-5">
                         <h2 className="text-sm font-semibold text-white mb-1">Esta semana vs anterior</h2>
-                        <p className="text-xs text-gray-500 mb-5">Comparativa directa</p>
+                        <p className="text-xs text-zinc-400 mb-5">Comparativa directa</p>
                         <div className="space-y-4">
                             {[
                                 { label: 'Leads totales', current: data.this_week, prev: data.last_week, color: 'bg-violet-500' },
@@ -195,20 +195,20 @@ export default function Analytics() {
                                 return (
                                     <div key={label}>
                                         <div className="flex items-center justify-between mb-1.5">
-                                            <span className="text-xs text-gray-400">{label}</span>
-                                            <span className="text-xs text-gray-500">{current} / {prev}</span>
+                                            <span className="text-xs text-zinc-300">{label}</span>
+                                            <span className="text-xs text-zinc-400">{current} / {prev}</span>
                                         </div>
                                         <div className="space-y-1">
                                             <div className="flex items-center gap-2">
-                                                <span className="text-xs text-gray-600 w-16">Esta sem.</span>
-                                                <div className="flex-1 bg-white/5 rounded-full h-1.5">
+                                                <span className="text-xs text-zinc-500 w-16">Esta sem.</span>
+                                                <div className="flex-1 bg-white/[0.07] rounded-full h-1.5">
                                                     <div className={`${color} h-1.5 rounded-full transition-all`} style={{ width: `${(current / max) * 100}%` }} />
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-xs text-gray-600 w-16">Sem. ant.</span>
-                                                <div className="flex-1 bg-white/5 rounded-full h-1.5">
-                                                    <div className={`${color} opacity-30 h-1.5 rounded-full transition-all`} style={{ width: `${(prev / max) * 100}%` }} />
+                                                <span className="text-xs text-zinc-500 w-16">Sem. ant.</span>
+                                                <div className="flex-1 bg-white/[0.07] rounded-full h-1.5">
+                                                    <div className={`${color} opacity-35 h-1.5 rounded-full transition-all`} style={{ width: `${(prev / max) * 100}%` }} />
                                                 </div>
                                             </div>
                                         </div>

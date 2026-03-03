@@ -29,9 +29,9 @@ const TONES = [
 function Field({ label, hint, children }) {
     return (
         <div>
-            <label className="block text-xs text-gray-400 font-medium mb-1.5">{label}</label>
+            <label className="block text-xs text-zinc-300 font-medium mb-1.5">{label}</label>
             {children}
-            {hint && <p className="text-xs text-gray-600 mt-1">{hint}</p>}
+            {hint && <p className="text-xs text-zinc-500 mt-1">{hint}</p>}
         </div>
     );
 }
@@ -124,17 +124,17 @@ export default function Settings() {
         );
     }
 
-    const input = "w-full bg-white/[0.04] border border-violet-500/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500 transition-all";
+    const input = "w-full bg-white/[0.05] border border-violet-500/15 rounded-lg px-3 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500/50 transition-all";
 
     return (
         <div className="flex-1 bg-transparent text-white overflow-y-auto">
             <Toast toast={toast} />
 
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-transparent/90 backdrop-blur-xl border-b border-violet-500/10 px-6 py-4 flex items-center justify-between">
+            <div className="sticky top-0 z-10 bg-[#060612]/90 backdrop-blur-xl border-b border-violet-500/15 px-6 py-4 flex items-center justify-between">
                 <div>
                     <h1 className="text-base font-bold text-white">Configuración del Agente</h1>
-                    <p className="text-xs text-gray-500 mt-0.5">Personalizá tu asistente de IA</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">Personalizá tu asistente de IA</p>
                 </div>
                 <button
                     onClick={handleSave}
@@ -151,8 +151,8 @@ export default function Settings() {
             <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
 
                 {/* Negocio */}
-                <section className="bg-white/[0.03] rounded-2xl border border-violet-500/10 overflow-hidden">
-                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/10">
+                <section className="bg-white/[0.04] rounded-2xl border border-violet-500/15 overflow-hidden">
+                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/15">
                         <Building className="w-4 h-4 text-violet-400" />
                         <h2 className="text-sm font-semibold text-white">Negocio</h2>
                     </div>
@@ -169,8 +169,8 @@ export default function Settings() {
                 </section>
 
                 {/* Agente */}
-                <section className="bg-white/[0.03] rounded-2xl border border-violet-500/10 overflow-hidden">
-                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/10">
+                <section className="bg-white/[0.04] rounded-2xl border border-violet-500/15 overflow-hidden">
+                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/15">
                         <Bot className="w-4 h-4 text-emerald-400" />
                         <h2 className="text-sm font-semibold text-white">Agente de IA</h2>
                     </div>
@@ -196,8 +196,8 @@ export default function Settings() {
                                         onClick={() => handleChange('tone', t.value)}
                                         className={`p-3 rounded-xl border text-left transition-all ${
                                             config.tone === t.value
-                                                ? 'bg-violet-500/20 border-violet-500/50 text-white'
-                                                : 'bg-white/[0.02] border-violet-500/10 text-gray-400 hover:border-white/20 hover:text-gray-200'
+                                                ? 'bg-violet-500/22 border-violet-500/50 text-white'
+                                                : 'bg-white/[0.04] border-violet-500/15 text-zinc-400 hover:border-white/25 hover:text-zinc-200'
                                         }`}
                                     >
                                         <div className="flex items-center gap-1.5 mb-1">
@@ -219,8 +219,8 @@ export default function Settings() {
                 </section>
 
                 {/* Base de conocimiento */}
-                <section className="bg-white/[0.03] rounded-2xl border border-violet-500/10 overflow-hidden">
-                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/10">
+                <section className="bg-white/[0.04] rounded-2xl border border-violet-500/15 overflow-hidden">
+                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/15">
                         <BookOpen className="w-4 h-4 text-purple-400" />
                         <h2 className="text-sm font-semibold text-white">Base de Conocimiento</h2>
                     </div>
@@ -267,7 +267,7 @@ export default function Settings() {
                                 className={`${input} resize-none font-mono text-xs leading-relaxed ${config.knowledge_base_url ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 placeholder={`PRODUCTO / SERVICIO A\n- Precio: ...\n- Características: ...\n\nPRODUCTO / SERVICIO B\n- Precio: ...\n- Características: ...`}
                             />
-                            <p className="text-xs text-purple-400/60 mt-2">
+                            <p className="text-xs text-purple-400/70 mt-2">
                                 El bot usa esta info para responder preguntas. Si no encuentra algo, no inventa.
                             </p>
                         </div>
@@ -275,8 +275,8 @@ export default function Settings() {
                 </section>
 
                 {/* WhatsApp */}
-                <section className="bg-white/[0.03] rounded-2xl border border-violet-500/10 overflow-hidden">
-                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/10">
+                <section className="bg-white/[0.04] rounded-2xl border border-violet-500/15 overflow-hidden">
+                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/15">
                         <Phone className="w-4 h-4 text-emerald-400" />
                         <h2 className="text-sm font-semibold text-white">WhatsApp</h2>
                         <span className={`ml-auto text-xs px-2 py-0.5 rounded-full border ${
@@ -304,7 +304,7 @@ export default function Settings() {
                                 placeholder="+54 9 11 XXXX XXXX"
                             />
                         </Field>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-zinc-500">
                             Para vincular tu número escribinos a{' '}
                             <a href="mailto:info@somosvertical.ar" className="text-violet-400 hover:underline">info@somosvertical.ar</a>
                         </p>

@@ -170,10 +170,10 @@ export default function Dashboard() {
         <div className="flex-1 flex flex-col bg-transparent text-white overflow-hidden">
 
             {/* Header */}
-            <header className="shrink-0 bg-violet-950/10 border-b border-violet-500/10 px-5 py-3 backdrop-blur-xl flex items-center justify-between">
+            <header className="shrink-0 bg-white/[0.02] border-b border-violet-500/15 px-5 py-3 backdrop-blur-xl flex items-center justify-between">
                 <div>
                     <h1 className="text-lg font-bold text-white">Bandeja de Entrada</h1>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-zinc-400">
                         {lastRefresh
                             ? `Actualizado ${lastRefresh.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`
                             : 'Cargando...'}
@@ -191,18 +191,18 @@ export default function Dashboard() {
             {/* KPI Cards */}
             <div className="shrink-0 px-4 pt-3 pb-2 grid grid-cols-2 lg:grid-cols-4 gap-2">
                 {[
-                    { label: 'Total Leads', value: stats.totalLeads, sub: 'conversaciones', color: 'text-white', border: 'border-violet-500/10', icon: MessageSquare, iconColor: 'text-violet-400' },
-                    { label: 'Calificados', value: stats.qualified, sub: 'listos para contacto', color: 'text-emerald-400', border: 'border-emerald-500/20', icon: CheckCircle2, iconColor: 'text-emerald-400' },
-                    { label: 'Conversando', value: stats.qualifying, sub: 'en proceso', color: 'text-blue-400', border: 'border-blue-500/20', icon: Clock, iconColor: 'text-blue-400' },
-                    { label: 'Conversión', value: `${stats.conversionRate}%`, sub: 'de calificación', color: 'text-purple-400', border: 'border-purple-500/20', icon: TrendingUp, iconColor: 'text-purple-400' },
+                    { label: 'Total Leads', value: stats.totalLeads, sub: 'conversaciones', color: 'text-white', border: 'border-violet-500/20', icon: MessageSquare, iconColor: 'text-violet-400' },
+                    { label: 'Calificados', value: stats.qualified, sub: 'listos para contacto', color: 'text-emerald-400', border: 'border-emerald-500/25', icon: CheckCircle2, iconColor: 'text-emerald-400' },
+                    { label: 'Conversando', value: stats.qualifying, sub: 'en proceso', color: 'text-blue-400', border: 'border-blue-500/25', icon: Clock, iconColor: 'text-blue-400' },
+                    { label: 'Conversión', value: `${stats.conversionRate}%`, sub: 'de calificación', color: 'text-purple-400', border: 'border-purple-500/25', icon: TrendingUp, iconColor: 'text-purple-400' },
                 ].map(({ label, value, sub, color, border, icon: Icon, iconColor }) => (
-                    <div key={label} className={`bg-white/[0.03] rounded-xl p-4 border ${border}`}>
+                    <div key={label} className={`bg-white/[0.04] rounded-xl p-4 border ${border}`}>
                         <div className="flex items-center justify-between mb-1">
-                            <p className="text-gray-400 text-xs font-medium">{label}</p>
+                            <p className="text-zinc-400 text-xs font-medium">{label}</p>
                             <Icon className={`w-4 h-4 ${iconColor}`} />
                         </div>
                         <p className={`text-2xl font-bold ${color}`}>{value}</p>
-                        <p className="text-xs text-gray-600 mt-0.5">{sub}</p>
+                        <p className="text-xs text-zinc-500 mt-0.5">{sub}</p>
                     </div>
                 ))}
             </div>
@@ -211,17 +211,17 @@ export default function Dashboard() {
             <div className="flex-1 flex overflow-hidden px-4 pb-4 gap-3 min-h-0">
 
                 {/* Leads list — oculto en mobile cuando hay lead seleccionado */}
-                <div className={`${selectedLeadId ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-72 md:shrink-0 bg-violet-950/10 rounded-xl border border-violet-500/10 overflow-hidden`}>
+                <div className={`${selectedLeadId ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-72 md:shrink-0 bg-white/[0.03] rounded-xl border border-violet-500/15 overflow-hidden`}>
 
                     {/* Search */}
-                    <div className="shrink-0 p-3 border-b border-violet-500/10">
+                    <div className="shrink-0 p-3 border-b border-violet-500/15">
                         <div className="relative">
-                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
+                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
                             <input
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
                                 placeholder="Buscar lead..."
-                                className="w-full bg-white/5 border border-violet-500/10 rounded-lg pl-8 pr-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                                className="w-full bg-white/[0.06] border border-violet-500/15 rounded-lg pl-8 pr-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
                             />
                         </div>
                     </div>
@@ -285,7 +285,7 @@ export default function Dashboard() {
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <p className="font-semibold text-white text-sm truncate">{lead.name}</p>
-                                                    <p className="text-xs text-gray-500 truncate">{lead.lastMessage}</p>
+                                                    <p className="text-xs text-zinc-400 truncate">{lead.lastMessage}</p>
                                                 </div>
                                             </div>
                                             <StatusIcon className={`w-3.5 h-3.5 shrink-0 mt-0.5 ml-1 ${s.iconColor}`} />
@@ -294,7 +294,7 @@ export default function Dashboard() {
                                             <span className={`text-xs px-2 py-0.5 rounded-full border ${s.color}`}>
                                                 {s.label}
                                             </span>
-                                            <span className="text-xs text-gray-600">{lead.time}</span>
+                                            <span className="text-xs text-zinc-500">{lead.time}</span>
                                         </div>
                                     </button>
                                 );
@@ -304,7 +304,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Chat panel — oculto en mobile cuando no hay lead seleccionado */}
-                <div className={`${selectedLeadId ? 'flex' : 'hidden md:flex'} flex-col flex-1 bg-violet-950/10 rounded-xl border border-violet-500/10 overflow-hidden min-w-0`}>
+                <div className={`${selectedLeadId ? 'flex' : 'hidden md:flex'} flex-col flex-1 bg-white/[0.03] rounded-xl border border-violet-500/15 overflow-hidden min-w-0`}>
                     {selectedLead ? (
                         <>
                             {/* Chat header */}
@@ -330,7 +330,7 @@ export default function Dashboard() {
                                                 <span className={`text-xs px-2 py-0.5 rounded-full border ${cfg.color}`}>
                                                     {cfg.label}
                                                 </span>
-                                                <span className="text-xs text-gray-500">
+                                                <span className="text-xs text-zinc-400">
                                                     {selectedLead.whatsappId} · desde {selectedLead.createdAt}
                                                 </span>
                                             </div>
@@ -406,7 +406,7 @@ export default function Dashboard() {
                                                         }`}>
                                                             {msg.text}
                                                         </div>
-                                                        <p className="text-xs text-gray-600 mt-1 px-1">{msg.time}</p>
+                                                        <p className="text-xs text-zinc-500 mt-1 px-1">{msg.time}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -442,7 +442,7 @@ export default function Dashboard() {
                                         <span className="hidden sm:inline">{sending ? 'Enviando...' : 'Enviar'}</span>
                                     </button>
                                 </div>
-                                <p className="text-xs text-gray-600 mt-1.5 px-0.5">
+                                <p className="text-xs text-zinc-500 mt-1.5 px-0.5">
                                     Al enviar, el bot se pausa para este lead. Usá "Retomar con IA" para volver al modo automático.
                                 </p>
                             </div>

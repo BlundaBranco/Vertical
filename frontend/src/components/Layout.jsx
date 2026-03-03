@@ -42,7 +42,7 @@ export default function Layout({ children }) {
             {/* Sidebar */}
             <aside className={`
                 fixed h-full z-50 w-64 flex flex-col
-                bg-[#060612]/95 border-r border-violet-500/10 backdrop-blur-xl
+                bg-[#060612]/97 border-r border-violet-500/15 backdrop-blur-xl
                 transition-transform duration-300 ease-in-out
                 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `}>
@@ -72,7 +72,7 @@ export default function Layout({ children }) {
                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
                                 isActive(item.path)
                                     ? 'bg-violet-500/15 text-violet-300 border border-violet-500/25'
-                                    : 'text-zinc-400 hover:bg-violet-500/8 hover:text-white'
+                                    : 'text-zinc-300 hover:bg-violet-500/10 hover:text-white'
                             }`}
                         >
                             <item.icon className={`w-4 h-4 ${isActive(item.path) ? 'text-violet-400' : ''}`} />
@@ -83,9 +83,9 @@ export default function Layout({ children }) {
 
                 {/* Plan badge */}
                 <div className="px-3 pb-2">
-                    <div className="bg-violet-500/8 border border-violet-500/15 rounded-xl px-3 py-2.5">
-                        <p className="text-xs text-violet-400 font-semibold">Plan Inmobiliaria</p>
-                        <p className="text-xs text-zinc-600 mt-0.5">Agente Ana activo</p>
+                    <div className="bg-violet-500/10 border border-violet-500/20 rounded-xl px-3 py-2.5">
+                        <p className="text-xs text-violet-300 font-semibold">Plan Inmobiliaria</p>
+                        <p className="text-xs text-zinc-500 mt-0.5">Agente Ana activo</p>
                     </div>
                 </div>
 
