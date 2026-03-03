@@ -24,11 +24,11 @@ export default function Layout({ children }) {
     return (
         <div className="h-screen text-white flex overflow-hidden relative">
 
-            {/* Fondo global de la app */}
-            <div className="fixed inset-0 pointer-events-none -z-10">
+            {/* Fondo global de la app — absolute para evitar stacking context */}
+            <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0 bg-grid-sm" />
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-violet-600/6 rounded-full blur-3xl" />
-                <div className="absolute bottom-0 left-64 w-[400px] h-[400px] bg-indigo-600/5 rounded-full blur-3xl" />
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-violet-600/12 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-64 w-[400px] h-[400px] bg-indigo-600/8 rounded-full blur-3xl" />
             </div>
 
             {/* Mobile overlay */}

@@ -127,9 +127,9 @@ export default function Onboarding() {
     if (step === TOTAL_STEPS + 1) {
         return (
             <div className="min-h-screen flex items-center justify-center px-4 relative">
-                <div className="fixed inset-0 -z-10">
+                <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute inset-0 bg-grid" />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-3xl" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-600/20 rounded-full blur-3xl" />
                 </div>
                 <div className="text-center max-w-sm">
                     <div className="w-16 h-16 bg-emerald-500/15 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/10">
@@ -153,11 +153,11 @@ export default function Onboarding() {
 
     return (
         <div className="min-h-screen flex flex-col relative">
-            {/* Fondo */}
-            <div className="fixed inset-0 pointer-events-none -z-10">
+            {/* Fondo — absolute para evitar stacking context */}
+            <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0 bg-grid" />
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-600/8 rounded-full blur-3xl" />
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-600/6 rounded-full blur-3xl" />
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-600/18 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-600/12 rounded-full blur-3xl" />
             </div>
 
             {/* Top logo */}
