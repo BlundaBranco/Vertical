@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Settings, BarChart2, LogOut, Sparkles, Bot, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Settings, BarChart2, LogOut, Bot, Menu, X } from 'lucide-react';
 import { logout } from '../api/client';
 
 export default function Layout({ children }) {
@@ -22,7 +22,7 @@ export default function Layout({ children }) {
     };
 
     return (
-        <div className="h-screen bg-[#060612] text-white flex overflow-hidden relative">
+        <div className="h-screen text-white flex overflow-hidden relative">
 
             {/* Fondo global de la app */}
             <div className="fixed inset-0 pointer-events-none -z-10">
@@ -49,11 +49,9 @@ export default function Layout({ children }) {
                 {/* Logo */}
                 <div className="p-5 border-b border-violet-500/10 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-600/30">
-                            <Sparkles className="w-5 h-5 text-white" />
-                        </div>
+                        <img src="/vertical.png" alt="Vertical" className="h-9 w-auto" />
                         <div>
-                            <span className="text-base font-bold text-white tracking-tight">Ventra AI</span>
+                            <span className="text-base font-bold text-white tracking-tight">Vertical</span>
                             <p className="text-xs text-zinc-500">Agentes IA</p>
                         </div>
                     </div>
@@ -126,10 +124,8 @@ export default function Layout({ children }) {
                         <Menu className="w-5 h-5" />
                     </button>
                     <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 bg-violet-600 rounded-lg flex items-center justify-center">
-                            <Sparkles className="w-4 h-4 text-white" />
-                        </div>
-                        <span className="font-bold text-white text-sm">Ventra AI</span>
+                        <img src="/vertical.png" alt="Vertical" className="h-7 w-auto" />
+                        <span className="font-bold text-white text-sm">Vertical</span>
                     </div>
                 </div>
 

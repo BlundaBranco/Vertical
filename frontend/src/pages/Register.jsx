@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
 import { register, saveToken } from '../api/auth';
 
 export default function Register() {
@@ -37,7 +36,7 @@ export default function Register() {
     const input = "w-full bg-violet-950/20 border border-violet-500/15 rounded-lg px-3 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500/50 transition-all";
 
     return (
-        <div className="min-h-screen bg-[#060612] flex items-center justify-center px-4 relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
             {/* Fondo */}
             <div className="fixed inset-0 pointer-events-none -z-10">
                 <div className="absolute inset-0 bg-grid" />
@@ -45,12 +44,10 @@ export default function Register() {
                 <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-indigo-600/6 rounded-full blur-3xl" />
             </div>
 
-            <div className="w-full max-w-sm">
+            <div className="w-full max-w-sm animate-fade-in">
                 <div className="flex items-center justify-center gap-2.5 mb-8">
-                    <div className="w-9 h-9 bg-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-600/30">
-                        <Sparkles className="w-5 h-5 text-white" />
-                    </div>
-                    <span className="text-lg font-bold text-white tracking-tight">Ventra AI</span>
+                    <img src="/vertical.png" alt="Vertical" className="h-9 w-auto" />
+                    <span className="text-lg font-bold text-white tracking-tight">Vertical</span>
                 </div>
 
                 <form onSubmit={handleSubmit} className="bg-violet-950/20 border border-violet-500/12 rounded-2xl p-7 space-y-4 backdrop-blur-sm shadow-2xl shadow-violet-900/20">

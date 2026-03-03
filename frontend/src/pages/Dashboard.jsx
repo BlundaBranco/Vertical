@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
     MessageSquare, CheckCircle2, AlertCircle, Clock,
     Send, MapPin, DollarSign, Home, User, Bot,
-    TrendingUp, XCircle, RefreshCw, RotateCcw, Sparkles, Search
+    TrendingUp, XCircle, RefreshCw, RotateCcw, Sparkles, Search, ChevronLeft
 } from 'lucide-react';
 import { fetchLeads, fetchStats, sendManualMessage, restartLead } from '../api/client';
 import { fetchMe, getToken } from '../api/auth';
@@ -210,8 +210,8 @@ export default function Dashboard() {
             {/* Split View */}
             <div className="flex-1 flex overflow-hidden px-4 pb-4 gap-3 min-h-0">
 
-                {/* Leads list */}
-                <div className="w-72 shrink-0 flex flex-col bg-violet-950/10 rounded-xl border border-violet-500/10 overflow-hidden">
+                {/* Leads list — oculto en mobile cuando hay lead seleccionado */}
+                <div className={`${selectedLeadId ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-72 md:shrink-0 bg-violet-950/10 rounded-xl border border-violet-500/10 overflow-hidden`}>
 
                     {/* Search */}
                     <div className="shrink-0 p-3 border-b border-violet-500/10">
@@ -303,14 +303,20 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Chat panel */}
-                <div className="flex-1 flex flex-col bg-violet-950/10 rounded-xl border border-violet-500/10 overflow-hidden min-w-0">
+                {/* Chat panel — oculto en mobile cuando no hay lead seleccionado */}
+                <div className={`${selectedLeadId ? 'flex' : 'hidden md:flex'} flex-col flex-1 bg-violet-950/10 rounded-xl border border-violet-500/10 overflow-hidden min-w-0`}>
                     {selectedLead ? (
                         <>
                             {/* Chat header */}
                             <div className="shrink-0 p-4 border-b border-violet-500/10">
                                 <div className="flex items-start justify-between gap-3 mb-3">
                                     <div className="flex items-center gap-3">
+                                        <button
+                                            className="md:hidden p-1.5 text-zinc-400 hover:text-white transition-colors shrink-0"
+                                            onClick={() => setSelectedLeadId(null)}
+                                        >
+                                            <ChevronLeft className="w-5 h-5" />
+                                        </button>
                                         <div className="w-10 h-10 bg-violet-500/15 border border-violet-500/20 rounded-full flex items-center justify-center shrink-0">
                                             <span className="text-sm font-semibold text-violet-300">
                                                 {selectedLead.name && selectedLead.name !== 'Sin nombre'

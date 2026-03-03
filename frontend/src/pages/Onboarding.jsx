@@ -126,7 +126,7 @@ export default function Onboarding() {
     // Success screen
     if (step === TOTAL_STEPS + 1) {
         return (
-            <div className="min-h-screen bg-[#060612] flex items-center justify-center px-4 relative">
+            <div className="min-h-screen flex items-center justify-center px-4 relative">
                 <div className="fixed inset-0 -z-10">
                     <div className="absolute inset-0 bg-grid" />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-3xl" />
@@ -152,7 +152,7 @@ export default function Onboarding() {
     }
 
     return (
-        <div className="min-h-screen bg-[#060612] flex flex-col relative">
+        <div className="min-h-screen flex flex-col relative">
             {/* Fondo */}
             <div className="fixed inset-0 pointer-events-none -z-10">
                 <div className="absolute inset-0 bg-grid" />
@@ -163,10 +163,8 @@ export default function Onboarding() {
             {/* Top logo */}
             <div className="p-6">
                 <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center shadow-lg shadow-violet-600/25">
-                        <Sparkles className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-base font-semibold text-white tracking-tight">Ventra AI</span>
+                    <img src="/vertical.png" alt="Vertical" className="h-8 w-auto" />
+                    <span className="text-base font-semibold text-white tracking-tight">Vertical</span>
                 </div>
             </div>
 
@@ -180,7 +178,7 @@ export default function Onboarding() {
                                 <Sparkles className="w-7 h-7 text-violet-400" />
                             </div>
                             <h1 className="text-3xl font-semibold text-white tracking-tight mb-3">
-                                Bienvenido a Ventra AI
+                                Bienvenido a Vertical
                             </h1>
                             <p className="text-gray-400 text-sm mb-8 leading-relaxed">
                                 Vamos a configurar tu agente en 8 pasos. Tomá 3 minutos ahora y tu asistente estará listo para calificar leads.
