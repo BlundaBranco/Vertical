@@ -71,31 +71,32 @@ export default function Landing() {
                             <div className="text-center lg:text-left">
                                 <div className="inline-flex items-center gap-2 bg-violet-500/12 border border-violet-500/25 text-violet-300 px-3 py-1.5 rounded-full text-xs font-medium mb-7 animate-fade-in anim-d100">
                                     <Sparkles className="w-3 h-3" />
-                                    Empleados Digitales Especializados
+                                    WhatsApp · 24/7 · Sin técnicos
                                 </div>
 
                                 <h1 className="text-5xl sm:text-6xl font-bold tracking-tight leading-[1.08] mb-5 animate-fade-in-up anim-d200">
-                                    El empleado que<br />
-                                    <span className="text-violet-400">nunca para.</span>
+                                    Conseguí tu<br />
+                                    <span className="text-violet-400">Empleado Digital</span>
                                 </h1>
 
-                                <p className="text-base text-zinc-300 mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0 animate-fade-in-up anim-d300">
-                                    Un asistente de IA para tu negocio que atiende consultas en WhatsApp las 24 horas. Identifica quién realmente quiere comprar y te avisa cuando hay una oportunidad concreta.
+                                <p className="text-lg text-zinc-300 mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0 animate-fade-in-up anim-d300">
+                                    Atiende a tus clientes en WhatsApp mientras dormís.<br className="hidden sm:block" />
+                                    Solo te avisamos cuando alguien quiere comprar.
                                 </p>
 
                                 <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-fade-in-up anim-d400">
                                     <button
                                         onClick={() => navigate('/register')}
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-medium text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-violet-600/30"
+                                        className="flex items-center justify-center gap-2 px-6 py-3.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-violet-600/30"
                                     >
-                                        Crear cuenta gratis
+                                        Probalo gratis
                                         <ArrowRight className="w-4 h-4" />
                                     </button>
                                     <a
-                                        href="#como-funciona"
-                                        className="flex items-center justify-center gap-2 px-6 py-3 border border-white/12 hover:border-violet-500/40 text-zinc-200 hover:text-white rounded-xl font-medium text-sm transition-all hover:scale-[1.02]"
+                                        href="#precios"
+                                        className="flex items-center justify-center gap-2 px-6 py-3.5 border border-white/12 hover:border-violet-500/40 text-zinc-200 hover:text-white rounded-xl font-medium text-sm transition-all hover:scale-[1.02]"
                                     >
-                                        Ver cómo funciona
+                                        Ver precios
                                     </a>
                                 </div>
 
@@ -130,17 +131,17 @@ export default function Landing() {
                                             </div>
                                             <div className="max-w-[85%] ml-auto bg-violet-500/18 border border-violet-500/30 rounded-xl px-3.5 py-2.5">
                                                 <p className="text-violet-400 text-xs mb-1">Ana · 10:23</p>
-                                                <p className="text-zinc-100">Perfecto, tengo varias opciones en ese rango. ¿Es para vivir o invertir?</p>
+                                                <p className="text-zinc-100">Perfecto, tengo varias opciones. ¿Es para vivir o invertir?</p>
                                             </div>
                                             <div className="max-w-[85%] bg-white/[0.07] border border-white/[0.08] rounded-xl px-3.5 py-2.5">
                                                 <p className="text-zinc-500 text-xs mb-1">Cliente · 10:24</p>
-                                                <p className="text-zinc-100">Para vivir, necesito para marzo que viene</p>
+                                                <p className="text-zinc-100">Para vivir, necesito para marzo</p>
                                             </div>
                                             <div className="flex items-center gap-2 bg-emerald-500/12 border border-emerald-500/25 rounded-xl px-3 py-2.5">
                                                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                                                 <div>
-                                                    <p className="text-xs text-emerald-300 font-semibold">¡Cliente listo! Notificaste a tu equipo.</p>
-                                                    <p className="text-xs text-zinc-400">10:24 · respuesta automática</p>
+                                                    <p className="text-xs text-emerald-300 font-semibold">¡Cliente listo! Equipo notificado.</p>
+                                                    <p className="text-xs text-zinc-500">10:24 · respuesta automática</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -189,7 +190,7 @@ export default function Landing() {
                             {[
                                 { title: 'Horas sin responder', desc: 'Mientras atendés una consulta, otros tres posibles clientes se van a la competencia.' },
                                 { title: 'Curiosos que no compran', desc: 'Tu equipo pierde horas con gente que nunca iba a comprar. Tiempo que no volvés a recuperar.' },
-                                { title: 'Preguntas sin respuesta', desc: 'Clientes que preguntan a las 11 de la noche o el fin de semana. Y nadie los atiende.' },
+                                { title: 'Siempre fuera de horario', desc: 'Clientes que preguntan a las 11 de la noche o el fin de semana. Y nadie los atiende.' },
                             ].map(({ title, desc }, i) => (
                                 <Reveal key={title} style={{ transitionDelay: `${i * 100}ms` }} className="h-full">
                                     <div className="relative group h-full">
@@ -266,7 +267,7 @@ export default function Landing() {
                     </div>
                 </section>
 
-                {/* ── Features ──────────────────────────────────────────── */}
+                {/* ── Por qué funciona ──────────────────────────────────── */}
                 <section className="py-24 px-4 sm:px-6 lg:px-8 relative">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/15 to-transparent pointer-events-none" />
                     <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -303,10 +304,112 @@ export default function Landing() {
                     </div>
                 </section>
 
+                {/* ── Precios ───────────────────────────────────────────── */}
+                <section id="precios" className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/15 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-violet-700/8 rounded-full blur-3xl" />
+                    </div>
+                    <div className="max-w-4xl mx-auto relative">
+                        <Reveal className="text-center mb-12">
+                            <p className="text-xs text-violet-400 uppercase tracking-widest mb-4 font-medium">Precios</p>
+                            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
+                                El mejor precio del mercado.
+                            </h2>
+                            <p className="text-zinc-400 text-sm">Sin sorpresas. Todo incluido desde el primer día.</p>
+                        </Reveal>
+
+                        <div className="grid sm:grid-cols-2 gap-6">
+
+                            {/* Plan Esencial */}
+                            <Reveal style={{ transitionDelay: '100ms' }} className="h-full">
+                                <div className="h-full p-7 bg-white/[0.04] border border-white/[0.10] rounded-2xl flex flex-col">
+                                    <div className="mb-6">
+                                        <p className="text-xs text-zinc-400 font-medium uppercase tracking-widest mb-3">Esencial</p>
+                                        <div className="flex items-baseline gap-1.5 mb-1">
+                                            <span className="text-4xl font-bold text-white">$49</span>
+                                            <span className="text-zinc-400 text-sm">USD/mes</span>
+                                        </div>
+                                        <p className="text-xs text-zinc-500">Perfecto para arrancar</p>
+                                    </div>
+                                    <ul className="space-y-3 mb-8 flex-1">
+                                        {[
+                                            '1 asistente de IA',
+                                            'WhatsApp activo 24/7',
+                                            'Hasta 300 conversaciones/mes',
+                                            'Panel de control',
+                                            'Soporte por email',
+                                        ].map(item => (
+                                            <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
+                                                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                                                {item}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <button
+                                        onClick={() => navigate('/register')}
+                                        className="w-full py-3 border border-violet-500/35 text-violet-300 hover:bg-violet-500/10 rounded-xl text-sm font-medium transition-all hover:scale-[1.01]"
+                                    >
+                                        Empezar
+                                    </button>
+                                </div>
+                            </Reveal>
+
+                            {/* Plan Pro */}
+                            <Reveal style={{ transitionDelay: '200ms' }} className="h-full">
+                                <div className="relative h-full">
+                                    <div className="absolute -inset-3 bg-violet-500/20 rounded-2xl blur-2xl opacity-75" />
+                                    <div className="relative h-full p-7 bg-violet-950/60 border border-violet-500/30 rounded-2xl flex flex-col">
+                                        <div className="mb-6">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <p className="text-xs text-violet-300 font-medium uppercase tracking-widest">Pro</p>
+                                                <span className="text-xs bg-violet-500/20 border border-violet-500/35 text-violet-300 px-2.5 py-0.5 rounded-full font-medium">Más elegido</span>
+                                            </div>
+                                            <div className="flex items-baseline gap-1.5 mb-1">
+                                                <span className="text-4xl font-bold text-white">$89</span>
+                                                <span className="text-zinc-400 text-sm">USD/mes</span>
+                                            </div>
+                                            <p className="text-xs text-zinc-500">Para crecer sin límites</p>
+                                        </div>
+                                        <ul className="space-y-3 mb-8 flex-1">
+                                            {[
+                                                '1 asistente de IA',
+                                                'WhatsApp activo 24/7',
+                                                'Conversaciones ilimitadas',
+                                                'Panel + Analytics completo',
+                                                'Sincronización con Google Sheets',
+                                                'Soporte prioritario',
+                                            ].map(item => (
+                                                <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
+                                                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                                                    {item}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <button
+                                            onClick={() => navigate('/register')}
+                                            className="w-full py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-semibold transition-all hover:scale-[1.01] shadow-lg shadow-violet-600/30"
+                                        >
+                                            Empezar con Pro
+                                        </button>
+                                    </div>
+                                </div>
+                            </Reveal>
+
+                        </div>
+
+                        <Reveal>
+                            <p className="text-center text-xs text-zinc-600 mt-8">
+                                ¿Tenés más de un negocio o necesitás algo a medida?{' '}
+                                <a href="mailto:info@somosvertical.ar" className="text-violet-400 hover:underline transition-colors">Escribinos</a>
+                            </p>
+                        </Reveal>
+                    </div>
+                </section>
+
                 {/* ── CTA final ─────────────────────────────────────────── */}
                 <section className="py-28 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/15 to-transparent pointer-events-none" />
-                    {/* Spotlight difuminado — sin cuadrado, solo luz */}
                     <div className="absolute inset-0 pointer-events-none">
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[700px] bg-violet-600/18 rounded-full blur-3xl" />
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[400px] bg-violet-500/12 rounded-full blur-2xl" />
@@ -328,7 +431,7 @@ export default function Landing() {
                                 onClick={() => navigate('/register')}
                                 className="inline-flex items-center gap-2.5 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.03] active:scale-[0.98] shadow-2xl shadow-violet-600/50"
                             >
-                                Crear cuenta gratis
+                                Probalo gratis
                                 <ArrowRight className="w-4 h-4" />
                             </button>
                             <div className="flex flex-wrap items-center justify-center gap-5 mt-7 text-xs text-zinc-500">

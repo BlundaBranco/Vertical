@@ -174,14 +174,15 @@ export default function Onboarding() {
                     {/* Step 0: Bienvenida */}
                     {step === 0 && (
                         <div className="text-center max-w-lg mx-auto">
-                            <div className="w-14 h-14 bg-violet-500/15 border border-violet-500/25 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-violet-500/10">
-                                <Sparkles className="w-7 h-7 text-violet-400" />
+                            <div className="flex items-center justify-center gap-2.5 mb-6">
+                                <img src="/vertical.png" alt="Vertical" className="h-10 w-auto" />
+                                <span className="text-xl font-bold text-white tracking-tight">Vertical</span>
                             </div>
                             <h1 className="text-3xl font-semibold text-white tracking-tight mb-3">
                                 Bienvenido a Vertical
                             </h1>
-                            <p className="text-gray-400 text-sm mb-8 leading-relaxed">
-                                Vamos a configurar tu agente en 8 pasos. Tomá 3 minutos ahora y tu asistente estará listo para calificar leads.
+                            <p className="text-zinc-400 text-sm mb-8 leading-relaxed">
+                                Vamos a configurar tu asistente en 3 minutos. Contestá unas preguntas simples y tu empleado digital estará listo.
                             </p>
                             <button
                                 onClick={next}
