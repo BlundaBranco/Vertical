@@ -10,3 +10,5 @@ class SettingsUpdate(BaseModel):
     specialty: str
     catalog_url: str
     knowledge_base: Optional[str] = None
+    knowledge_base_url: Optional[str] = None
+    whatsapp_phone: Optional[str] = None

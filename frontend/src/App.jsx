@@ -6,6 +6,8 @@ import Settings from './pages/Settings';
 import Analytics from './pages/Analytics';
 import Privacy from './pages/Privacy';
 import Login from './pages/Login';
+import Register from './pages/Register';
+import Onboarding from './pages/Onboarding';
 import Layout from './components/Layout';
 import { getToken } from './api/auth';
 
@@ -20,8 +22,14 @@ function App() {
             <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 <Route path="/privacy" element={<Privacy />} />
 
+                <Route path="/onboarding" element={
+                    <PrivateRoute>
+                        <Onboarding />
+                    </PrivateRoute>
+                } />
                 <Route path="/dashboard" element={
                     <PrivateRoute>
                         <Layout><Dashboard /></Layout>

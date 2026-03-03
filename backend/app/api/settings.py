@@ -19,13 +19,16 @@ def get_settings(tenant_id: int, db: Session = Depends(get_db), current_user=Dep
 
     config = tenant.business_config or {}
     return {
-        "business_name": tenant.name,
+        "business_name": tenant.name or "",
         "assistant_name": tenant.template.assistant_name if tenant.template else "Ana",
         "agent_name": config.get("agent_name", "Equipo"),
         "tone": config.get("tone", "cercano"),
         "specialty": config.get("specialty", ""),
         "catalog_url": config.get("catalog_url", ""),
-        "knowledge_base": config.get("knowledge_base", "")
+        "knowledge_base": config.get("knowledge_base", ""),
+        "knowledge_base_url": config.get("knowledge_base_url", ""),
+        "phone_number_id": tenant.phone_number_id or "",
+        "whatsapp_phone": config.get("whatsapp_phone", "")
     }
 
 
@@ -38,13 +41,27 @@ def update_settings(tenant_id: int, payload: SettingsUpdate, db: Session = Depen
         raise HTTPException(status_code=404, detail="Negocio no encontrado")
 
     tenant.name = payload.business_name
-    tenant.business_config = {
+    config = {
         "agent_name": payload.agent_name,
         "tone": payload.tone,
         "specialty": payload.specialty,
         "catalog_url": payload.catalog_url,
-        "knowledge_base": payload.knowledge_base or ""
+        "knowledge_base": payload.knowledge_base or "",
+        "knowledge_base_url": payload.knowledge_base_url or ""
     }
+
+    if payload.whatsapp_phone is not None:
+        config["whatsapp_phone"] = payload.whatsapp_phone
+
+    # Si se acaba de setear una URL, sincronizar inmediatamente
+    if payload.knowledge_base_url:
+        from app.services.sheets_sync import sync_tenant_sheets
+        tenant.business_config = config
+        db.commit()
+        sync_tenant_sheets(tenant, db)
+        return {"status": "success", "message": "Configuración guardada y Google Sheets sincronizado"}
+
+    tenant.business_config = config
 
     if tenant.template:
         tenant.template.assistant_name = payload.assistant_name

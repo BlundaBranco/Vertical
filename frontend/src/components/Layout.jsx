@@ -77,6 +77,14 @@ export default function Layout({ children }) {
                     ))}
                 </nav>
 
+                {/* Plan badge */}
+                <div className="px-4 pb-2">
+                    <div className="bg-indigo-500/8 border border-indigo-500/20 rounded-lg px-3 py-2">
+                        <p className="text-xs text-indigo-400 font-medium">Plan Inmobiliaria</p>
+                        <p className="text-xs text-gray-600 mt-0.5">Agente Ana activo</p>
+                    </div>
+                </div>
+
                 {/* Status Bot */}
                 <div className="px-4 pb-4">
                     <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 flex items-center space-x-2">

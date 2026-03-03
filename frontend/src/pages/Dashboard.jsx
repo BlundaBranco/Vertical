@@ -276,8 +276,12 @@ export default function Dashboard() {
                                     >
                                         <div className="flex items-start justify-between mb-1.5">
                                             <div className="flex items-center gap-2 flex-1 min-w-0">
-                                                <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-700 rounded-full flex items-center justify-center shrink-0">
-                                                    <User className="w-4 h-4 text-gray-300" />
+                                                <div className="w-8 h-8 bg-indigo-500/15 border border-indigo-500/20 rounded-full flex items-center justify-center shrink-0">
+                                                    <span className="text-xs font-semibold text-indigo-300">
+                                                        {lead.name && lead.name !== 'Sin nombre'
+                                                            ? lead.name.trim().slice(0, 2).toUpperCase()
+                                                            : '?'}
+                                                    </span>
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <p className="font-semibold text-white text-sm truncate">{lead.name}</p>
@@ -307,8 +311,12 @@ export default function Dashboard() {
                             <div className="shrink-0 p-4 border-b border-white/10">
                                 <div className="flex items-start justify-between gap-3 mb-3">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-full flex items-center justify-center shrink-0">
-                                            <User className="w-5 h-5 text-gray-300" />
+                                        <div className="w-10 h-10 bg-indigo-500/15 border border-indigo-500/20 rounded-full flex items-center justify-center shrink-0">
+                                            <span className="text-sm font-semibold text-indigo-300">
+                                                {selectedLead.name && selectedLead.name !== 'Sin nombre'
+                                                    ? selectedLead.name.trim().slice(0, 2).toUpperCase()
+                                                    : '?'}
+                                            </span>
                                         </div>
                                         <div>
                                             <h3 className="font-bold text-white text-sm">{selectedLead.name}</h3>

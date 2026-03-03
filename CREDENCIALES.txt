@@ -1,0 +1,28 @@
+=======================================
+VENTRA AI — Credenciales de Producción
+=======================================
+
+URL: https://somosvertical.ar
+API: https://api.somosvertical.ar
+
+--- Admin ---
+Email:    admin@ventra.ai
+Password: Vertical2025!
+Tenant:   1
+
+--- Base de datos (Railway PostgreSQL) ---
+Host:     ballast.proxy.rlwy.net
+Port:     17096
+DB:       railway
+User:     postgres
+Pass:     fSKyJysIbDbAiMYpZGARulbgIZIsgyku
+
+--- Deploy ---
+Backend:  Railway (auto-deploy en git push)
+Frontend: Vercel (auto-deploy en git push)
+
+--- Meta / WhatsApp ---
+App:      Vertical
+Phone ID: 990134687517618
+
+⚠ No compartir este archivo. No commitear.
