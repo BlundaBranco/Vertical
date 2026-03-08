@@ -45,3 +45,54 @@ export function saveToken(token) {
 export function clearToken() {
     localStorage.removeItem("token");
 }
+
+// ─── Facebook Login ──────────────────────────────────────────────────────────
+
+function loadFacebookSDK() {
+    return new Promise((resolve) => {
+        if (window.FB) { resolve(); return; }
+        window.fbAsyncInit = function () {
+            window.FB.init({
+                appId: import.meta.env.VITE_FACEBOOK_APP_ID,
+                cookie: true,
+                xfbml: false,
+                version: "v21.0",
+            });
+            resolve();
+        };
+        const script = document.createElement("script");
+        script.src = "https://connect.facebook.net/en_US/sdk.js";
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+    });
+}
+
+export async function loginWithFacebook() {
+    await loadFacebookSDK();
+    return new Promise((resolve, reject) => {
+        window.FB.login(
+            (response) => {
+                if (response.authResponse) {
+                    resolve(response.authResponse.accessToken);
+                } else {
+                    reject(new Error("Login cancelado"));
+                }
+            },
+            { scope: "email,public_profile" }
+        );
+    });
+}
+
+export async function facebookAuth(accessToken) {
+    const res = await fetch(`${BASE_URL}/auth/facebook`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ access_token: accessToken }),
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Error al iniciar sesión con Facebook");
+    }
+    return res.json(); // { access_token, token_type, is_new }
+}
