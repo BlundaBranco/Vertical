@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Bot, Building, BookOpen, Loader2, CheckCircle2, XCircle, Zap, Link2, Phone } from 'lucide-react';
-import { fetchSettings, saveSettings } from '../api/client';
+import { Save, Bot, Building, BookOpen, Loader2, CheckCircle2, XCircle, Zap, Link2, Phone, RefreshCw } from 'lucide-react';
+import { fetchSettings, saveSettings, connectWhatsApp } from '../api/client';
+import { loadFacebookSDK } from '../api/auth';
 import { fetchMe, getToken } from '../api/auth';
 
 function Toast({ toast }) {
@@ -25,6 +26,127 @@ const TONES = [
     { value: 'formal', label: 'Formal', desc: 'Profesional y ejecutivo' },
     { value: 'agresivo', label: 'Directo', desc: 'Orientado al cierre rápido' },
 ];
+
+const EMBEDDED_SIGNUP_CONFIG_ID = import.meta.env.VITE_FACEBOOK_EMBEDDED_SIGNUP_CONFIG_ID;
+
+function WhatsAppSection({ connected, phone, phoneNumberId, onConnected }) {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const handleConnect = async () => {
+        setError('');
+        setLoading(true);
+        try {
+            await loadFacebookSDK();
+
+            // Capturar waba_id y phone_number_id si Meta los envía vía postMessage
+            let sessionWabaId = null;
+            let sessionPhoneNumberId = null;
+            const messageHandler = (event) => {
+                if (event.origin !== 'https://www.facebook.com') return;
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
+                        sessionWabaId = data.data?.waba_id || null;
+                        sessionPhoneNumberId = data.data?.phone_number_id || null;
+                    }
+                } catch {}
+            };
+            window.addEventListener('message', messageHandler);
+
+            const code = await new Promise((resolve, reject) => {
+                window.FB.login((response) => {
+                    window.removeEventListener('message', messageHandler);
+                    if (response.authResponse?.code) {
+                        resolve(response.authResponse.code);
+                    } else {
+                        reject(new Error('Cancelado'));
+                    }
+                }, {
+                    config_id: EMBEDDED_SIGNUP_CONFIG_ID,
+                    response_type: 'code',
+                    override_default_response_type: true,
+                    extras: {
+                        setup: {},
+                        featureName: 'whatsapp_embedded_signup',
+                        sessionInfoVersion: '3',
+                    },
+                });
+            });
+
+            const result = await connectWhatsApp(code, sessionWabaId, sessionPhoneNumberId);
+            onConnected(result);
+        } catch (err) {
+            if (err.message !== 'Cancelado') {
+                setError(err.message || 'Error al conectar WhatsApp');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <section className="bg-white/[0.04] rounded-2xl border border-violet-500/15 overflow-hidden">
+            <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/15">
+                <Phone className="w-4 h-4 text-emerald-400" />
+                <h2 className="text-sm font-semibold text-white">WhatsApp</h2>
+                <span className={`ml-auto text-xs px-2 py-0.5 rounded-full border ${
+                    connected
+                        ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
+                        : 'bg-amber-500/15 border-amber-500/30 text-amber-400'
+                }`}>
+                    {connected ? 'Conectado' : 'Sin conectar'}
+                </span>
+            </div>
+            <div className="p-5">
+                {connected ? (
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                            <div>
+                                <p className="text-sm font-medium text-white">{phone || 'Número conectado'}</p>
+                                <p className="text-xs text-zinc-400 mt-0.5">Phone ID: {phoneNumberId}</p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleConnect}
+                            disabled={loading}
+                            className="flex items-center gap-2 text-xs text-zinc-400 hover:text-zinc-200 transition-colors disabled:opacity-50"
+                        >
+                            <RefreshCw className="w-3.5 h-3.5" />
+                            {loading ? 'Reconectando...' : 'Reconectar otro número'}
+                        </button>
+                        {error && <p className="text-xs text-red-400">{error}</p>}
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        <p className="text-sm text-zinc-400">
+                            Conectá tu número de WhatsApp Business para que el agente empiece a operar.
+                            El proceso toma menos de 2 minutos.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={handleConnect}
+                            disabled={loading || !EMBEDDED_SIGNUP_CONFIG_ID}
+                            className="flex items-center gap-2.5 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-all hover:scale-[1.01]"
+                        >
+                            {loading ? (
+                                <><Loader2 className="w-4 h-4 animate-spin" /> Conectando...</>
+                            ) : (
+                                <><Phone className="w-4 h-4" /> Conectar WhatsApp</>
+                            )}
+                        </button>
+                        {!EMBEDDED_SIGNUP_CONFIG_ID && (
+                            <p className="text-xs text-amber-400/80">Config ID de Embedded Signup no configurado.</p>
+                        )}
+                        {error && <p className="text-xs text-red-400">{error}</p>}
+                    </div>
+                )}
+            </div>
+        </section>
+    );
+}
 
 function Field({ label, hint, children }) {
     return (
@@ -274,42 +396,17 @@ export default function Settings() {
                     </div>
                 </section>
 
-                {/* WhatsApp */}
-                <section className="bg-white/[0.04] rounded-2xl border border-violet-500/15 overflow-hidden">
-                    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/15">
-                        <Phone className="w-4 h-4 text-emerald-400" />
-                        <h2 className="text-sm font-semibold text-white">WhatsApp</h2>
-                        <span className={`ml-auto text-xs px-2 py-0.5 rounded-full border ${
-                            config.phone_number_id
-                                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
-                                : 'bg-amber-500/15 border-amber-500/30 text-amber-400'
-                        }`}>
-                            {config.phone_number_id ? 'Conectado' : 'Pendiente'}
-                        </span>
-                    </div>
-                    <div className="p-5 space-y-4">
-                        <Field label="Phone Number ID (Meta)" hint="Número vinculado a tu app de Meta. Solo lectura — lo configura el equipo.">
-                            <input
-                                value={config.phone_number_id || 'Sin vincular'}
-                                readOnly
-                                className={`${input} opacity-50 cursor-not-allowed`}
-                            />
-                        </Field>
-                        <Field label="Teléfono solicitado" hint="El número de WhatsApp Business que querés conectar.">
-                            <input
-                                name="whatsapp_phone"
-                                value={config.whatsapp_phone}
-                                onChange={handleInput}
-                                className={input}
-                                placeholder="+54 9 11 XXXX XXXX"
-                            />
-                        </Field>
-                        <p className="text-xs text-zinc-500">
-                            Para vincular tu número escribinos a{' '}
-                            <a href="mailto:info@somosvertical.ar" className="text-violet-400 hover:underline">info@somosvertical.ar</a>
-                        </p>
-                    </div>
-                </section>
+                {/* WhatsApp — Embedded Signup */}
+                <WhatsAppSection
+                    connected={!!config.phone_number_id}
+                    phone={config.whatsapp_phone}
+                    phoneNumberId={config.phone_number_id}
+                    onConnected={(data) => {
+                        handleChange('phone_number_id', data.phone_number_id);
+                        handleChange('whatsapp_phone', data.phone);
+                        showToast('WhatsApp conectado correctamente.');
+                    }}
+                />
 
                 {/* Guardar mobile */}
                 <button

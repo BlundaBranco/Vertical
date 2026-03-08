@@ -48,7 +48,7 @@ export function clearToken() {
 
 // ─── Facebook Login ──────────────────────────────────────────────────────────
 
-function loadFacebookSDK() {
+export function loadFacebookSDK() {
     return new Promise((resolve) => {
         if (window.FB) { resolve(); return; }
         window.fbAsyncInit = function () {
