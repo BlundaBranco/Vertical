@@ -68,47 +68,21 @@ export function loadFacebookSDK() {
     });
 }
 
-// ─── Facebook Login (OAuth2 popup — sin JS SDK) ──────────────────────────────
+// ─── Facebook Login (JS SDK) ─────────────────────────────────────────────────
 
 export async function loginWithFacebook() {
-    const appId = import.meta.env.VITE_FACEBOOK_APP_ID;
-    const redirectUri = `${window.location.origin}/auth/facebook/callback`;
-
-    const params = new URLSearchParams({
-        client_id: appId,
-        redirect_uri: redirectUri,
-        scope: 'email,public_profile',
-        response_type: 'code',
-    });
-
-    const popup = window.open(
-        `https://www.facebook.com/v25.0/dialog/oauth?${params}`,
-        'facebook_login',
-        'width=500,height=600,scrollbars=yes,resizable=yes'
-    );
-
-    if (!popup) {
-        throw new Error('El navegador bloqueó el popup. Permitir popups para este sitio e intentar de nuevo.');
-    }
-
+    await loadFacebookSDK();
     return new Promise((resolve, reject) => {
-        const handler = (event) => {
-            if (event.origin !== window.location.origin) return;
-            if (event.data?.type !== 'facebook_auth') return;
-            window.removeEventListener('message', handler);
-            clearInterval(checkClosed);
-            if (event.data.code) resolve(event.data.code);
-            else reject(new Error(event.data.error || 'Login cancelado'));
-        };
-        window.addEventListener('message', handler);
-
-        const checkClosed = setInterval(() => {
-            if (popup?.closed) {
-                clearInterval(checkClosed);
-                window.removeEventListener('message', handler);
-                reject(new Error('Login cancelado'));
-            }
-        }, 500);
+        window.FB.login(
+            (response) => {
+                if (response.authResponse) {
+                    resolve(response.authResponse.accessToken);
+                } else {
+                    reject(new Error('Login cancelado'));
+                }
+            },
+            { scope: 'public_profile' }
+        );
     });
 }
 
@@ -170,12 +144,11 @@ export async function googleAuth(credential) {
     return res.json();
 }
 
-export async function facebookAuth(code) {
-    const redirectUri = `${window.location.origin}/auth/facebook/callback`;
+export async function facebookAuth(accessToken) {
     const res = await fetch(`${BASE_URL}/auth/facebook`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, redirect_uri: redirectUri }),
+        body: JSON.stringify({ access_token: accessToken }),
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
