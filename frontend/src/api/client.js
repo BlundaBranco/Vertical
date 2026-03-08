@@ -91,6 +91,15 @@ export async function createTemplate(tenantId, data) {
     return handleResponse(res);
 }
 
+export async function sendTemplate(tenantId, templateName, toNumber, components = []) {
+    const res = await fetch(`${BASE_URL}/templates/${tenantId}/${encodeURIComponent(templateName)}/send`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ to_number: toNumber, components })
+    });
+    return handleResponse(res);
+}
+
 export async function deleteTemplate(tenantId, templateName) {
     const res = await fetch(`${BASE_URL}/templates/${tenantId}/${encodeURIComponent(templateName)}`, {
         method: "DELETE",

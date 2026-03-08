@@ -117,6 +117,53 @@ def create_template(
     return data
 
 
+class SendTemplateRequest(BaseModel):
+    to_number: str
+    components: Optional[List[dict]] = None
+
+
+@router.post("/templates/{tenant_id}/{template_name}/send")
+def send_template(
+    tenant_id: int,
+    template_name: str,
+    payload: SendTemplateRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    if current_user.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Negocio no encontrado")
+
+    pid = tenant.phone_number_id or os.getenv("WHATSAPP_PHONE_ID")
+    if not pid:
+        raise HTTPException(status_code=400, detail="phone_number_id no configurado")
+
+    # Fetch template to get language
+    waba_id = _get_waba_id(tenant)
+    res = requests.get(
+        f"{GRAPH_URL}/{waba_id}/message_templates",
+        params={"fields": "name,language,status", "limit": 100},
+        headers=_meta_headers()
+    )
+    templates = res.json().get("data", []) if res.ok else []
+    tmpl = next((t for t in templates if t["name"] == template_name), None)
+    language = tmpl["language"] if tmpl else "es"
+
+    from app.services.whatsapp import send_whatsapp_template
+    result = send_whatsapp_template(
+        to_number=payload.to_number,
+        template_name=template_name,
+        language=language,
+        components=payload.components or [],
+        phone_number_id=pid
+    )
+    if not result:
+        raise HTTPException(status_code=500, detail="Error al enviar el template. Verificá que el número esté en la lista de prueba de Meta.")
+    return result
+
+
 @router.delete("/templates/{tenant_id}/{template_name}")
 def delete_template(
     tenant_id: int,

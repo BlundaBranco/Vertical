@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Trash2, RefreshCw, FileText, ChevronDown, ChevronUp, AlertCircle, CheckCircle2, Clock, PauseCircle, XCircle } from 'lucide-react';
+import { Plus, Trash2, RefreshCw, FileText, ChevronDown, ChevronUp, AlertCircle, CheckCircle2, Clock, PauseCircle, XCircle, Send } from 'lucide-react';
 import { fetchMe, getToken } from '../api/auth';
-import { fetchTemplates, createTemplate, deleteTemplate } from '../api/client';
+import { fetchTemplates, createTemplate, deleteTemplate, sendTemplate } from '../api/client';
 
 const STATUS_CONFIG = {
     APPROVED: { label: 'Aprobado', color: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30', icon: CheckCircle2 },
@@ -55,9 +55,13 @@ function CategoryBadge({ category }) {
     );
 }
 
-function TemplateCard({ template, onDelete }) {
+function TemplateCard({ template, onDelete, tenantId }) {
     const [expanded, setExpanded] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [sending, setSending] = useState(false);
+    const [sendPhone, setSendPhone] = useState('');
+    const [showSend, setShowSend] = useState(false);
+    const [sendResult, setSendResult] = useState('');
 
     const bodyComp = template.components?.find(c => c.type === 'BODY');
     const headerComp = template.components?.find(c => c.type === 'HEADER' && c.format === 'TEXT');
@@ -70,6 +74,21 @@ function TemplateCard({ template, onDelete }) {
             await onDelete(template.name);
         } finally {
             setDeleting(false);
+        }
+    };
+
+    const handleSend = async () => {
+        if (!sendPhone.trim()) return;
+        setSending(true);
+        setSendResult('');
+        try {
+            await sendTemplate(tenantId, template.name, sendPhone.trim());
+            setSendResult('ok');
+            setSendPhone('');
+        } catch (err) {
+            setSendResult(err.message || 'Error al enviar');
+        } finally {
+            setSending(false);
         }
     };
 
@@ -88,6 +107,15 @@ function TemplateCard({ template, onDelete }) {
                     </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
+                    {template.status === 'APPROVED' && (
+                        <button
+                            onClick={() => { setShowSend(p => !p); setSendResult(''); }}
+                            className="p-1.5 rounded-lg text-zinc-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all"
+                            title="Enviar mensaje de prueba"
+                        >
+                            <Send className="w-4 h-4" />
+                        </button>
+                    )}
                     <button
                         onClick={() => setExpanded(p => !p)}
                         className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-white/5 transition-all"
@@ -103,6 +131,33 @@ function TemplateCard({ template, onDelete }) {
                     </button>
                 </div>
             </div>
+
+            {showSend && (
+                <div className="border-t border-emerald-500/15 px-4 py-3 bg-emerald-500/5">
+                    <p className="text-xs text-emerald-400 font-medium mb-2">Enviar mensaje de prueba</p>
+                    <div className="flex gap-2">
+                        <input
+                            value={sendPhone}
+                            onChange={e => setSendPhone(e.target.value)}
+                            placeholder="Número con código de país (ej: 5491112345678)"
+                            className="flex-1 bg-white/[0.04] border border-emerald-500/20 rounded-lg px-3 py-1.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50"
+                        />
+                        <button
+                            onClick={handleSend}
+                            disabled={sending || !sendPhone.trim()}
+                            className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
+                        >
+                            {sending ? 'Enviando...' : 'Enviar'}
+                        </button>
+                    </div>
+                    {sendResult === 'ok' && (
+                        <p className="text-xs text-emerald-400 mt-2">✓ Mensaje enviado correctamente</p>
+                    )}
+                    {sendResult && sendResult !== 'ok' && (
+                        <p className="text-xs text-red-400 mt-2">{sendResult}</p>
+                    )}
+                </div>
+            )}
 
             {expanded && (
                 <div className="border-t border-violet-500/10 px-4 pb-4 pt-3 space-y-2">
@@ -443,7 +498,7 @@ export default function Templates() {
                 ) : (
                     <div className="space-y-2">
                         {filtered.map(t => (
-                            <TemplateCard key={t.id || t.name} template={t} onDelete={handleDelete} />
+                            <TemplateCard key={t.id || t.name} template={t} onDelete={handleDelete} tenantId={tenantId} />
                         ))}
                     </div>
                 )}
