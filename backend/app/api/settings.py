@@ -18,7 +18,27 @@ def get_settings(tenant_id: int, db: Session = Depends(get_db), current_user=Dep
     if not tenant:
         raise HTTPException(status_code=404, detail="Negocio no encontrado")
 
+    import os, requests as req
     config = tenant.business_config or {}
+
+    # Intentar obtener el número real desde Meta si tenemos phone_number_id
+    display_phone = config.get("whatsapp_phone", "")
+    pid = tenant.phone_number_id
+    if pid and not display_phone:
+        try:
+            token = os.getenv("WHATSAPP_TOKEN")
+            r = req.get(
+                f"https://graph.facebook.com/v21.0/{pid}",
+                params={"fields": "display_phone_number,verified_name"},
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=4
+            )
+            if r.ok:
+                d = r.json()
+                display_phone = d.get("display_phone_number", "")
+        except Exception:
+            pass
+
     return {
         "business_name": tenant.name or "",
         "assistant_name": tenant.template.assistant_name if tenant.template else "Ana",
@@ -28,8 +48,8 @@ def get_settings(tenant_id: int, db: Session = Depends(get_db), current_user=Dep
         "catalog_url": config.get("catalog_url", ""),
         "knowledge_base": config.get("knowledge_base", ""),
         "knowledge_base_url": config.get("knowledge_base_url", ""),
-        "phone_number_id": tenant.phone_number_id or "",
-        "whatsapp_phone": config.get("whatsapp_phone", ""),
+        "phone_number_id": pid or "",
+        "whatsapp_phone": display_phone,
         "bot_active": config.get("bot_active", True)
     }
 
