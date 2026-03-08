@@ -46,7 +46,29 @@ export function clearToken() {
     localStorage.removeItem("token");
 }
 
-// ─── Facebook Login ──────────────────────────────────────────────────────────
+// ─── Facebook SDK (solo para Embedded Signup de WhatsApp en Settings/Onboarding) ───
+
+export function loadFacebookSDK() {
+    return new Promise((resolve) => {
+        if (window.FB) { resolve(); return; }
+        window.fbAsyncInit = function () {
+            window.FB.init({
+                appId: import.meta.env.VITE_FACEBOOK_APP_ID,
+                cookie: true,
+                xfbml: false,
+                version: "v25.0",
+            });
+            resolve();
+        };
+        const script = document.createElement("script");
+        script.src = "https://connect.facebook.net/en_US/sdk.js";
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+    });
+}
+
+// ─── Facebook Login (OAuth2 popup — sin JS SDK) ──────────────────────────────
 
 export async function loginWithFacebook() {
     const appId = import.meta.env.VITE_FACEBOOK_APP_ID;
