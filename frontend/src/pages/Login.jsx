@@ -150,26 +150,15 @@ export default function Login() {
                         <div className="flex-1 h-px bg-violet-500/15" />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
-                        <button
-                            type="button"
-                            onClick={handleFacebook}
-                            disabled={fbLoading || gLoading || loading}
-                            className="flex items-center justify-center gap-2 py-2.5 bg-[#1877F2] hover:bg-[#1565D8] text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <FacebookIcon />
-                            {fbLoading ? '...' : 'Facebook'}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleGoogle}
-                            disabled={gLoading || fbLoading || loading}
-                            className="flex items-center justify-center gap-2 py-2.5 bg-white hover:bg-zinc-100 text-zinc-800 text-xs font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <GoogleIcon />
-                            {gLoading ? '...' : 'Google'}
-                        </button>
-                    </div>
+                    <button
+                        type="button"
+                        onClick={handleGoogle}
+                        disabled={gLoading || loading}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 bg-white hover:bg-zinc-100 text-zinc-800 text-xs font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <GoogleIcon />
+                        {gLoading ? '...' : 'Continuar con Google'}
+                    </button>
                 </div>
 
                 <p className="text-center text-xs text-zinc-500 mt-5">
