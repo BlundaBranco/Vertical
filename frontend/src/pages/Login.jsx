@@ -103,34 +103,6 @@ export default function Login() {
                         <p className="text-xs text-zinc-400 mt-0.5">Accedé a tu panel de control</p>
                     </div>
 
-                    {/* Social Login */}
-                    <div className="grid grid-cols-2 gap-2">
-                        <button
-                            type="button"
-                            onClick={handleFacebook}
-                            disabled={fbLoading || gLoading || loading}
-                            className="flex items-center justify-center gap-2 py-2.5 bg-[#1877F2] hover:bg-[#1565D8] text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <FacebookIcon />
-                            {fbLoading ? '...' : 'Facebook'}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleGoogle}
-                            disabled={gLoading || fbLoading || loading}
-                            className="flex items-center justify-center gap-2 py-2.5 bg-white hover:bg-zinc-100 text-zinc-800 text-xs font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <GoogleIcon />
-                            {gLoading ? '...' : 'Google'}
-                        </button>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <div className="flex-1 h-px bg-violet-500/15" />
-                        <span className="text-xs text-zinc-600">o</span>
-                        <div className="flex-1 h-px bg-violet-500/15" />
-                    </div>
-
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <label className="block text-xs text-zinc-400 mb-1.5">Email</label>
@@ -165,12 +137,39 @@ export default function Login() {
 
                         <button
                             type="submit"
-                            disabled={loading || fbLoading}
+                            disabled={loading || fbLoading || gLoading}
                             className="w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-lg transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-600/20"
                         >
                             {loading ? 'Ingresando...' : 'Ingresar'}
                         </button>
                     </form>
+
+                    <div className="flex items-center gap-3">
+                        <div className="flex-1 h-px bg-violet-500/15" />
+                        <span className="text-xs text-zinc-600">o continuá con</span>
+                        <div className="flex-1 h-px bg-violet-500/15" />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                        <button
+                            type="button"
+                            onClick={handleFacebook}
+                            disabled={fbLoading || gLoading || loading}
+                            className="flex items-center justify-center gap-2 py-2.5 bg-[#1877F2] hover:bg-[#1565D8] text-white text-xs font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <FacebookIcon />
+                            {fbLoading ? '...' : 'Facebook'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleGoogle}
+                            disabled={gLoading || fbLoading || loading}
+                            className="flex items-center justify-center gap-2 py-2.5 bg-white hover:bg-zinc-100 text-zinc-800 text-xs font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <GoogleIcon />
+                            {gLoading ? '...' : 'Google'}
+                        </button>
+                    </div>
                 </div>
 
                 <p className="text-center text-xs text-zinc-500 mt-5">
