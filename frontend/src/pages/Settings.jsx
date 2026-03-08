@@ -325,6 +325,18 @@ export default function Settings() {
 
             <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
 
+                {/* WhatsApp — Embedded Signup */}
+                <WhatsAppSection
+                    connected={!!config.phone_number_id}
+                    phone={config.whatsapp_phone}
+                    phoneNumberId={config.phone_number_id}
+                    onConnected={(data) => {
+                        handleChange('phone_number_id', data.phone_number_id);
+                        handleChange('whatsapp_phone', data.phone);
+                        showToast('WhatsApp conectado correctamente.');
+                    }}
+                />
+
                 {/* Negocio */}
                 <section className="bg-white/[0.04] rounded-2xl border border-violet-500/15 overflow-hidden">
                     <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/15">
@@ -448,18 +460,6 @@ export default function Settings() {
                         </div>
                     </div>
                 </section>
-
-                {/* WhatsApp — Embedded Signup */}
-                <WhatsAppSection
-                    connected={!!config.phone_number_id}
-                    phone={config.whatsapp_phone}
-                    phoneNumberId={config.phone_number_id}
-                    onConnected={(data) => {
-                        handleChange('phone_number_id', data.phone_number_id);
-                        handleChange('whatsapp_phone', data.phone);
-                        showToast('WhatsApp conectado correctamente.');
-                    }}
-                />
 
                 {/* Cambiar contraseña */}
                 <PasswordSection input={input} />
