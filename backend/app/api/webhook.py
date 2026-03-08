@@ -72,7 +72,7 @@ async def receive_whatsapp_message(request: Request, db: Session = Depends(get_d
                     txt = transcribe_audio(audio_bytes)
                     _log(f"[WEBHOOK] Audio transcrito de {num}: {(txt or '')[:80]}...")
             if not txt:
-                whatsapp.send_whatsapp_message(num, "No pude escuchar bien el audio. ¿Podés escribirme tu consulta?")
+                whatsapp.send_whatsapp_message(num, "No pude escuchar bien el audio. ¿Podés escribirme tu consulta?", phone_number_id=str(phone_number_id) if phone_number_id else None)
                 _log(f"[WEBHOOK] Audio de {num} — transcripción fallida")
                 return {"status": "audio_transcription_failed"}
 
@@ -123,7 +123,7 @@ async def receive_whatsapp_message(request: Request, db: Session = Depends(get_d
             _log(f"[WEBHOOK] Lead ZOMBIE reactivado a QUALIFYING")
 
         ai_response = process_message(tenant, lead, txt, db)
-        whatsapp.send_whatsapp_message(num, ai_response)
+        whatsapp.send_whatsapp_message(num, ai_response, phone_number_id=tenant.phone_number_id)
 
         _log(f"[WEBHOOK] Respuesta enviada a {num}")
         return {"status": "processed"}

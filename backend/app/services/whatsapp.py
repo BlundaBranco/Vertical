@@ -33,14 +33,15 @@ def download_audio_bytes(media_id: str) -> Optional[bytes]:
         return None
 
 
-def send_whatsapp_message(to_number: str, message_text: str) -> Optional[dict]:
+def send_whatsapp_message(to_number: str, message_text: str, phone_number_id: str = None) -> Optional[dict]:
     """Envía mensaje usando Meta WhatsApp Cloud API."""
-    if not META_TOKEN or not META_PHONE_ID:
-        print("[ERROR] No se encontraron WHATSAPP_TOKEN y/o WHATSAPP_PHONE_ID en el .env")
+    pid = phone_number_id or META_PHONE_ID
+    if not META_TOKEN or not pid:
+        print("[ERROR] No se encontraron WHATSAPP_TOKEN y/o WHATSAPP_PHONE_ID")
         return None
 
     try:
-        url = f"https://graph.facebook.com/v21.0/{META_PHONE_ID}/messages"
+        url = f"https://graph.facebook.com/v21.0/{pid}/messages"
         headers = {
             "Authorization": f"Bearer {META_TOKEN}",
             "Content-Type": "application/json"

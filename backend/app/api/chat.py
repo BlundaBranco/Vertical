@@ -60,7 +60,8 @@ def manual_message(input: ManualMessageInput, db: Session = Depends(get_db), cur
 
     db.commit()
 
-    # Enviar por WhatsApp
-    whatsapp.send_whatsapp_message(lead.whatsapp_id, input.message)
+    # Enviar por WhatsApp usando el phone_number_id del tenant
+    tenant = db.query(Tenant).filter(Tenant.id == lead.tenant_id).first()
+    whatsapp.send_whatsapp_message(lead.whatsapp_id, input.message, phone_number_id=tenant.phone_number_id if tenant else None)
 
     return {"status": "sent"}
