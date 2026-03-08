@@ -138,8 +138,8 @@ def send_template(
 
     waba_id = _get_waba_id(tenant)
 
-    # Resolver phone_number_id real desde la WABA si el guardado falla
-    pid = tenant.phone_number_id or os.getenv("WHATSAPP_PHONE_ID")
+    # Obtener phone_number_id real desde la WABA (siempre, para estar seguros)
+    pid = None
     phones_res = requests.get(
         f"{GRAPH_URL}/{waba_id}/phone_numbers",
         params={"fields": "id,display_phone_number"},
@@ -148,12 +148,16 @@ def send_template(
     if phones_res.ok:
         phones = phones_res.json().get("data", [])
         if phones:
-            real_pid = phones[0]["id"]
-            if pid != real_pid:
-                pid = real_pid  # usar el ID real del WABA
+            pid = phones[0]["id"]
+
+    # Fallback al guardado en DB o env var
+    if not pid:
+        pid = tenant.phone_number_id or os.getenv("WHATSAPP_PHONE_ID")
 
     if not pid:
         raise HTTPException(status_code=400, detail="phone_number_id no configurado")
+
+    print(f"[TEMPLATE SEND] usando phone_number_id={pid}, waba_id={waba_id}")
     res = requests.get(
         f"{GRAPH_URL}/{waba_id}/message_templates",
         params={"fields": "name,language,status", "limit": 100},
@@ -182,7 +186,7 @@ def send_template(
     data = send_res.json()
     if not send_res.ok:
         err = data.get("error", {}).get("message", f"Error {send_res.status_code}")
-        raise HTTPException(status_code=400, detail=err)
+        raise HTTPException(status_code=400, detail=f"{err} [phone_id={pid}]")
     return data
 
 
