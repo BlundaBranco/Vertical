@@ -7,6 +7,7 @@ from app.db.database import get_db
 from app.models import Tenant, Lead, Conversation
 from app.services.message_handler import process_message
 from app.services import whatsapp
+from app.services.ai_engine import transcribe_audio
 
 router = APIRouter()
 
@@ -62,11 +63,21 @@ async def receive_whatsapp_message(request: Request, db: Session = Depends(get_d
         msg_type = msg.get("type", "text")
         txt = msg.get("text", {}).get("body", "")
 
-        # Audio u otros tipos no soportados: responder informando al usuario
+        # Audio: transcribir con Whisper
+        if not txt and msg_type == "audio":
+            media_id = msg.get("audio", {}).get("id")
+            if media_id:
+                audio_bytes = whatsapp.download_audio_bytes(media_id)
+                if audio_bytes:
+                    txt = transcribe_audio(audio_bytes)
+                    _log(f"[WEBHOOK] Audio transcrito de {num}: {(txt or '')[:80]}...")
+            if not txt:
+                whatsapp.send_whatsapp_message(num, "No pude escuchar bien el audio. ¿Podés escribirme tu consulta?")
+                _log(f"[WEBHOOK] Audio de {num} — transcripción fallida")
+                return {"status": "audio_transcription_failed"}
+
+        # Otros tipos no soportados
         if not txt:
-            if msg_type == "audio":
-                whatsapp.send_whatsapp_message(num, "Por ahora solo puedo procesar mensajes de texto. Escribime tu consulta y te respondo enseguida.")
-                _log(f"[WEBHOOK] Audio recibido de {num} — respondido con mensaje informativo")
             return {"status": "unsupported_type", "type": msg_type}
 
         _log(f"[WEBHOOK] De {num}: {txt[:50]}...")
@@ -104,6 +115,12 @@ async def receive_whatsapp_message(request: Request, db: Session = Depends(get_d
             lead.status = "QUALIFYING"
             db.commit()
             _log(f"[WEBHOOK] Lead LOST resucitado a QUALIFYING")
+
+        # Si el lead estaba ZOMBIE y vuelve a escribir, reactivarlo
+        if lead.status == "ZOMBIE":
+            lead.status = "QUALIFYING"
+            db.commit()
+            _log(f"[WEBHOOK] Lead ZOMBIE reactivado a QUALIFYING")
 
         ai_response = process_message(tenant, lead, txt, db)
         whatsapp.send_whatsapp_message(num, ai_response)

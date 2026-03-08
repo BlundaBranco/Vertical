@@ -1,5 +1,7 @@
+import io
 import os
 import json
+from typing import Optional
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -7,6 +9,22 @@ from verticals.real_estate_v1.schema import ExtractionSchema
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+
+def transcribe_audio(audio_bytes: bytes) -> Optional[str]:
+    """Transcribe audio usando Whisper (OpenAI)."""
+    try:
+        audio_file = io.BytesIO(audio_bytes)
+        audio_file.name = "audio.ogg"
+        transcript = client.audio.transcriptions.create(
+            model="whisper-1",
+            file=audio_file,
+            language="es"
+        )
+        return transcript.text
+    except Exception as e:
+        print(f"[ERROR] transcribe_audio: {e}")
+        return None
 
 
 def extract_information(lead_data_actual: dict, user_message: str):

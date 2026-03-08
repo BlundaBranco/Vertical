@@ -4,6 +4,7 @@ import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import Analytics from './pages/Analytics';
+import Templates from './pages/Templates';
 import Privacy from './pages/Privacy';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -43,6 +44,11 @@ function App() {
                 <Route path="/analytics" element={
                     <PrivateRoute>
                         <Layout><Analytics /></Layout>
+                    </PrivateRoute>
+                } />
+                <Route path="/templates" element={
+                    <PrivateRoute>
+                        <Layout><Templates /></Layout>
                     </PrivateRoute>
                 } />
             </Routes>

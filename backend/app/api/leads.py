@@ -13,7 +13,8 @@ STATUS_MAP = {
     "QUALIFYING": "qualifying",
     "QUALIFIED": "qualified",
     "HUMAN_HANDOFF": "human_handoff",
-    "LOST": "lost"
+    "LOST": "lost",
+    "ZOMBIE": "zombie"
 }
 
 

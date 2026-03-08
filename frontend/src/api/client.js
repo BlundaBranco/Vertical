@@ -77,6 +77,28 @@ export async function connectWhatsApp(code, wabaId, phoneNumberId) {
     return handleResponse(res);
 }
 
+export async function fetchTemplates(tenantId) {
+    const res = await fetch(`${BASE_URL}/templates/${tenantId}`, { headers: authHeaders() });
+    return handleResponse(res);
+}
+
+export async function createTemplate(tenantId, data) {
+    const res = await fetch(`${BASE_URL}/templates/${tenantId}`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(data)
+    });
+    return handleResponse(res);
+}
+
+export async function deleteTemplate(tenantId, templateName) {
+    const res = await fetch(`${BASE_URL}/templates/${tenantId}/${encodeURIComponent(templateName)}`, {
+        method: "DELETE",
+        headers: authHeaders()
+    });
+    return handleResponse(res);
+}
+
 export function logout() {
     clearToken();
     window.location.href = '/login';

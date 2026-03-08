@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
     MessageSquare, CheckCircle2, AlertCircle, Clock,
     Send, MapPin, DollarSign, Home, User, Bot,
-    TrendingUp, XCircle, RefreshCw, RotateCcw, Sparkles, Search, ChevronLeft
+    TrendingUp, XCircle, RefreshCw, RotateCcw, Sparkles, Search, ChevronLeft, Ghost
 } from 'lucide-react';
 import { fetchLeads, fetchStats, sendManualMessage, restartLead } from '../api/client';
 import { fetchMe, getToken } from '../api/auth';
@@ -39,6 +39,12 @@ const STATUS_CONFIG = {
         color: 'bg-red-500/20 text-red-400 border-red-500/30',
         iconColor: 'text-red-400',
         icon: XCircle
+    },
+    zombie: {
+        label: 'Sin respuesta',
+        color: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+        iconColor: 'text-orange-400',
+        icon: Ghost
     }
 };
 
@@ -49,6 +55,7 @@ const FILTERS = [
     { key: 'qualifying', label: 'Conversando' },
     { key: 'qualified', label: 'Calificados' },
     { key: 'human_handoff', label: 'En Atención' },
+    { key: 'zombie', label: 'Sin respuesta' },
     { key: 'lost', label: 'Perdidos' },
 ];
 
@@ -338,7 +345,7 @@ export default function Dashboard() {
                                     </div>
 
                                     {/* Botón Retomar con IA */}
-                                    {(selectedLead.status === 'human_handoff' || selectedLead.status === 'lost') && (
+                                    {(selectedLead.status === 'human_handoff' || selectedLead.status === 'lost' || selectedLead.status === 'zombie') && (
                                         <button
                                             onClick={handleRestart}
                                             disabled={restarting}

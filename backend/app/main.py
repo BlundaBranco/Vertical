@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from app.api import webhook, leads, stats, settings, chat, auth, analytics, whatsapp_connect
+from app.api import webhook, leads, stats, settings, chat, auth, analytics, whatsapp_connect, templates
 
 
 def _run_sheets_sync():
@@ -54,6 +54,7 @@ app.include_router(stats.router)
 app.include_router(settings.router)
 app.include_router(chat.router)
 app.include_router(whatsapp_connect.router)
+app.include_router(templates.router)
 
 
 @app.get("/")

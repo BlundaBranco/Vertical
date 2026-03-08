@@ -7,3 +7,4 @@ openai
 requests
 python-jose[cryptography]
 bcrypt
+APScheduler==3.10.4
