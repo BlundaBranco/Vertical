@@ -152,6 +152,7 @@ function TemplateCard({ template, onDelete, tenantId }) {
                                         next[i] = e.target.value;
                                         setVarValues(next);
                                     }}
+                                    onKeyDown={e => e.key === 'Enter' && handleSend()}
                                     placeholder={`Valor para ${v}`}
                                     className="flex-1 bg-white/[0.04] border border-emerald-500/20 rounded-lg px-3 py-1.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50"
                                 />
@@ -161,6 +162,7 @@ function TemplateCard({ template, onDelete, tenantId }) {
                             <input
                                 value={sendPhone}
                                 onChange={e => setSendPhone(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && handleSend()}
                                 placeholder="Número con código de país (ej: 5491112345678)"
                                 className="flex-1 bg-white/[0.04] border border-emerald-500/20 rounded-lg px-3 py-1.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50"
                             />

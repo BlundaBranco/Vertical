@@ -108,6 +108,14 @@ export async function deleteTemplate(tenantId, templateName) {
     return handleResponse(res);
 }
 
+export async function toggleBot(tenantId) {
+    const res = await fetch(`${BASE_URL}/settings/${tenantId}/bot-toggle`, {
+        method: "PATCH",
+        headers: authHeaders()
+    });
+    return handleResponse(res);
+}
+
 export async function changePassword(currentPassword, newPassword) {
     const res = await fetch(`${BASE_URL}/auth/change-password`, {
         method: "POST",

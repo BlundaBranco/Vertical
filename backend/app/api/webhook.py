@@ -100,6 +100,13 @@ async def receive_whatsapp_message(request: Request, db: Session = Depends(get_d
             db.commit()
             db.refresh(lead)
 
+        # Si el bot está desactivado manualmente, solo registrar el mensaje
+        if not (tenant.business_config or {}).get("bot_active", True):
+            db.add(Conversation(lead_id=lead.id, role="user", content=txt))
+            db.commit()
+            _log(f"[WEBHOOK] Bot desactivado — mensaje registrado, sin respuesta automática")
+            return {"status": "bot_inactive"}
+
         # Si el operador tomó control, solo registrar el mensaje sin que el bot responda
         if lead.status == "HUMAN_HANDOFF":
             db.add(Conversation(lead_id=lead.id, role="user", content=txt))

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 
 from app.db.database import get_db
 from app.models import Tenant
@@ -28,7 +29,8 @@ def get_settings(tenant_id: int, db: Session = Depends(get_db), current_user=Dep
         "knowledge_base": config.get("knowledge_base", ""),
         "knowledge_base_url": config.get("knowledge_base_url", ""),
         "phone_number_id": tenant.phone_number_id or "",
-        "whatsapp_phone": config.get("whatsapp_phone", "")
+        "whatsapp_phone": config.get("whatsapp_phone", ""),
+        "bot_active": config.get("bot_active", True)
     }
 
 
@@ -68,3 +70,19 @@ def update_settings(tenant_id: int, payload: SettingsUpdate, db: Session = Depen
 
     db.commit()
     return {"status": "success", "message": "Configuración actualizada correctamente"}
+
+
+@router.patch("/settings/{tenant_id}/bot-toggle")
+def toggle_bot(tenant_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    if current_user.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Negocio no encontrado")
+
+    config = dict(tenant.business_config or {})
+    config["bot_active"] = not config.get("bot_active", True)
+    tenant.business_config = config
+    flag_modified(tenant, "business_config")
+    db.commit()
+    return {"bot_active": config["bot_active"]}
