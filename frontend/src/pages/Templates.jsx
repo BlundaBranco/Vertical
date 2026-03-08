@@ -70,7 +70,7 @@ function TemplateCard({ template, onDelete, tenantId }) {
     const bodyVars = [...new Set((bodyComp?.text?.match(/\{\{\d+\}\}/g) || []))];
 
     const handleDelete = async () => {
-        if (!confirm(`¿Eliminar el template "${template.name}"? Esta acción no se puede deshacer.`)) return;
+        if (!confirm(`¿Eliminar la plantilla "${template.name}"? Esta acción no se puede deshacer.`)) return;
         setDeleting(true);
         try {
             await onDelete(template.name);
@@ -188,7 +188,7 @@ function TemplateCard({ template, onDelete, tenantId }) {
                 <div className="border-t border-violet-500/10 px-4 pb-4 pt-3 space-y-2">
                     {headerComp && (
                         <div>
-                            <p className="text-xs text-zinc-500 mb-1">Header</p>
+                            <p className="text-xs text-zinc-500 mb-1">Encabezado</p>
                             <p className="text-sm text-zinc-300 bg-white/[0.03] rounded-lg px-3 py-2">{headerComp.text}</p>
                         </div>
                     )}
@@ -200,7 +200,7 @@ function TemplateCard({ template, onDelete, tenantId }) {
                     )}
                     {footerComp && (
                         <div>
-                            <p className="text-xs text-zinc-500 mb-1">Footer</p>
+                            <p className="text-xs text-zinc-500 mb-1">Pie</p>
                             <p className="text-sm text-zinc-400 bg-white/[0.03] rounded-lg px-3 py-2">{footerComp.text}</p>
                         </div>
                     )}
@@ -247,7 +247,7 @@ function CreatePanel({ tenantId, onCreated, onClose }) {
             });
             onCreated();
         } catch (err) {
-            setError(err.message || 'Error al crear el template.');
+            setError(err.message || 'Error al crear la plantilla.');
         } finally {
             setLoading(false);
         }
@@ -256,7 +256,7 @@ function CreatePanel({ tenantId, onCreated, onClose }) {
     return (
         <div className="bg-white/[0.04] border border-violet-500/20 rounded-xl p-5">
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-white">Nuevo template</h3>
+                <h3 className="text-sm font-semibold text-white">Nueva plantilla</h3>
                 <button onClick={onClose} className="text-zinc-500 hover:text-zinc-300 text-xs">Cancelar</button>
             </div>
 
@@ -299,7 +299,7 @@ function CreatePanel({ tenantId, onCreated, onClose }) {
                 </div>
 
                 <div>
-                    <label className="text-xs text-zinc-500 mb-1 block">Header <span className="text-zinc-600">(opcional)</span></label>
+                    <label className="text-xs text-zinc-500 mb-1 block">Encabezado <span className="text-zinc-600">(opcional)</span></label>
                     <input
                         value={form.header_text}
                         onChange={e => set('header_text', e.target.value)}
@@ -344,7 +344,7 @@ function CreatePanel({ tenantId, onCreated, onClose }) {
                 )}
 
                 <div>
-                    <label className="text-xs text-zinc-500 mb-1 block">Footer <span className="text-zinc-600">(opcional)</span></label>
+                    <label className="text-xs text-zinc-500 mb-1 block">Pie <span className="text-zinc-600">(opcional)</span></label>
                     <input
                         value={form.footer_text}
                         onChange={e => set('footer_text', e.target.value)}
@@ -365,7 +365,7 @@ function CreatePanel({ tenantId, onCreated, onClose }) {
                     disabled={loading}
                     className="w-full py-2.5 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-colors"
                 >
-                    {loading ? 'Creando...' : 'Crear template'}
+                    {loading ? 'Creando...' : 'Crear plantilla'}
                 </button>
             </form>
         </div>
@@ -387,7 +387,7 @@ export default function Templates() {
             const data = await fetchTemplates(tid);
             setTemplates(data.data || []);
         } catch (err) {
-            setError(err.message || 'No se pudieron cargar los templates.');
+            setError(err.message || 'No se pudieron cargar las plantillas.');
         } finally {
             setLoading(false);
         }
@@ -450,7 +450,7 @@ export default function Templates() {
                             className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold rounded-xl transition-colors"
                         >
                             <Plus className="w-4 h-4" />
-                            Nuevo template
+                            Nueva plantilla
                         </button>
                     </div>
                 </div>
@@ -508,15 +508,15 @@ export default function Templates() {
                         <FileText className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
                         <p className="text-zinc-500 text-sm">
                             {templates.length === 0
-                                ? 'Todavía no tenés templates creados.'
-                                : 'No hay templates con este filtro.'}
+                                ? 'Todavía no tenés plantillas creadas.'
+                                : 'No hay plantillas con este filtro.'}
                         </p>
                         {templates.length === 0 && (
                             <button
                                 onClick={() => setShowCreate(true)}
                                 className="mt-4 px-4 py-2 text-sm text-violet-400 hover:text-violet-300 border border-violet-500/20 hover:border-violet-500/40 rounded-xl transition-all"
                             >
-                                Crear tu primer template
+                                Crear tu primera plantilla
                             </button>
                         )}
                     </div>
@@ -532,8 +532,8 @@ export default function Templates() {
                 {!loading && !error && (
                     <div className="mt-6 bg-blue-500/5 border border-blue-500/15 rounded-xl px-4 py-3">
                         <p className="text-xs text-zinc-500 leading-relaxed">
-                            Los templates deben ser aprobados por Meta antes de poder usarlos. El proceso tarda hasta 24 horas.
-                            Solo los templates <span className="text-emerald-400">Aprobados</span> pueden enviarse a usuarios fuera de la ventana de 24 horas.
+                            Las plantillas deben ser aprobadas por Meta antes de poder usarlas. El proceso tarda hasta 24 horas.
+                            Solo las plantillas <span className="text-emerald-400">Aprobadas</span> pueden enviarse a usuarios fuera de la ventana de 24 horas.
                         </p>
                     </div>
                 )}
