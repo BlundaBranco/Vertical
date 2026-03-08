@@ -77,7 +77,7 @@ export async function loginWithFacebook() {
     const params = new URLSearchParams({
         client_id: appId,
         redirect_uri: redirectUri,
-        scope: 'public_profile',
+        scope: 'email,public_profile',
         response_type: 'code',
     });
 
