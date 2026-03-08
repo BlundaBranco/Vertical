@@ -13,7 +13,7 @@ router = APIRouter(prefix="/whatsapp", tags=["whatsapp"])
 
 FACEBOOK_APP_ID = os.getenv("FACEBOOK_APP_ID")
 FACEBOOK_APP_SECRET = os.getenv("FACEBOOK_APP_SECRET")
-GRAPH = "https://graph.facebook.com/v21.0"
+GRAPH = "https://graph.facebook.com/v20.0"
 
 
 class WhatsAppConnectRequest(BaseModel):
@@ -93,7 +93,14 @@ def connect_whatsapp(
         ).json()
         phone_display = phone_res.get("display_phone_number", "")
 
-    # 5. Guardar en tenant
+    # 5. Registrar el número para Cloud API (ignorar si ya está registrado)
+    http_requests.post(
+        f"{GRAPH}/{phone_number_id}/register",
+        json={"messaging_product": "whatsapp", "pin": "000000"},
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+
+    # 6. Guardar en tenant
     tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
     tenant.phone_number_id = phone_number_id
     config = dict(tenant.business_config or {})
