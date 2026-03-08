@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Trash2, RefreshCw, FileText, ChevronDown, ChevronUp, AlertCircle, CheckCircle2, Clock, PauseCircle, XCircle } from 'lucide-react';
-import { fetchMe } from '../api/auth';
+import { fetchMe, getToken } from '../api/auth';
 import { fetchTemplates, createTemplate, deleteTemplate } from '../api/client';
 
 const STATUS_CONFIG = {
@@ -314,9 +314,12 @@ export default function Templates() {
     }, []);
 
     useEffect(() => {
-        fetchMe().then(me => {
+        fetchMe(getToken()).then(me => {
             setTenantId(me.tenant_id);
             load(me.tenant_id);
+        }).catch(() => {
+            setError('No se pudo obtener la sesión. Recargá la página.');
+            setLoading(false);
         });
     }, [load]);
 
