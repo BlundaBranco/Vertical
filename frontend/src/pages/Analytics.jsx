@@ -110,7 +110,7 @@ export default function Analytics() {
         <div className="flex-1 bg-transparent text-white overflow-y-auto">
             {/* Header */}
             <div className="border-b border-violet-500/15 px-6 py-4">
-                <h1 className="text-base font-bold text-white">Analytics</h1>
+                <h1 className="text-base font-bold text-white">Estadísticas</h1>
                 <p className="text-xs text-zinc-400 mt-0.5">Últimos 14 días</p>
             </div>
 

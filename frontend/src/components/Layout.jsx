@@ -9,9 +9,9 @@ export default function Layout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const menuItems = [
-        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-        { id: 'analytics', label: 'Analytics', icon: BarChart2, path: '/analytics' },
-        { id: 'templates', label: 'Templates', icon: FileText, path: '/templates' },
+        { id: 'dashboard', label: 'Panel', icon: LayoutDashboard, path: '/dashboard' },
+        { id: 'analytics', label: 'Estadísticas', icon: BarChart2, path: '/analytics' },
+        { id: 'templates', label: 'Plantillas', icon: FileText, path: '/templates' },
         { id: 'settings', label: 'Configuración', icon: Settings, path: '/settings' },
     ];
 

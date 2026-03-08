@@ -354,7 +354,7 @@ export default function Templates() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h1 className="text-xl font-bold text-white">Templates de WhatsApp</h1>
+                        <h1 className="text-xl font-bold text-white">Plantillas de WhatsApp</h1>
                         <p className="text-sm text-zinc-500 mt-0.5">Mensajes predefinidos para contacto proactivo</p>
                     </div>
                     <div className="flex items-center gap-2">
