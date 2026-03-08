@@ -62,6 +62,10 @@ function TemplateCard({ template, onDelete, tenantId }) {
     const [sendPhone, setSendPhone] = useState('');
     const [showSend, setShowSend] = useState(false);
     const [sendResult, setSendResult] = useState('');
+    const [varValues, setVarValues] = useState([]);
+
+    const bodyVars = [...new Set((bodyComp?.text?.match(/\{\{\d+\}\}/g) || []))];
+
 
     const bodyComp = template.components?.find(c => c.type === 'BODY');
     const headerComp = template.components?.find(c => c.type === 'HEADER' && c.format === 'TEXT');
@@ -82,7 +86,11 @@ function TemplateCard({ template, onDelete, tenantId }) {
         setSending(true);
         setSendResult('');
         try {
-            await sendTemplate(tenantId, template.name, sendPhone.trim());
+            const components = bodyVars.length > 0 ? [{
+                type: 'body',
+                parameters: varValues.map(v => ({ type: 'text', text: v || ' ' }))
+            }] : [];
+            await sendTemplate(tenantId, template.name, sendPhone.trim(), components);
             setSendResult('ok');
             setSendPhone('');
         } catch (err) {
@@ -135,20 +143,37 @@ function TemplateCard({ template, onDelete, tenantId }) {
             {showSend && (
                 <div className="border-t border-emerald-500/15 px-4 py-3 bg-emerald-500/5">
                     <p className="text-xs text-emerald-400 font-medium mb-2">Enviar mensaje de prueba</p>
-                    <div className="flex gap-2">
-                        <input
-                            value={sendPhone}
-                            onChange={e => setSendPhone(e.target.value)}
-                            placeholder="Número con código de país (ej: 5491112345678)"
-                            className="flex-1 bg-white/[0.04] border border-emerald-500/20 rounded-lg px-3 py-1.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50"
-                        />
-                        <button
-                            onClick={handleSend}
-                            disabled={sending || !sendPhone.trim()}
-                            className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
-                        >
-                            {sending ? 'Enviando...' : 'Enviar'}
-                        </button>
+                    <div className="space-y-2">
+                        {bodyVars.map((v, i) => (
+                            <div key={i} className="flex items-center gap-2">
+                                <span className="text-xs text-zinc-500 font-mono w-8">{v}</span>
+                                <input
+                                    value={varValues[i] || ''}
+                                    onChange={e => {
+                                        const next = [...varValues];
+                                        next[i] = e.target.value;
+                                        setVarValues(next);
+                                    }}
+                                    placeholder={`Valor para ${v}`}
+                                    className="flex-1 bg-white/[0.04] border border-emerald-500/20 rounded-lg px-3 py-1.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50"
+                                />
+                            </div>
+                        ))}
+                        <div className="flex gap-2">
+                            <input
+                                value={sendPhone}
+                                onChange={e => setSendPhone(e.target.value)}
+                                placeholder="Número con código de país (ej: 5491112345678)"
+                                className="flex-1 bg-white/[0.04] border border-emerald-500/20 rounded-lg px-3 py-1.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50"
+                            />
+                            <button
+                                onClick={handleSend}
+                                disabled={sending || !sendPhone.trim()}
+                                className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
+                            >
+                                {sending ? 'Enviando...' : 'Enviar'}
+                            </button>
+                        </div>
                     </div>
                     {sendResult === 'ok' && (
                         <p className="text-xs text-emerald-400 mt-2">✓ Mensaje enviado correctamente</p>
