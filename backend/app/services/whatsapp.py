@@ -33,6 +33,37 @@ def download_audio_bytes(media_id: str) -> Optional[bytes]:
         return None
 
 
+def send_whatsapp_template(to_number: str, template_name: str, language: str, components: list, phone_number_id: str = None) -> Optional[dict]:
+    """Envía un mensaje de template via WhatsApp Cloud API."""
+    pid = phone_number_id or META_PHONE_ID
+    if not META_TOKEN or not pid:
+        print("[ERROR] No se encontraron WHATSAPP_TOKEN y/o WHATSAPP_PHONE_ID")
+        return None
+    try:
+        clean_number = str(to_number).replace("whatsapp:", "").replace("+", "").replace(" ", "")
+        url = f"https://graph.facebook.com/v21.0/{pid}/messages"
+        data = {
+            "messaging_product": "whatsapp",
+            "to": clean_number,
+            "type": "template",
+            "template": {
+                "name": template_name,
+                "language": {"code": language},
+                "components": components
+            }
+        }
+        response = requests.post(url, headers={"Authorization": f"Bearer {META_TOKEN}", "Content-Type": "application/json"}, json=data)
+        if response.status_code == 200:
+            print(f"[OK] Template '{template_name}' enviado a {clean_number}")
+            return response.json()
+        else:
+            print(f"[ERROR] Template Meta ({response.status_code}): {response.text}")
+            return None
+    except Exception as e:
+        print(f"[ERROR] send_whatsapp_template: {e}")
+        return None
+
+
 def send_whatsapp_message(to_number: str, message_text: str, phone_number_id: str = None) -> Optional[dict]:
     """Envía mensaje usando Meta WhatsApp Cloud API."""
     pid = phone_number_id or META_PHONE_ID
