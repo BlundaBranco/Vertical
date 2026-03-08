@@ -56,7 +56,7 @@ export function loadFacebookSDK() {
                 appId: import.meta.env.VITE_FACEBOOK_APP_ID,
                 cookie: true,
                 xfbml: false,
-                version: "v21.0",
+                version: "v25.0",
             });
             resolve();
         };

@@ -43,7 +43,7 @@ function WhatsAppSection({ connected, phone, phoneNumberId, onConnected }) {
             let sessionWabaId = null;
             let sessionPhoneNumberId = null;
             const messageHandler = (event) => {
-                if (event.origin !== 'https://www.facebook.com') return;
+                if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
                 try {
                     const data = JSON.parse(event.data);
                     if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
@@ -66,11 +66,7 @@ function WhatsAppSection({ connected, phone, phoneNumberId, onConnected }) {
                     config_id: EMBEDDED_SIGNUP_CONFIG_ID,
                     response_type: 'code',
                     override_default_response_type: true,
-                    extras: {
-                        setup: {},
-                        featureName: 'whatsapp_embedded_signup',
-                        sessionInfoVersion: '3',
-                    },
+                    extras: { version: 'v3' },
                 });
             });
 
