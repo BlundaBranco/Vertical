@@ -161,6 +161,24 @@ def google_login(payload: GoogleLoginRequest, db: Session = Depends(get_db)):
     return {"access_token": token, "token_type": "bearer", "is_new": is_new}
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
+@router.post("/change-password")
+def change_password(payload: ChangePasswordRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if not current_user.password_hash:
+        raise HTTPException(status_code=400, detail="Tu cuenta usa login social. No podés cambiar la contraseña desde acá.")
+    if not verify_password(payload.current_password, current_user.password_hash):
+        raise HTTPException(status_code=401, detail="La contraseña actual es incorrecta.")
+    if len(payload.new_password) < 8:
+        raise HTTPException(status_code=400, detail="La nueva contraseña debe tener al menos 8 caracteres.")
+    current_user.password_hash = hash_password(payload.new_password)
+    db.commit()
+    return {"status": "success"}
+
+
 @router.get("/me")
 def me(current_user: User = Depends(get_current_user)):
     return {

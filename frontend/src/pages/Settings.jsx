@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Bot, Building, BookOpen, Loader2, CheckCircle2, XCircle, Zap, Link2, Phone, RefreshCw } from 'lucide-react';
-import { fetchSettings, saveSettings, connectWhatsApp } from '../api/client';
+import { Save, Bot, Building, BookOpen, Loader2, CheckCircle2, XCircle, Zap, Link2, Phone, RefreshCw, Lock } from 'lucide-react';
+import { fetchSettings, saveSettings, connectWhatsApp, changePassword } from '../api/client';
 import { loadFacebookSDK } from '../api/auth';
 import { fetchMe, getToken } from '../api/auth';
 
@@ -140,6 +140,63 @@ function WhatsAppSection({ connected, phone, phoneNumberId, onConnected }) {
                     </div>
                 )}
             </div>
+        </section>
+    );
+}
+
+function PasswordSection({ input }) {
+    const [current, setCurrent] = useState('');
+    const [next, setNext] = useState('');
+    const [saving, setSaving] = useState(false);
+    const [msg, setMsg] = useState(null); // { text, ok }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (next.length < 8) { setMsg({ text: 'Mínimo 8 caracteres.', ok: false }); return; }
+        setSaving(true);
+        setMsg(null);
+        try {
+            await changePassword(current, next);
+            setMsg({ text: 'Contraseña actualizada.', ok: true });
+            setCurrent(''); setNext('');
+        } catch (err) {
+            setMsg({ text: err.message || 'Error al cambiar la contraseña.', ok: false });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return (
+        <section className="bg-white/[0.04] rounded-2xl border border-violet-500/15 overflow-hidden">
+            <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/15">
+                <Lock className="w-4 h-4 text-zinc-400" />
+                <h2 className="text-sm font-semibold text-white">Cambiar contraseña</h2>
+            </div>
+            <form onSubmit={handleSubmit} className="p-5 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label className="block text-xs text-zinc-400 mb-1.5">Contraseña actual</label>
+                        <input type="password" value={current} onChange={e => setCurrent(e.target.value)}
+                            required className={input} placeholder="••••••••" />
+                    </div>
+                    <div>
+                        <label className="block text-xs text-zinc-400 mb-1.5">Nueva contraseña</label>
+                        <input type="password" value={next} onChange={e => setNext(e.target.value)}
+                            required className={input} placeholder="Mínimo 8 caracteres" />
+                    </div>
+                </div>
+                {msg && (
+                    <p className={`text-xs px-3 py-2 rounded-lg border ${msg.ok
+                        ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                        : 'text-red-400 bg-red-500/10 border-red-500/20'}`}>
+                        {msg.text}
+                    </p>
+                )}
+                <button type="submit" disabled={saving || !current || !next}
+                    className="flex items-center gap-2 px-4 py-2 bg-white/[0.06] hover:bg-white/[0.10] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-medium rounded-lg transition-colors border border-violet-500/15">
+                    {saving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Guardando...</> : 'Actualizar contraseña'}
+                </button>
+            </form>
         </section>
     );
 }
@@ -403,6 +460,9 @@ export default function Settings() {
                         showToast('WhatsApp conectado correctamente.');
                     }}
                 />
+
+                {/* Cambiar contraseña */}
+                <PasswordSection input={input} />
 
                 {/* Guardar mobile */}
                 <button

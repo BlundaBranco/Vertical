@@ -99,6 +99,15 @@ export async function deleteTemplate(tenantId, templateName) {
     return handleResponse(res);
 }
 
+export async function changePassword(currentPassword, newPassword) {
+    const res = await fetch(`${BASE_URL}/auth/change-password`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+    });
+    return handleResponse(res);
+}
+
 export function logout() {
     clearToken();
     window.location.href = '/login';
