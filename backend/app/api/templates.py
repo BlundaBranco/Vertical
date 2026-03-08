@@ -136,12 +136,24 @@ def send_template(
     if not tenant:
         raise HTTPException(status_code=404, detail="Negocio no encontrado")
 
+    waba_id = _get_waba_id(tenant)
+
+    # Resolver phone_number_id real desde la WABA si el guardado falla
     pid = tenant.phone_number_id or os.getenv("WHATSAPP_PHONE_ID")
+    phones_res = requests.get(
+        f"{GRAPH_URL}/{waba_id}/phone_numbers",
+        params={"fields": "id,display_phone_number"},
+        headers=_meta_headers()
+    )
+    if phones_res.ok:
+        phones = phones_res.json().get("data", [])
+        if phones:
+            real_pid = phones[0]["id"]
+            if pid != real_pid:
+                pid = real_pid  # usar el ID real del WABA
+
     if not pid:
         raise HTTPException(status_code=400, detail="phone_number_id no configurado")
-
-    # Fetch template to get language
-    waba_id = _get_waba_id(tenant)
     res = requests.get(
         f"{GRAPH_URL}/{waba_id}/message_templates",
         params={"fields": "name,language,status", "limit": 100},
@@ -151,9 +163,6 @@ def send_template(
     tmpl = next((t for t in templates if t["name"] == template_name), None)
     language = tmpl["language"] if tmpl else "es"
 
-    import os as _os
-    import requests as _req
-    meta_token = _os.getenv("WHATSAPP_TOKEN")
     clean_number = str(payload.to_number).replace("+", "").replace(" ", "")
     send_body = {
         "messaging_product": "whatsapp",
@@ -165,10 +174,10 @@ def send_template(
             "components": payload.components or []
         }
     }
-    send_res = _req.post(
+    send_res = requests.post(
         f"https://graph.facebook.com/v21.0/{pid}/messages",
         json=send_body,
-        headers={"Authorization": f"Bearer {meta_token}", "Content-Type": "application/json"}
+        headers={**_meta_headers(), "Content-Type": "application/json"}
     )
     data = send_res.json()
     if not send_res.ok:
