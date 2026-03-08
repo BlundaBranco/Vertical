@@ -64,12 +64,10 @@ function TemplateCard({ template, onDelete, tenantId }) {
     const [sendResult, setSendResult] = useState('');
     const [varValues, setVarValues] = useState([]);
 
-    const bodyVars = [...new Set((bodyComp?.text?.match(/\{\{\d+\}\}/g) || []))];
-
-
     const bodyComp = template.components?.find(c => c.type === 'BODY');
     const headerComp = template.components?.find(c => c.type === 'HEADER' && c.format === 'TEXT');
     const footerComp = template.components?.find(c => c.type === 'FOOTER');
+    const bodyVars = [...new Set((bodyComp?.text?.match(/\{\{\d+\}\}/g) || []))];
 
     const handleDelete = async () => {
         if (!confirm(`¿Eliminar el template "${template.name}"? Esta acción no se puede deshacer.`)) return;
