@@ -26,7 +26,8 @@ class RegisterRequest(BaseModel):
 
 
 class FacebookLoginRequest(BaseModel):
-    access_token: str
+    code: str
+    redirect_uri: str
 
 
 class GoogleLoginRequest(BaseModel):
@@ -75,23 +76,26 @@ def facebook_login(payload: FacebookLoginRequest, db: Session = Depends(get_db))
     if not FACEBOOK_APP_ID or not FACEBOOK_APP_SECRET:
         raise HTTPException(status_code=500, detail="Facebook Login no configurado")
 
-    # Verificar token con Facebook
-    app_token = f"{FACEBOOK_APP_ID}|{FACEBOOK_APP_SECRET}"
-    debug_res = http_requests.get(
-        "https://graph.facebook.com/debug_token",
-        params={"input_token": payload.access_token, "access_token": app_token}
+    # Intercambiar code por access_token
+    token_res = http_requests.get(
+        "https://graph.facebook.com/v25.0/oauth/access_token",
+        params={
+            "client_id": FACEBOOK_APP_ID,
+            "client_secret": FACEBOOK_APP_SECRET,
+            "redirect_uri": payload.redirect_uri,
+            "code": payload.code,
+        }
     ).json()
 
-    fb_data = debug_res.get("data", {})
-    if not fb_data.get("is_valid"):
-        raise HTTPException(status_code=401, detail="Token de Facebook inválido")
-    if str(fb_data.get("app_id")) != FACEBOOK_APP_ID:
-        raise HTTPException(status_code=401, detail="Token no pertenece a esta app")
+    access_token = token_res.get("access_token")
+    if not access_token:
+        err = token_res.get("error", {}).get("message", "No se pudo obtener el token de Facebook")
+        raise HTTPException(status_code=401, detail=err)
 
     # Obtener datos del usuario
     user_info = http_requests.get(
         "https://graph.facebook.com/me",
-        params={"fields": "id,name,email", "access_token": payload.access_token}
+        params={"fields": "id,name,email", "access_token": access_token}
     ).json()
 
     fb_id = user_info.get("id")

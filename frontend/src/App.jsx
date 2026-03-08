@@ -7,6 +7,7 @@ import Analytics from './pages/Analytics';
 import Templates from './pages/Templates';
 import Privacy from './pages/Privacy';
 import GoogleCallback from './pages/GoogleCallback';
+import FacebookCallback from './pages/FacebookCallback';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Onboarding from './pages/Onboarding';
@@ -27,6 +28,7 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/auth/google/callback" element={<GoogleCallback />} />
+                <Route path="/auth/facebook/callback" element={<FacebookCallback />} />
 
                 <Route path="/onboarding" element={
                     <PrivateRoute>
