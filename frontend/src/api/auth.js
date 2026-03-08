@@ -84,36 +84,48 @@ export async function loginWithFacebook() {
     });
 }
 
-export function loadGoogleSDK() {
-    return new Promise((resolve) => {
-        if (window.google?.accounts?.id) { resolve(); return; }
-        const script = document.createElement('script');
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.async = true;
-        script.defer = true;
-        script.onload = resolve;
-        document.head.appendChild(script);
-    });
-}
-
 export async function loginWithGoogle() {
-    await loadGoogleSDK();
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const redirectUri = `${window.location.origin}/auth/google/callback`;
+    const nonce = Math.random().toString(36).substring(2);
+
+    const params = new URLSearchParams({
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        response_type: 'id_token',
+        scope: 'email profile openid',
+        nonce,
+        prompt: 'select_account',
+    });
+
+    const popup = window.open(
+        `https://accounts.google.com/o/oauth2/v2/auth?${params}`,
+        'google_login',
+        'width=500,height=600,scrollbars=yes,resizable=yes'
+    );
+
+    if (!popup) {
+        throw new Error('El navegador bloqueó el popup. Permitir popups para este sitio e intentar de nuevo.');
+    }
+
     return new Promise((resolve, reject) => {
-        window.google.accounts.id.initialize({
-            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-            callback: (response) => {
-                if (response.credential) resolve(response.credential);
-                else reject(new Error('Login cancelado'));
-            },
-            auto_select: false,
-            cancel_on_tap_outside: true,
-            use_fedcm_for_prompt: false,
-        });
-        window.google.accounts.id.prompt((notification) => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                reject(new Error('El diálogo de Google no se pudo mostrar. Intentá con otro navegador o desactivá el bloqueador de popups.'));
+        const handler = (event) => {
+            if (event.origin !== window.location.origin) return;
+            if (event.data?.type !== 'google_auth') return;
+            window.removeEventListener('message', handler);
+            clearInterval(checkClosed);
+            if (event.data.id_token) resolve(event.data.id_token);
+            else reject(new Error(event.data.error || 'No se obtuvo token de Google'));
+        };
+        window.addEventListener('message', handler);
+
+        const checkClosed = setInterval(() => {
+            if (popup?.closed) {
+                clearInterval(checkClosed);
+                window.removeEventListener('message', handler);
+                reject(new Error('Login cancelado'));
             }
-        });
+        }, 500);
     });
 }
 
