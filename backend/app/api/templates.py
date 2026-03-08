@@ -151,17 +151,30 @@ def send_template(
     tmpl = next((t for t in templates if t["name"] == template_name), None)
     language = tmpl["language"] if tmpl else "es"
 
-    from app.services.whatsapp import send_whatsapp_template
-    result = send_whatsapp_template(
-        to_number=payload.to_number,
-        template_name=template_name,
-        language=language,
-        components=payload.components or [],
-        phone_number_id=pid
+    import os as _os
+    import requests as _req
+    meta_token = _os.getenv("WHATSAPP_TOKEN")
+    clean_number = str(payload.to_number).replace("+", "").replace(" ", "")
+    send_body = {
+        "messaging_product": "whatsapp",
+        "to": clean_number,
+        "type": "template",
+        "template": {
+            "name": template_name,
+            "language": {"code": language},
+            "components": payload.components or []
+        }
+    }
+    send_res = _req.post(
+        f"https://graph.facebook.com/v21.0/{pid}/messages",
+        json=send_body,
+        headers={"Authorization": f"Bearer {meta_token}", "Content-Type": "application/json"}
     )
-    if result is None:
-        raise HTTPException(status_code=400, detail="Error al enviar el template. Verificá que el número esté en la lista de destinatarios permitidos en Meta.")
-    return result
+    data = send_res.json()
+    if not send_res.ok:
+        err = data.get("error", {}).get("message", f"Error {send_res.status_code}")
+        raise HTTPException(status_code=400, detail=err)
+    return data
 
 
 @router.delete("/templates/{tenant_id}/{template_name}")
