@@ -41,6 +41,8 @@ def send_whatsapp_template(to_number: str, template_name: str, language: str, co
         return None
     try:
         clean_number = str(to_number).replace("whatsapp:", "").replace("+", "").replace(" ", "")
+        if clean_number.startswith("549") and len(clean_number) == 13:
+            clean_number = "54" + clean_number[3:]
         url = f"https://graph.facebook.com/v21.0/{pid}/messages"
         data = {
             "messaging_product": "whatsapp",
@@ -78,6 +80,9 @@ def send_whatsapp_message(to_number: str, message_text: str, phone_number_id: st
             "Content-Type": "application/json"
         }
         clean_number = str(to_number).replace("whatsapp:", "").replace("+", "").replace(" ", "")
+        # Argentina: WhatsApp usa 549XXXXXXXXXX pero Meta API espera 54XXXXXXXXXX
+        if clean_number.startswith("549") and len(clean_number) == 13:
+            clean_number = "54" + clean_number[3:]
         data = {
             "messaging_product": "whatsapp",
             "to": clean_number,
