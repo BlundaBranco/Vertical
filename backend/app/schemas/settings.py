@@ -12,3 +12,4 @@ class SettingsUpdate(BaseModel):
     knowledge_base: Optional[str] = None
     knowledge_base_url: Optional[str] = None
     whatsapp_phone: Optional[str] = None
+    nationality: Optional[str] = "argentino"

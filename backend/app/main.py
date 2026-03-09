@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from app.api import webhook, leads, stats, settings, chat, auth, analytics, whatsapp_connect, templates
+from app.api import webhook, leads, stats, settings, chat, auth, analytics, whatsapp_connect, templates, billing
 
 
 def _run_sheets_sync():
@@ -28,6 +28,12 @@ def _run_zombie_check():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Crear tablas nuevas si no existen (seguro en producción — no borra datos)
+    from app.db.base import Base
+    from app.db.database import engine
+    import app.models  # noqa
+    Base.metadata.create_all(bind=engine)
+
     scheduler = BackgroundScheduler()
     scheduler.add_job(_run_sheets_sync, 'interval', minutes=30)
     scheduler.add_job(_run_zombie_check, 'interval', hours=1)
@@ -55,6 +61,7 @@ app.include_router(settings.router)
 app.include_router(chat.router)
 app.include_router(whatsapp_connect.router)
 app.include_router(templates.router)
+app.include_router(billing.router)
 
 
 @app.get("/")

@@ -22,9 +22,14 @@ function Toast({ toast }) {
 }
 
 const TONES = [
-    { value: 'cercano', label: 'Cercano', desc: 'Amigable y conversacional' },
-    { value: 'formal', label: 'Formal', desc: 'Profesional y ejecutivo' },
-    { value: 'agresivo', label: 'Directo', desc: 'Orientado al cierre rápido' },
+    { value: 'cercano',  label: 'Cercano',  desc: 'Amigable y conversacional' },
+    { value: 'formal',   label: 'Formal',   desc: 'Profesional y ejecutivo' },
+    { value: 'empatico', label: 'Empático', desc: 'Paciente y comprensivo' },
+];
+
+const NATIONALITIES = [
+    { value: 'argentino', label: 'Argentina', flag: '🇦🇷' },
+    { value: 'español',   label: 'España',    flag: '🇪🇸' },
 ];
 
 const EMBEDDED_SIGNUP_CONFIG_ID = import.meta.env.VITE_FACEBOOK_EMBEDDED_SIGNUP_CONFIG_ID;
@@ -228,7 +233,8 @@ export default function Settings() {
         knowledge_base: '',
         knowledge_base_url: '',
         phone_number_id: '',
-        whatsapp_phone: ''
+        whatsapp_phone: '',
+        nationality: 'argentino'
     });
 
     const showToast = (message, type = 'success') => {
@@ -250,7 +256,8 @@ export default function Settings() {
                     knowledge_base: data.knowledge_base || '',
                     knowledge_base_url: data.knowledge_base_url || '',
                     phone_number_id: data.phone_number_id || '',
-                    whatsapp_phone: data.whatsapp_phone || ''
+                    whatsapp_phone: data.whatsapp_phone || '',
+                    nationality: data.nationality || 'argentino'
                 };
                 setConfig(loaded);
                 setOriginal(loaded);
@@ -392,6 +399,30 @@ export default function Settings() {
                                             <span className="text-xs font-semibold">{t.label}</span>
                                         </div>
                                         <p className="text-xs opacity-60 leading-tight">{t.desc}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        </Field>
+
+                        {/* Nacionalidad — selector visual */}
+                        <Field label="Nacionalidad del agente" hint="Afecta el modo de habla: vos/tú, vocabulario regional">
+                            <div className="grid grid-cols-2 gap-2 mt-0.5">
+                                {NATIONALITIES.map(n => (
+                                    <button
+                                        key={n.value}
+                                        type="button"
+                                        onClick={() => handleChange('nationality', n.value)}
+                                        className={`p-3 rounded-xl border text-left transition-all ${
+                                            config.nationality === n.value
+                                                ? 'bg-violet-500/22 border-violet-500/50 text-white'
+                                                : 'bg-white/[0.04] border-violet-500/15 text-zinc-400 hover:border-white/25 hover:text-zinc-200'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-base">{n.flag}</span>
+                                            <span className="text-xs font-semibold">{n.label}</span>
+                                            {config.nationality === n.value && <Zap className="w-3 h-3 text-violet-400 ml-auto" />}
+                                        </div>
                                     </button>
                                 ))}
                             </div>

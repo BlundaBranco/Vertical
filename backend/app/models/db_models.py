@@ -33,6 +33,7 @@ class Tenant(Base):
     business_config = Column(JSON, default={})
 
     leads = relationship("Lead", back_populates="tenant")
+    subscription = relationship("Subscription", back_populates="tenant", uselist=False)
 
 
 class Lead(Base):
@@ -61,6 +62,23 @@ class Conversation(Base):
     timestamp = Column(DateTime, default=_utcnow)
 
     lead = relationship("Lead", back_populates="conversations")
+
+
+class Subscription(Base):
+    __tablename__ = "subscriptions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), unique=True)
+    plan = Column(String, nullable=False)  # "essential" | "pro"
+    status = Column(String, default="pending")  # pending | active | expired | cancelled
+    mp_payment_id = Column(String, nullable=True)
+    mp_preference_id = Column(String, nullable=True)
+    current_period_start = Column(DateTime, nullable=True)
+    current_period_end = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow)
+
+    tenant = relationship("Tenant", back_populates="subscription")
 
 
 class User(Base):

@@ -132,6 +132,20 @@ export async function changePassword(currentPassword, newPassword) {
     return handleResponse(res);
 }
 
+export async function fetchBillingStatus(tenantId) {
+    const res = await fetch(`${BASE_URL}/billing/status/${tenantId}`, { headers: authHeaders() });
+    return handleResponse(res);
+}
+
+export async function createSubscription(tenantId, plan, payerEmail) {
+    const res = await fetch(`${BASE_URL}/billing/create-subscription/${tenantId}`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ plan, payer_email: payerEmail })
+    });
+    return handleResponse(res);
+}
+
 export function logout() {
     clearToken();
     window.location.href = '/login';

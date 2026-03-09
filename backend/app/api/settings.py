@@ -50,7 +50,8 @@ def get_settings(tenant_id: int, db: Session = Depends(get_db), current_user=Dep
         "knowledge_base_url": config.get("knowledge_base_url", ""),
         "phone_number_id": pid or "",
         "whatsapp_phone": display_phone,
-        "bot_active": config.get("bot_active", True)
+        "bot_active": config.get("bot_active", True),
+        "nationality": config.get("nationality", "argentino")
     }
 
 
@@ -69,7 +70,8 @@ def update_settings(tenant_id: int, payload: SettingsUpdate, db: Session = Depen
         "specialty": payload.specialty,
         "catalog_url": payload.catalog_url,
         "knowledge_base": payload.knowledge_base or "",
-        "knowledge_base_url": payload.knowledge_base_url or ""
+        "knowledge_base_url": payload.knowledge_base_url or "",
+        "nationality": payload.nationality or "argentino"
     }
 
     if payload.whatsapp_phone is not None:
