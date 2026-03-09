@@ -69,11 +69,16 @@ function TemplateCard({ template, onDelete, tenantId }) {
     const footerComp = template.components?.find(c => c.type === 'FOOTER');
     const bodyVars = [...new Set((bodyComp?.text?.match(/\{\{\d+\}\}/g) || []))];
 
+    const [deleteError, setDeleteError] = useState('');
+
     const handleDelete = async () => {
         if (!confirm(`¿Eliminar la plantilla "${template.name}"? Esta acción no se puede deshacer.`)) return;
         setDeleting(true);
+        setDeleteError('');
         try {
             await onDelete(template.name);
+        } catch (err) {
+            setDeleteError(err.message || 'Error al eliminar');
         } finally {
             setDeleting(false);
         }
@@ -137,6 +142,12 @@ function TemplateCard({ template, onDelete, tenantId }) {
                     </button>
                 </div>
             </div>
+
+            {deleteError && (
+                <div className="px-4 pb-3">
+                    <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{deleteError}</p>
+                </div>
+            )}
 
             {showSend && (
                 <div className="border-t border-emerald-500/15 px-4 py-3 bg-emerald-500/5">
@@ -404,7 +415,7 @@ export default function Templates() {
     }, [load]);
 
     const handleDelete = async (name) => {
-        await deleteTemplate(tenantId, name);
+        await deleteTemplate(tenantId, name); // throws si Meta falla
         setTemplates(prev => prev.filter(t => t.name !== name));
     };
 
