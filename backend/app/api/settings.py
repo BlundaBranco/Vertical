@@ -1,9 +1,12 @@
+import os
+
+import requests
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
 from app.db.database import get_db
-from app.models import Tenant
+from app.models import Tenant, VerticalTemplate
 from app.schemas.settings import SettingsUpdate
 from app.services.auth_service import get_current_user
 
@@ -18,7 +21,6 @@ def get_settings(tenant_id: int, db: Session = Depends(get_db), current_user=Dep
     if not tenant:
         raise HTTPException(status_code=404, detail="Negocio no encontrado")
 
-    import os, requests as req
     config = tenant.business_config or {}
 
     # Intentar obtener el número real desde Meta si tenemos phone_number_id
@@ -27,7 +29,7 @@ def get_settings(tenant_id: int, db: Session = Depends(get_db), current_user=Dep
     if pid and not display_phone:
         try:
             token = os.getenv("WHATSAPP_TOKEN")
-            r = req.get(
+            r = requests.get(
                 f"https://graph.facebook.com/v21.0/{pid}",
                 params={"fields": "display_phone_number,verified_name"},
                 headers={"Authorization": f"Bearer {token}"},
@@ -51,7 +53,8 @@ def get_settings(tenant_id: int, db: Session = Depends(get_db), current_user=Dep
         "phone_number_id": pid or "",
         "whatsapp_phone": display_phone,
         "bot_active": config.get("bot_active", True),
-        "nationality": config.get("nationality", "argentino")
+        "nationality": config.get("nationality", "argentino"),
+        "vertical": tenant.template.name if tenant.template else "real_estate_v1"
     }
 
 
@@ -64,6 +67,7 @@ def update_settings(tenant_id: int, payload: SettingsUpdate, db: Session = Depen
         raise HTTPException(status_code=404, detail="Negocio no encontrado")
 
     tenant.name = payload.business_name
+    existing_config = tenant.business_config or {}
     config = {
         "agent_name": payload.agent_name,
         "tone": payload.tone,
@@ -71,7 +75,8 @@ def update_settings(tenant_id: int, payload: SettingsUpdate, db: Session = Depen
         "catalog_url": payload.catalog_url,
         "knowledge_base": payload.knowledge_base or "",
         "knowledge_base_url": payload.knowledge_base_url or "",
-        "nationality": payload.nationality or "argentino"
+        "nationality": payload.nationality or "argentino",
+        "bot_active": existing_config.get("bot_active", True),
     }
 
     if payload.whatsapp_phone is not None:
@@ -81,14 +86,21 @@ def update_settings(tenant_id: int, payload: SettingsUpdate, db: Session = Depen
     if payload.knowledge_base_url:
         from app.services.sheets_sync import sync_tenant_sheets
         tenant.business_config = config
+        flag_modified(tenant, "business_config")
         db.commit()
         sync_tenant_sheets(tenant, db)
         return {"status": "success", "message": "Configuración guardada y Google Sheets sincronizado"}
 
     tenant.business_config = config
+    flag_modified(tenant, "business_config")
 
     if tenant.template:
         tenant.template.assistant_name = payload.assistant_name
+
+    if payload.vertical:
+        new_template = db.query(VerticalTemplate).filter(VerticalTemplate.name == payload.vertical).first()
+        if new_template:
+            tenant.template_id = new_template.id
 
     db.commit()
     return {"status": "success", "message": "Configuración actualizada correctamente"}

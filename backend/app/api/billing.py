@@ -27,7 +27,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.models.db_models import Subscription
+from app.models.db_models import Subscription, Tenant
 from app.services.auth_service import get_current_user
 
 router = APIRouter(prefix="/billing", tags=["billing"])
@@ -209,6 +209,11 @@ async def mp_webhook(request: Request, db: Session = Depends(get_db)):
     try:
         tenant_id = int(tenant_id_str)
     except ValueError:
+        return {"status": "ok"}
+
+    tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+    if not tenant:
+        print(f"[BILLING] Webhook: tenant {tenant_id} no existe — ignorando")
         return {"status": "ok"}
 
     sub = db.query(Subscription).filter(Subscription.tenant_id == tenant_id).first()

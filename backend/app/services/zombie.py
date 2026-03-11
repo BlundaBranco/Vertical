@@ -13,7 +13,7 @@ def check_zombie_leads(db: Session):
     """Detecta leads QUALIFYING sin actividad 48h, los marca ZOMBIE y envía template de reactivación."""
     cutoff = datetime.now(timezone.utc) - timedelta(hours=ZOMBIE_HOURS)
 
-    qualifying_leads = db.query(Lead).filter(Lead.status == "QUALIFYING").all()
+    qualifying_leads = db.query(Lead).filter(Lead.status.in_(["NEW", "QUALIFYING"])).all()
     flagged = 0
 
     for lead in qualifying_leads:

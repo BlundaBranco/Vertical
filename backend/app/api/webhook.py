@@ -1,4 +1,8 @@
 import os
+import hmac
+import hashlib
+import json
+import traceback
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
@@ -12,6 +16,7 @@ from app.services.ai_engine import transcribe_audio
 router = APIRouter()
 
 VERIFY_TOKEN = os.getenv("WEBHOOK_VERIFY_TOKEN", "admin")
+META_APP_SECRET = os.getenv("META_APP_SECRET", "")
 
 
 def _log(msg: str) -> None:
@@ -36,7 +41,6 @@ async def verify_webhook(request: Request):
         return PlainTextResponse(content="Error", status_code=403)
     except Exception as e:
         _log(f"[WEBHOOK] Excepcion en GET /webhook: {e}")
-        import traceback
         traceback.print_exc()
         return PlainTextResponse(content="Error", status_code=500)
 
@@ -45,7 +49,19 @@ async def verify_webhook(request: Request):
 async def receive_whatsapp_message(request: Request, db: Session = Depends(get_db)):
     """Recibe mensajes de WhatsApp (JSON de Meta)."""
     try:
-        body = await request.json()
+        raw_body = await request.body()
+
+        # Verificación de firma HMAC-SHA256 (X-Hub-Signature-256)
+        if META_APP_SECRET:
+            signature = request.headers.get("X-Hub-Signature-256", "")
+            expected = "sha256=" + hmac.new(
+                META_APP_SECRET.encode(), raw_body, hashlib.sha256
+            ).hexdigest()
+            if not hmac.compare_digest(signature, expected):
+                _log("[WEBHOOK] Firma X-Hub-Signature-256 inválida — rechazado")
+                return PlainTextResponse("Forbidden", status_code=403)
+
+        body = json.loads(raw_body)
         _log("[WEBHOOK] Mensaje recibido desde Meta")
         if "entry" not in body:
             return {"status": "unknown_format"}
@@ -55,6 +71,10 @@ async def receive_whatsapp_message(request: Request, db: Session = Depends(get_d
         val = entry[0].get("changes", [{}])[0].get("value", {})
         if "messages" not in val:
             return {"status": "ok"}
+
+        # Identificar el tenant por phone_number_id (Meta lo manda en el payload)
+        phone_number_id = val.get("metadata", {}).get("phone_number_id")
+
         messages_list = val.get("messages", [])
         if not messages_list:
             return {"status": "ok"}
@@ -81,9 +101,6 @@ async def receive_whatsapp_message(request: Request, db: Session = Depends(get_d
             return {"status": "unsupported_type", "type": msg_type}
 
         _log(f"[WEBHOOK] De {num}: {txt[:50]}...")
-
-        # Identificar el tenant por phone_number_id (Meta lo manda en el payload)
-        phone_number_id = val.get("metadata", {}).get("phone_number_id")
         if phone_number_id:
             tenant = db.query(Tenant).filter_by(phone_number_id=str(phone_number_id)).first()
         else:
@@ -137,6 +154,5 @@ async def receive_whatsapp_message(request: Request, db: Session = Depends(get_d
 
     except Exception as e:
         _log(f"[WEBHOOK] Error critico: {e}")
-        import traceback
         traceback.print_exc()
         return {"status": "error", "message": str(e)}

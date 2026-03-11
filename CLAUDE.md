@@ -41,16 +41,27 @@ Reglas de calificación en `flows.py`: si `motivo_rechazo` → LOST; si tiene no
 - Dashboard React — "bandeja de entrada inteligente"
 - Detección de motivos de rechazo (ventas perdidas)
 - Configuración de identidad del bot (nombre, tono, reglas, knowledge base)
+- **Protocolo Zombie:** APScheduler 1h, leads QUALIFYING 48h → ZOMBIE + template `reactivacion_lead`
+- **Lógica de Resurrección:** lead LOST vuelve a escribir → limpia motivo_rechazo, status → QUALIFYING
+- **Notificaciones proactivas:** email Zoho SMTP al dueño cuando lead pasa a QUALIFIED
+- **Audio con Whisper:** `ai_engine.transcribe_audio()` — audio de WhatsApp → texto, luego proceso normal
+- **Auth completo:** JWT + Google OAuth2 popup + email/password
+- **Embedded Signup WhatsApp:** clientes conectan su propio número desde Settings/Onboarding
+- **Google Sheets sync:** APScheduler 30min + inmediato al guardar
+- **Plantillas WhatsApp:** UI completa lista/crear/borrar/enviar vía Meta Graph API
+- **Bot toggle:** activa/pausa el bot sin tocar settings (PATCH /settings/{id}/bot-toggle)
+- **Analytics:** conversion funnel, leads por día, motivos de pérdida
+- **Onboarding:** flujo de 7 pasos para nuevo cliente
+- **Landing completa** con precios ($49/$89 USD/mes)
 
 **Prioridad alta (pendiente):**
-- **Protocolo Zombie:** si lead queda en QUALIFYING sin responder 48h, la IA envía mensaje de reactivación
-- **Lógica de Resurrección:** si lead LOST vuelve con interés → moverlo a QUALIFYING/NEW automáticamente
-- **Notificaciones proactivas:** Email o WhatsApp al dueño cuando lead pasa a QUALIFIED
-- **Self-Service Onboarding:** registro, pago (Stripe/MercadoPago), configuración inicial sin intervención
+- **Self-Service Billing:** MercadoPago ($49/$89 USD/mes ya en landing)
+- **Modo producción Meta:** aprobación `whatsapp_business_management` en revisión (video enviado)
 
 **Futuro:**
-- Multimedia: audios con Whisper, análisis de fotos
 - Análisis de sentimiento: "termómetro" (Fuego/Hielo) en dashboard
+- Análisis de fotos con visión
+- Más verticales: Clínicas ("Sofía"), Concesionarias ("Marcos")
 
 ---
 
@@ -96,12 +107,17 @@ ngrok http 8000   # URL pública para webhook de Meta
 ### Flujo end-to-end
 
 ```
-WhatsApp User → Meta Cloud API → POST /webhook (main.py)
-  → busca/crea Tenant + Lead en DB
+WhatsApp User → Meta Cloud API → POST /webhook (webhook.py)
+  → si audio: transcribe_audio() → Whisper → texto
+  → guards: bot_active?, HUMAN_HANDOFF?, LOST/ZOMBIE? (resurrección automática)
+  → busca/crea Tenant + Lead en DB por phone_number_id
   → PASE 1: ai_engine.extract_information() → OpenAI extrae JSON → actualiza lead.extracted_data
-  → flows.check_lead_qualification() → actualiza lead.status
+  → flows.check_lead_qualification() → actualiza lead.status (QUALIFIED/LOST)
+  → si QUALIFIED: notifications.send_email_notification()
   → PASE 2: ai_engine.generate_response() → OpenAI genera respuesta conversacional
-  → whatsapp_client.send_whatsapp_message() → Meta entrega al usuario
+  → whatsapp.send_whatsapp_message() → Meta entrega al usuario
+APScheduler (1h): zombie.py → leads QUALIFYING 48h → ZOMBIE + template reactivacion_lead
+APScheduler (30min): sheets_sync.py → leads calificados → Google Sheets
 ```
 
 Dashboard React consume la misma API: `GET /leads/{tenant_id}`, `GET /stats/{tenant_id}`, `GET/POST /settings/{tenant_id}`.
@@ -185,8 +201,8 @@ VITE_API_URL=http://localhost:8000
 
 ## Documentación interna adicional
 
-- `ARCHITECTURE.md` — diagrama Mermaid, diccionario de datos, mapa de archivos
-- `PROMPT-MAESTRO-IA.md` — fuente de verdad del contexto de negocio y arquitectura
+- `ARCHITECTURE.md` — diagrama Mermaid actualizado, modelo de datos, mapa de archivos real
 - `docs/ONBOARDING-CLIENTE-WHATSAPP.md` — API oficial Meta, partner, Coexistence
 - `docs/GUIA-META-API-PASO-A-PASO.md` — webhook, ngrok, modo Live
 - `docs/CREAR-APP-META-PASO-A-PASO.md` — crear app Conversa en Meta
+- `docs/Documentacion API Whatsapp Business/` — 201 archivos .md oficiales de Meta (leer antes de implementar cualquier cosa de WhatsApp)

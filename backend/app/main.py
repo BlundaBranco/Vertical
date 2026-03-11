@@ -26,6 +26,27 @@ def _run_zombie_check():
         db.close()
 
 
+def _seed_verticals():
+    """Crea verticales faltantes en DB. Idempotente — no borra ni modifica existentes."""
+    from app.db.database import SessionLocal
+    from app.models import VerticalTemplate
+    db = SessionLocal()
+    try:
+        if not db.query(VerticalTemplate).filter(VerticalTemplate.name == "general_v1").first():
+            db.add(VerticalTemplate(
+                name="general_v1",
+                assistant_name="Asistente",
+                system_prompt_base="Sos {assistant_name}, quien atiende consultas de {business_name} por WhatsApp.",
+                required_fields_schema=["nombre"],
+            ))
+            db.commit()
+            print("[SEED] Vertical 'general_v1' creado.")
+    except Exception as e:
+        print(f"[SEED] Error al crear general_v1: {e}")
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Crear tablas nuevas si no existen (seguro en producción — no borra datos)
@@ -33,6 +54,7 @@ async def lifespan(app: FastAPI):
     from app.db.database import engine
     import app.models  # noqa
     Base.metadata.create_all(bind=engine)
+    _seed_verticals()
 
     scheduler = BackgroundScheduler()
     scheduler.add_job(_run_sheets_sync, 'interval', minutes=30)

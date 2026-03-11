@@ -84,6 +84,7 @@ export default function Onboarding() {
         knowledge_base_url: '',
         knowledge_base: '',
         whatsapp_phone: '',
+        vertical: 'real_estate_v1',
     });
     const [waConnected, setWaConnected] = useState(false);
     const [waPhone, setWaPhone] = useState('');
@@ -104,8 +105,8 @@ export default function Onboarding() {
         setSaving(true);
         try {
             await saveSettings(tenantId, {
-                business_name: data.business_name || 'Mi Inmobiliaria',
-                assistant_name: data.assistant_name || 'Ana',
+                business_name: data.business_name || 'Mi Negocio',
+                assistant_name: data.assistant_name || 'Asistente',
                 agent_name: 'Equipo',
                 tone: data.tone || 'cercano',
                 specialty: data.specialty || '',
@@ -113,6 +114,7 @@ export default function Onboarding() {
                 knowledge_base: data.knowledge_base || '',
                 knowledge_base_url: data.knowledge_base_url || '',
                 whatsapp_phone: data.whatsapp_phone || '',
+                vertical: data.vertical || 'real_estate_v1',
             });
         } finally {
             setSaving(false);
@@ -150,7 +152,7 @@ export default function Onboarding() {
                     config_id: CONFIG_ID,
                     response_type: 'code',
                     override_default_response_type: true,
-                    extras: { version: 'v3' },
+                    extras: { version: 'v3', featureType: 'whatsapp_business_app_onboarding' },
                 });
             });
             const result = await connectWhatsApp(code, sessionWabaId, sessionPhoneNumberId);
@@ -251,19 +253,21 @@ export default function Onboarding() {
                         >
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {[
-                                    { id: 'real_estate', label: 'Inmobiliaria', desc: 'Alquiler y venta de propiedades', icon: Home, active: true },
-                                    { id: 'clinic', label: 'Clínica / Salud', desc: 'Turnos y consultas médicas', icon: Bot, active: false },
-                                    { id: 'dealership', label: 'Concesionaria', desc: 'Venta de vehículos', icon: Building2, active: false },
-                                    { id: 'other', label: 'Otro rubro', desc: 'Próximamente', icon: Zap, active: false },
+                                    { id: 'real_estate_v1', label: 'Inmobiliaria', desc: 'Alquiler y venta de propiedades', icon: Home, active: true },
+                                    { id: 'general_v1', label: 'General', desc: 'Configurá el bot a medida para tu negocio', icon: Zap, active: true },
+                                    { id: 'clinic_v1', label: 'Clínica / Salud', desc: 'Turnos y consultas médicas', icon: Bot, active: false },
+                                    { id: 'dealer_v1', label: 'Concesionaria', desc: 'Venta de vehículos', icon: Building2, active: false },
                                 ].map(({ id, label, desc, icon: Icon, active }) => (
                                     <button
                                         key={id}
                                         disabled={!active}
-                                        onClick={active ? next : undefined}
+                                        onClick={active ? () => { set('vertical', id); next(); } : undefined}
                                         className={`p-4 rounded-xl border text-left transition-all ${
-                                            active
-                                                ? 'bg-violet-500/10 border-violet-500/40 text-white hover:bg-violet-500/15 cursor-pointer'
-                                                : 'bg-white/[0.02] border-white/[0.06] text-gray-600 cursor-not-allowed'
+                                            answers.vertical === id && active
+                                                ? 'bg-violet-500/15 border-violet-500/60 text-white'
+                                                : active
+                                                    ? 'bg-violet-500/10 border-violet-500/40 text-white hover:bg-violet-500/15 cursor-pointer'
+                                                    : 'bg-white/[0.02] border-white/[0.06] text-gray-600 cursor-not-allowed'
                                         }`}
                                     >
                                         <div className="flex items-center gap-2 mb-1.5">
@@ -281,7 +285,7 @@ export default function Onboarding() {
                     {/* Step 2: Nombre negocio */}
                     {step === 2 && (
                         <StepWrapper
-                            step={2} title="¿Cuál es el nombre de tu inmobiliaria?"
+                            step={2} title="¿Cuál es el nombre de tu negocio?"
                             onNext={next} onBack={back}
                             nextDisabled={!answers.business_name.trim()}
                         >
@@ -292,7 +296,7 @@ export default function Onboarding() {
                                 onKeyDown={e => e.key === 'Enter' && answers.business_name.trim() && next()}
                                 autoFocus
                                 className={inputClass}
-                                placeholder="Ej: Inmobiliaria del Sur"
+                                placeholder={answers.vertical === 'real_estate_v1' ? 'Ej: Inmobiliaria del Sur' : 'Ej: Mi Empresa'}
                             />
                         </StepWrapper>
                     )}
@@ -301,7 +305,9 @@ export default function Onboarding() {
                     {step === 3 && (
                         <StepWrapper
                             step={3} title="¿Cómo se llamará tu asistente de IA?"
-                            subtitle='Sugerencia: "Ana" — nombre cercano, ideal para inmobiliarias.'
+                            subtitle={answers.vertical === 'real_estate_v1'
+                                ? '"Ana" — nombre cercano, ideal para inmobiliarias.'
+                                : 'Elegí un nombre que represente a tu negocio.'}
                             onNext={next} onBack={back}
                         >
                             <input
@@ -311,10 +317,13 @@ export default function Onboarding() {
                                 onKeyDown={e => e.key === 'Enter' && next()}
                                 autoFocus
                                 className={inputClass}
-                                placeholder="Ej: Ana"
+                                placeholder={answers.vertical === 'real_estate_v1' ? 'Ej: Ana' : 'Ej: Carlos, Mia, Lara'}
                             />
                             <div className="flex flex-wrap gap-2 mt-3">
-                                {['Ana', 'Sofía', 'Valentina', 'Laura'].map(name => (
+                                {(answers.vertical === 'real_estate_v1'
+                                    ? ['Ana', 'Sofía', 'Valentina', 'Laura']
+                                    : ['Carlos', 'Mia', 'Lara', 'Martín', 'Juliana']
+                                ).map(name => (
                                     <button
                                         key={name}
                                         onClick={() => set('assistant_name', name)}
@@ -359,11 +368,16 @@ export default function Onboarding() {
                         </StepWrapper>
                     )}
 
-                    {/* Step 5: Especialidad / Zonas */}
+                    {/* Step 5: Especialidad */}
                     {step === 5 && (
                         <StepWrapper
-                            step={5} title="¿En qué zonas o tipo de propiedades trabajás?"
-                            subtitle="Esto limita al bot para que no prometa lo que no tenés."
+                            step={5}
+                            title={answers.vertical === 'real_estate_v1'
+                                ? '¿En qué zonas o tipo de propiedades trabajás?'
+                                : '¿En qué se especializa tu negocio?'}
+                            subtitle={answers.vertical === 'real_estate_v1'
+                                ? 'Esto limita al bot para que no prometa lo que no tenés.'
+                                : 'Describí brevemente qué hace tu negocio y qué ofrece.'}
                             onNext={next} onBack={back}
                         >
                             <textarea
@@ -373,17 +387,22 @@ export default function Onboarding() {
                                 autoFocus
                                 rows={4}
                                 className={`${inputClass} resize-none leading-relaxed`}
-                                placeholder="Ej: Solo trabajamos en Zona Norte (Tigre, San Isidro, San Fernando). Mínimo 2 ambientes. No hacemos alquileres temporarios."
+                                placeholder={answers.vertical === 'real_estate_v1'
+                                    ? 'Ej: Solo trabajamos en Zona Norte (Tigre, San Isidro, San Fernando). Mínimo 2 ambientes. No hacemos alquileres temporarios.'
+                                    : 'Ej: Somos una empresa de catering especializada en eventos corporativos. Atendemos CABA y GBA.'}
                             />
                             <p className="text-xs text-gray-600 mt-2">Ctrl+Enter para continuar</p>
                         </StepWrapper>
                     )}
 
-                    {/* Step 6: Inventario */}
+                    {/* Step 6: Inventario / Base de conocimiento */}
                     {step === 6 && (
                         <StepWrapper
-                            step={6} title="¿Cómo cargás tu inventario?"
-                            subtitle="El bot usa esta info para responder consultas sobre propiedades."
+                            step={6}
+                            title={answers.vertical === 'real_estate_v1' ? '¿Cómo cargás tu inventario?' : '¿Cómo cargás tu base de conocimiento?'}
+                            subtitle={answers.vertical === 'real_estate_v1'
+                                ? 'El bot usa esta info para responder consultas sobre propiedades.'
+                                : 'El bot usa esta info para responder consultas sobre tus productos y servicios.'}
                             onNext={() => {
                                 if (kbMode === 'later') { set('knowledge_base_url', ''); set('knowledge_base', ''); }
                                 next();

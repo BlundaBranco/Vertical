@@ -71,7 +71,7 @@ function WhatsAppSection({ connected, phone, phoneNumberId, onConnected }) {
                     config_id: EMBEDDED_SIGNUP_CONFIG_ID,
                     response_type: 'code',
                     override_default_response_type: true,
-                    extras: { version: 'v3' },
+                    extras: { version: 'v3', featureType: 'whatsapp_business_app_onboarding' },
                 });
             });
 

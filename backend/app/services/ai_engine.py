@@ -1,14 +1,30 @@
 import io
 import os
 import json
+import importlib
 from typing import Optional
 from openai import OpenAI
 from dotenv import load_dotenv
 
-from verticals.real_estate_v1.schema import ExtractionSchema
-
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+
+def _get_vertical_schema(template_name: str):
+    try:
+        module = importlib.import_module(f"verticals.{template_name}.schema")
+        return module.ExtractionSchema
+    except (ImportError, AttributeError):
+        from verticals.real_estate_v1.schema import ExtractionSchema
+        return ExtractionSchema
+
+
+def _get_extraction_prompt(template_name: str) -> Optional[str]:
+    try:
+        module = importlib.import_module(f"verticals.{template_name}.prompts")
+        return getattr(module, "EXTRACTION_PROMPT", None)
+    except (ImportError, AttributeError):
+        return None
 
 
 def transcribe_audio(audio_bytes: bytes) -> Optional[str]:
@@ -27,12 +43,19 @@ def transcribe_audio(audio_bytes: bytes) -> Optional[str]:
         return None
 
 
-def extract_information(lead_data_actual: dict, user_message: str):
+def extract_information(lead_data_actual: dict, user_message: str, template_name: str = "real_estate_v1"):
     """
     PASE 1: El Analista.
     Extrae datos estructurados y detecta si la venta se cae.
+    Carga el schema y prompt dinámicamente según el vertical del tenant.
     """
-    prompt_extractor = f"""
+    ExtractionSchema = _get_vertical_schema(template_name)
+    custom_prompt = _get_extraction_prompt(template_name)
+
+    if custom_prompt:
+        prompt_extractor = f"{custom_prompt}\n\nDatos que ya tenemos: {json.dumps(lead_data_actual)}"
+    else:
+        prompt_extractor = f"""
     Eres un analista de datos experto en Real Estate. Tu única tarea es extraer información del mensaje del usuario.
     Datos que ya tenemos: {json.dumps(lead_data_actual)}
 
@@ -80,6 +103,8 @@ def generate_response(tenant, lead, user_message: str, conversations=None):
         agent_ref = "nuestro equipo de especialistas"
 
     tone = config.get("tone", "cercano")
+    if tone not in ("cercano", "formal", "empatico"):
+        tone = "cercano"
     specialty = config.get("specialty", "compra, venta y alquiler de propiedades")
     rules = config.get("rules", "atender cordialmente todas las consultas")
     catalog = config.get("catalog_url", "nuestro catálogo web")
@@ -164,4 +189,4 @@ ESTILO DE ESCRITURA — CRÍTICO:
         return response.choices[0].message.content
     except Exception as e:
         print(f"[ERROR] Generacion de respuesta: {e}")
-        return "Disculpa, estoy teniendo un problema técnico. ¿Podrías repetirme lo último?"
+        return "Tuve un problema técnico. Te pido que me repitas lo último."

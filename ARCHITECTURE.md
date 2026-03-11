@@ -1,170 +1,216 @@
 # ARCHITECTURE.md — Ventra AI
 
-Documento de arquitectura para dueños, inversores y nuevos desarrolladores. Explica cómo funciona el sistema de punta a punta.
+Documento de arquitectura actualizado. Estado real del sistema al 2026-03-08.
 
 ---
 
-## 1. Diagrama de Flujo (Mermaid.js)
-
-Cómo viaja un mensaje desde WhatsApp hasta la base de datos, la IA y de vuelta al usuario (y cómo el dashboard React consume esos datos).
+## 1. Flujo end-to-end (mensaje entrante)
 
 ```mermaid
-flowchart LR
-    subgraph WhatsApp
-        U[Usuario WhatsApp]
-    end
+flowchart TD
+    U[Usuario WhatsApp] -->|texto o audio| META[Meta Cloud API]
+    META -->|POST /webhook| WH[webhook.py]
 
-    subgraph Meta
-        T[Meta WhatsApp Cloud API]
-    end
+    WH -->|audio?| WHISPER[ai_engine.transcribe_audio\nOpenAI Whisper]
+    WHISPER -->|texto transcripto| WH
 
-    subgraph Python_Backend
-        WH[Webhook POST /webhook]
-        PM[process_message]
-        AE[ai_engine.py]
-        FL[flows.py]
-        DB_MOD[(Base de Datos)]
-        WC[whatsapp_client.py]
-    end
+    WH -->|identifica por phone_number_id| DB[(PostgreSQL)]
+    WH -->|bot_active? HUMAN_HANDOFF? LOST/ZOMBIE?| CHECK{Guards}
+    CHECK -->|procesar| PM[message_handler.process_message]
+    CHECK -->|silenciar/registrar| DB
 
-    subgraph OpenAI
-        OAI[OpenAI GPT-4o-mini]
-    end
+    PM -->|PASE 1| EXT[ai_engine.extract_information\nOpenAI structured output]
+    EXT -->|JSON: nombre, presupuesto, zona...| PM
+    PM -->|actualiza lead.extracted_data| DB
+    PM -->|check_lead_qualification| FL[flows.py]
+    FL -->|QUALIFIED → email| NOTIF[notifications.py\nZoho SMTP]
+    FL -->|actualiza lead.status| DB
 
-    subgraph React_Dashboard
-        REACT[Dashboard / Settings]
-    end
+    PM -->|PASE 2| GEN[ai_engine.generate_response\nOpenAI GPT-4o-mini]
+    GEN -->|respuesta conversacional| PM
+    PM -->|guarda en conversations| DB
+    PM -->|send_whatsapp_message| WA[whatsapp.py\nMeta Graph API]
+    WA --> META
+    META --> U
 
-    U -->|Envía mensaje| T
-    T -->|POST JSON| WH
-    WH -->|Obtiene tenant y lead| DB_MOD
-    WH -->|Llama| PM
-    PM -->|Guarda mensaje user| DB_MOD
-    PM -->|extract_information| AE
-    AE -->|Extrae datos estructurados| OAI
-    AE -->|nuevos_datos| PM
-    PM -->|Actualiza lead.extracted_data| DB_MOD
-    PM -->|check_lead_qualification| FL
-    FL -->|Actualiza status QUALIFIED/LOST| PM
-    PM -->|generate_response| AE
-    AE -->|Genera respuesta conversacional| OAI
-    PM -->|Guarda mensaje assistant| DB_MOD
-    PM -->|send_whatsapp_message| WC
-    WC -->|Envía texto| T
-    T -->|Entrega al usuario| U
-
-    REACT -->|GET /leads, /stats, /settings| WH
-    REACT -->|POST /settings| WH
-    WH -->|Lee/Actualiza| DB_MOD
-    DB_MOD -->|JSON leads, stats, config| REACT
+    SCHED[APScheduler\n1h] -->|leads QUALIFYING 48h| ZOMBIE[zombie.py\ntemplates reactivacion_lead]
+    ZOMBIE --> WA
+    SCHED -->|cada 30min| SHEETS[sheets_sync.py\nGoogle Sheets]
+    SHEETS --> DB
 ```
 
-### Flujo paso a paso (mensaje entrante)
+### Guards antes de procesar (webhook.py)
 
-1. **Meta WhatsApp Cloud API** recibe el mensaje del usuario y hace un POST a tu servidor en `/webhook`.
-2. **main.py** recibe el webhook, parsea el número y el texto (JSON de Meta), busca o crea el **Tenant** y el **Lead** en la base de datos.
-3. **process_message** guarda el mensaje del usuario en la tabla **Conversation**, luego llama a **ai_engine**:
-   - **PASE 1 — Extracción:** `extract_information()` envía el mensaje a **OpenAI** con un esquema (nombre, presupuesto, zona, tipo_propiedad, motivo_rechazo, etc.) y devuelve datos estructurados que se guardan en `lead.extracted_data`.
-   - **flows.check_lead_qualification** actualiza el estado del lead (QUALIFIED, LOST, etc.) según esos datos.
-   - **PASE 2 — Respuesta:** `generate_response()` arma un prompt con la configuración del negocio y los datos del lead, llama de nuevo a **OpenAI** y obtiene el texto de respuesta.
-4. Esa respuesta se guarda en **Conversation** y se envía al usuario vía **whatsapp_client** (Meta).
-5. El **Dashboard React** consume los mismos datos vía `GET /leads/{tenant_id}`, `GET /stats/{tenant_id}` y `GET/POST /settings/{tenant_id}`, leyendo y mostrando lo que ya está en la base de datos.
+| Condición | Acción |
+|-----------|--------|
+| `bot_active = False` | Solo registra el mensaje, no responde |
+| `lead.status = HUMAN_HANDOFF` | Solo registra el mensaje, bot silenciado |
+| `lead.status = LOST` + nuevo mensaje | Resurrección: limpia `motivo_rechazo`, status → QUALIFYING |
+| `lead.status = ZOMBIE` + nuevo mensaje | Reactivación: status → QUALIFYING |
 
----
+### Funnel de leads
 
-## 2. Diccionario de Datos (models.py)
-
-Descripción de cada tabla y qué datos guarda.
-
-| Tabla | Propósito | Datos que guarda |
-|-------|-----------|-------------------|
-| **vertical_templates** | Plantillas por industria (ej. inmobiliaria). Define el “cerebro” base del asistente y los campos a extraer. | `id`, `name` (ej. real_estate_v1), `assistant_name` (ej. Ana), `system_prompt_base` (prompt plantilla), `required_fields_schema` (JSON con campos como nombre, presupuesto, zona). |
-| **tenants** | Clientes del sistema (cada negocio que usa Ventra). Un tenant = un negocio con su WhatsApp y su configuración. | `id`, `name`, `phone_number_id`, `template_id` (FK a vertical_templates), `business_config` (JSON: agent_name, tone, specialty, catalog_url, knowledge_base, rules). |
-| **leads** | Usuarios finales que escriben por WhatsApp. Un lead = una conversación con un posible cliente de un tenant. | `id`, `whatsapp_id`, `tenant_id` (FK a tenants), `status` (NEW, QUALIFYING, QUALIFIED, HUMAN_HANDOFF, LOST), `extracted_data` (JSON: nombre, presupuesto, zona, tipo_propiedad, motivo_rechazo, etc.), `created_at`. |
-| **conversations** | Historial de mensajes de cada lead. Cada fila es un mensaje (usuario o asistente). | `id`, `lead_id` (FK a leads), `role` (user | assistant), `content` (texto del mensaje), `timestamp`. |
-
-### Relaciones
-
-- Un **Tenant** tiene una **VerticalTemplate** y muchos **Leads**.
-- Un **Lead** tiene muchas **Conversations**.
-- Toda la lógica de negocio (calificación, notificaciones) usa `lead.extracted_data` y `lead.status`.
+```
+NEW → QUALIFYING → QUALIFIED  (trigger: nombre + presupuesto + zona → email al dueño)
+                 → LOST        (trigger: motivo_rechazo en extracted_data)
+                 → ZOMBIE      (trigger: APScheduler 48h sin respuesta → template reactivacion_lead)
+                 → HUMAN_HANDOFF  (trigger: operador toma control desde dashboard)
+```
 
 ---
 
-## 3. Mapa de Archivos
+## 2. Mapa de archivos — Backend (`backend/`)
 
-Qué hace cada archivo en una oración.
+### API (`app/api/`)
 
-### Backend (raíz del proyecto)
+| Archivo | Responsabilidad |
+|---------|----------------|
+| `webhook.py` | GET/POST /webhook — verificación Meta, extracción de audio (Whisper), guards, despacha a process_message |
+| `auth.py` | Login email/password, Google OAuth2, JWT tokens, registro |
+| `leads.py` | GET /leads/{tenant_id} — lista leads con conversaciones |
+| `stats.py` | GET /stats/{tenant_id} — KPIs del dashboard |
+| `analytics.py` | GET /analytics/{tenant_id} — datos detallados para gráficos |
+| `settings.py` | GET/POST /settings/{tenant_id}, PATCH /settings/{tenant_id}/bot-toggle |
+| `templates.py` | CRUD de plantillas WhatsApp vía Meta Graph API + envío |
+| `whatsapp_connect.py` | Embedded Signup — recibe token de Facebook y conecta WABA del cliente |
+| `chat.py` | GET /ping, POST /test-chat |
+
+### Services (`app/services/`)
+
+| Archivo | Responsabilidad |
+|---------|----------------|
+| `ai_engine.py` | `extract_information()` (PASE 1, structured output), `generate_response()` (PASE 2), `transcribe_audio()` (Whisper) |
+| `message_handler.py` | `process_message()` — orquesta el doble pase IA + guarda en DB |
+| `flows.py` | `check_lead_qualification()` — QUALIFIED/LOST según extracted_data, dispara notificación |
+| `whatsapp.py` | `send_whatsapp_message()`, `download_audio_bytes()` — Meta Graph API |
+| `notifications.py` | `send_email_notification()` — Zoho SMTP, se dispara cuando lead → QUALIFIED |
+| `zombie.py` | Protocolo Zombie: busca leads QUALIFYING >48h, envía template `reactivacion_lead` |
+| `sheets_sync.py` | Sincroniza leads calificados a Google Sheets del tenant |
+| `auth_service.py` | Helpers JWT: crear/verificar token, hash de passwords |
+
+### Models / DB / Schemas
+
+| Archivo | Responsabilidad |
+|---------|----------------|
+| `app/models/db_models.py` | ORM SQLAlchemy: tablas `users`, `vertical_templates`, `tenants`, `leads`, `conversations` |
+| `app/db/base.py` | `declarative_base()` |
+| `app/db/database.py` | engine, SessionLocal, `get_db()` |
+| `app/schemas/chat.py` | `MessageInput` |
+| `app/schemas/settings.py` | `SettingsUpdate` |
+
+### Verticals
+
+| Archivo | Responsabilidad |
+|---------|----------------|
+| `verticals/real_estate_v1/schema.py` | `ExtractionSchema` Pydantic — campos a extraer (nombre, presupuesto, zona, etc.) |
+| `verticals/real_estate_v1/prompts.py` | `REAL_ESTATE_PROMPT`, `SCHEMA_INMOBILIARIA` |
+
+### Scripts (`scripts/`)
+
+| Script | Uso |
+|--------|-----|
+| `init_db.py` | Crear tablas (primera vez) |
+| `seed.py` | Carga inicial: vertical_template + tenant de prueba |
+| `reset_db.py` | Drop + recrear tablas (destructivo) |
+| `update_prompt.py` | Actualizar system_prompt_base en DB sin tocar código |
+| `setup_google_user.py` | Configura usuario Google como admin |
+| `fix_admin_whatsapp.py` | Setea phone_number_id y waba_id del tenant 1 |
+| `migrate_to_admin.py` | Mueve usuario Google a tenant 1 |
+| `seed_demo.py` | Carga leads de demo para presentaciones |
+
+---
+
+## 3. Modelo de datos
+
+| Tabla | Campos clave |
+|-------|-------------|
+| `users` | `id`, `email`, `password_hash` (nullable), `google_id`, `tenant_id` (FK), `role` |
+| `vertical_templates` | `id`, `name`, `assistant_name`, `system_prompt_base`, `required_fields_schema` (JSON) |
+| `tenants` | `id`, `name`, `phone_number_id`, `waba_id`, `template_id` (FK), `business_config` (JSON: agent_name, tone, specialty, catalog_url, knowledge_base, rules, bot_active, sheets_id, google_credentials) |
+| `leads` | `id`, `whatsapp_id`, `tenant_id` (FK), `status` (NEW/QUALIFYING/QUALIFIED/LOST/ZOMBIE/HUMAN_HANDOFF), `extracted_data` (JSON), `last_message_at`, `created_at` |
+| `conversations` | `id`, `lead_id` (FK), `role` (user\|assistant), `content`, `timestamp` |
+
+---
+
+## 4. Mapa de archivos — Frontend (`frontend/src/`)
 
 | Archivo | Qué hace |
-|---------|----------|
-| **main.py** | Aplicación FastAPI: expone webhook de WhatsApp, endpoints de prueba, endpoints para el dashboard (leads, stats, settings) y orquesta el flujo de mensajes llamando a process_message, base de datos y whatsapp_client. |
-| **ai_engine.py** | Motor de IA: usa OpenAI para extraer datos estructurados del mensaje del usuario (PASE 1) y para generar la respuesta del asistente (PASE 2) según la configuración del tenant. |
-| **database.py** | Configuración de base de datos: crea el engine de SQLAlchemy, la sesión (SessionLocal) y la función get_db para inyectar la sesión en los endpoints. |
-| **models.py** | Modelos ORM: define las tablas vertical_templates, tenants, leads y conversations y sus relaciones para SQLAlchemy. |
-| **flows.py** | Lógica de calificación y notificaciones: determina si un lead pasa a QUALIFIED o LOST según extracted_data y dispara (hoy por consola) la notificación al negocio cuando hay lead calificado. |
-| **whatsapp_client.py** | Cliente de envío a WhatsApp: envía el mensaje de respuesta usando Meta WhatsApp Cloud API. |
-| **dashboard.py** | Dashboard alternativo en Streamlit: muestra KPIs, lista de leads y auditoría de chat leyendo de la misma base de datos (tenant_id = 1). |
-| **init_db.py** | Script de inicialización: crea todas las tablas en la base de datos usando los modelos definidos en models.py. |
-| **reset_db.py** | Script de reset: borra todas las tablas y las vuelve a crear (útil para desarrollo). |
-| **seed.py** | Carga inicial: crea la plantilla “Inmobiliaria V1” y el tenant de prueba “Inmobiliaria Branc” si no existen. |
-| **update_prompt.py** | Utilidad: actualiza el system_prompt_base de la plantilla real_estate_v1 en la base de datos sin tocar código. |
-
-### Frontend (ventra-web)
-
-| Archivo | Qué hace |
-|---------|----------|
-| **src/App.jsx** | Punto de entrada de rutas: define las rutas / (Landing), /dashboard y /settings, y envuelve dashboard y settings con el Layout. |
-| **src/main.jsx** | Monta la aplicación React en el DOM y aplica StrictMode. |
-| **src/pages/Landing.jsx** | Página de marketing: landing con propuesta de valor, demo y botón para ir al dashboard. |
-| **src/pages/Dashboard.jsx** | Bandeja de entrada: consume GET /leads y GET /stats, muestra lista de leads, chat por lead y datos extraídos (presupuesto, zona, tipo de propiedad). |
-| **src/pages/Settings.jsx** | Configuración del agente: carga y guarda GET/POST /settings para nombre del negocio, asistente, tono, especialidad, catálogo y base de conocimiento. |
-| **src/components/Layout.jsx** | Layout con sidebar: menú (Dashboard, Configuración), logo Ventra AI y estado “Bot Activo”, envuelve el contenido de dashboard y settings. |
+|---------|---------|
+| `App.jsx` | Rutas: `/` Landing, `/dashboard`, `/settings`, `/templates`, `/analytics`, `/onboarding`, `/auth/google/callback`, `/auth/facebook/callback` |
+| `api/client.js` | Base URL desde VITE_API_URL, wrappers de fetch con auth header, parseo de errores Meta |
+| `pages/Dashboard.jsx` | Split view: lista de leads + chat + inspector de datos extraídos + bot toggle |
+| `pages/Settings.jsx` | Config agente, Embedded Signup WhatsApp, Google Sheets, bot toggle |
+| `pages/Templates.jsx` | Lista/crear/borrar/enviar plantillas WhatsApp vía Meta Graph API |
+| `pages/Analytics.jsx` | Estadísticas: conversion funnel, leads por día, motivos de pérdida |
+| `pages/Onboarding.jsx` | Flujo de 7 pasos para onboarding de nuevo cliente |
+| `pages/Landing.jsx` | Landing con precios ($49/$89 USD/mes), propuesta de valor |
+| `pages/Login.jsx` | Login email/password + Google OAuth2 popup |
+| `pages/GoogleCallback.jsx` | Página callback OAuth Google |
+| `pages/FacebookCallback.jsx` | Página callback OAuth Facebook |
+| `components/Layout.jsx` | Sidebar: Panel / Estadísticas / Plantillas / Configuración + bot toggle |
 
 ---
 
-## 4. Stack Tecnológico
+## 5. Stack tecnológico
 
-Librerías y herramientas clave y para qué se usan.
+### Backend
 
-### Backend (Python)
+| Librería | Uso |
+|----------|-----|
+| FastAPI | Framework API REST |
+| SQLAlchemy + psycopg2 | ORM + driver PostgreSQL |
+| OpenAI SDK | GPT-4o-mini (extracción + respuesta) + Whisper (audio) |
+| APScheduler | Cron jobs: Zombie (1h) + Google Sheets (30min) |
+| python-jose + passlib | JWT + hash passwords |
+| google-auth | OAuth2 Google |
+| gspread | Google Sheets API |
+| requests | Meta Graph API calls |
+| smtplib | Notificaciones email (Zoho) |
 
-| Librería | Uso en el proyecto |
-|----------|--------------------|
-| **FastAPI** | API REST: webhook, endpoints de prueba y endpoints para el dashboard (leads, stats, settings); validación con Pydantic y inyección de sesión de base de datos. |
-| **uvicorn** | Servidor ASGI para ejecutar la aplicación FastAPI en producción o desarrollo. |
-| **SQLAlchemy** | ORM y conexión a base de datos: definición de modelos, sesiones y consultas a PostgreSQL. |
-| **psycopg2** | Driver de PostgreSQL para que SQLAlchemy se conecte a la base de datos. |
-| **python-dotenv** | Carga variables de entorno desde `.env` (API keys, DATABASE_URL, credenciales Meta). |
-| **openai** | Cliente oficial de OpenAI: llamadas a GPT-4o-mini para extracción estructurada (beta parse) y para generación de respuestas del asistente. |
-| **requests** | Peticiones HTTP para enviar mensajes a la API de Meta (WhatsApp). |
+### Frontend
 
-### Frontend (ventra-web)
+| Librería | Uso |
+|----------|-----|
+| React + Vite | UI + bundler |
+| react-router-dom | Navegación SPA |
+| Tailwind CSS | Estilos |
+| lucide-react | Iconos |
 
-| Librería | Uso en el proyecto |
-|----------|--------------------|
-| **React** | Construcción de la interfaz: páginas (Landing, Dashboard, Settings) y componentes reutilizables (Layout). |
-| **Vite** | Bundler y servidor de desarrollo: compilación rápida y hot reload del frontend. |
-| **react-router-dom** | Navegación entre Landing, Dashboard y Settings sin recargar la página. |
-| **Tailwind CSS** | Estilos: diseño del dashboard, formularios y landing sin CSS a mano. |
-| **lucide-react** | Iconos (MessageSquare, CheckCircle2, Bot, Settings, etc.) en toda la app. |
+### Infra
 
-### Infra y servicios externos
-
-| Elemento | Uso en el proyecto |
-|----------|--------------------|
-| **PostgreSQL** | Base de datos persistente para tenants, leads, conversaciones y plantillas (URL en `DATABASE_URL`). |
-| **Meta WhatsApp Cloud API** | Envío y recepción de mensajes de WhatsApp vía webhook (WHATSAPP_TOKEN, WHATSAPP_PHONE_ID). |
-| **OpenAI API** | Extracción de datos del mensaje y generación de respuestas del asistente (GPT-4o-mini). |
+| Elemento | Uso |
+|----------|-----|
+| PostgreSQL | DB persistente |
+| Railway | Deploy backend + DB |
+| Vercel | Deploy frontend |
+| Meta Cloud API | WhatsApp (webhook + envío) |
+| OpenAI API | IA (GPT-4o-mini + Whisper) |
+| Google Sheets API | Sync de leads calificados |
+| Zoho Mail SMTP | Notificaciones email |
 
 ---
 
-## Resumen para explicar a inversores o nuevos programadores
+## 6. Variables de entorno (`backend/.env`)
 
-- **Usuario escribe por WhatsApp** → Meta envía el mensaje al backend en `/webhook`.
-- **Backend (Python/FastAPI)** identifica negocio (tenant) y conversación (lead), guarda el mensaje, pide a **OpenAI** que extraiga datos y que genere la respuesta, actualiza estado del lead (calificado/perdido) y guarda todo en **PostgreSQL**.
-- **Respuesta** se envía de vuelta por **whatsapp_client** (Meta) al usuario.
-- **Dashboard React** consume la misma API (leads, stats, settings) para mostrar conversaciones, KPIs y configurar el agente sin tocar código.
+```
+DATABASE_URL=             # PostgreSQL connection string
+OPENAI_API_KEY=           # OpenAI (GPT + Whisper)
+WHATSAPP_TOKEN=           # Meta WhatsApp Cloud API token (expira, renovar en Meta for Devs)
+WHATSAPP_PHONE_ID=        # Meta phone number ID (fallback si no hay tenant)
+WEBHOOK_VERIFY_TOKEN=     # Token verificación webhook Meta (default: "admin")
+NOTIFY_EMAIL=             # Email destino para notificaciones QUALIFIED
+SMTP_HOST=                # smtp.zoho.com
+SMTP_PORT=                # 587
+SMTP_USER=                # Cuenta Zoho
+SMTP_PASS=                # Contraseña Zoho
+GOOGLE_CLIENT_ID=         # OAuth2 Google
+GOOGLE_CLIENT_SECRET=     # OAuth2 Google
+SECRET_KEY=               # JWT signing key
+FRONTEND_URL=             # https://somosvertical.ar
+```
 
-Con este documento puedes recorrer el flujo completo, entender cada tabla, cada archivo y cada tecnología del proyecto.
+`frontend/.env`:
+```
+VITE_API_URL=https://api.somosvertical.ar   # producción
+# VITE_API_URL=http://localhost:8000        # desarrollo
+```

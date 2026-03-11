@@ -29,8 +29,7 @@ if not tenant:
     db.close()
     sys.exit(1)
 
-# Vincular número de WhatsApp
-tenant.phone_number_id = PHONE_NUMBER_ID
+# Vincular número de WhatsApp en business_config (phone_number_id está en tenant 1)
 config = tenant.business_config or {}
 config.update({
     "waba_id": WABA_ID,

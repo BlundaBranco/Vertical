@@ -23,11 +23,11 @@ const PLANS = [
 ];
 
 const STATUS_LABELS = {
-    active: { label: 'Activo', color: 'emerald' },
-    pending: { label: 'Pendiente', color: 'amber' },
-    expired: { label: 'Vencido', color: 'red' },
-    cancelled: { label: 'Cancelado', color: 'zinc' },
-    none: { label: 'Sin plan', color: 'zinc' },
+    active:    { label: 'Activo',     classes: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' },
+    pending:   { label: 'Pendiente',  classes: 'bg-amber-500/15 border-amber-500/30 text-amber-400' },
+    expired:   { label: 'Vencido',    classes: 'bg-red-500/15 border-red-500/30 text-red-400' },
+    cancelled: { label: 'Cancelado',  classes: 'bg-zinc-500/15 border-zinc-500/30 text-zinc-400' },
+    none:      { label: 'Sin plan',   classes: 'bg-zinc-500/15 border-zinc-500/30 text-zinc-400' },
 };
 
 function StatusBanner({ status }) {
@@ -135,7 +135,7 @@ export default function Billing() {
                             <div>
                                 <div className="flex items-center gap-2">
                                     <span className="text-white font-semibold capitalize">{sub.plan}</span>
-                                    <span className={`text-xs px-2 py-0.5 rounded-full border bg-${statusInfo.color}-500/15 border-${statusInfo.color}-500/30 text-${statusInfo.color}-400`}>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full border ${statusInfo.classes}`}>
                                         {statusInfo.label}
                                     </span>
                                 </div>
