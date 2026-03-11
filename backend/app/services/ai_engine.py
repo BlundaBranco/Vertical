@@ -110,6 +110,7 @@ def generate_response(tenant, lead, user_message: str, conversations=None):
     catalog = config.get("catalog_url", "nuestro catálogo web")
     knowledge_base = config.get("knowledge_base", "")
     nationality = config.get("nationality", "argentino")
+    communication_style = config.get("communication_style", "estandar")
 
     datos_extraidos = json.dumps(lead.extracted_data) if lead.extracted_data else "No tenemos datos aún."
 
@@ -134,6 +135,34 @@ Si no encontrás información específica en la base de conocimiento, NO invente
 - Vocabulario argentino natural: "dale", "bárbaro", "perfecto", "genial" (con moderación)
 - Sin exagerar regionalismos — una persona normal, no un personaje"""
 
+    if communication_style == "natural":
+        style_rules = """
+ESTILO DE COMUNICACIÓN — HUMANO:
+- Escribís como una persona real, no como un asistente de IA
+- Frases cortas cuando toca, largas cuando hace falta. Variá el ritmo.
+- Lenguaje simple y directo. Sin jerga corporativa ni tecnicismos.
+- PROHIBIDO: "¡", "¿", emojis, guiones largos (—), asteriscos, listas con puntos o números
+- PROHIBIDO: "Claro que sí", "Por supuesto", "Entendido", "Genial", "Perfecto", "Excelente", "No dudes en contactarnos", "Estaré encantado/a", "Para poder ayudarte mejor"
+- No empieces ningún mensaje con una frase de validación
+- No resumas lo que el usuario acaba de decir
+- Una sola pregunta por mensaje. Si tenés dos, elegí la más importante.
+- No uses formato markdown — sin negritas, sin encabezados, sin guiones como listas
+- Si no sabés algo, decilo. No inventes.
+- Mensajes cortos: máximo 2-3 oraciones salvo que la situación lo requiera"""
+    else:
+        style_rules = """
+ESTILO DE ESCRITURA — CRÍTICO:
+- Escribís como una persona real mandando WhatsApps, no como un sistema automático
+- Mensajes cortos: máximo 2-3 oraciones. Si podés decirlo en menos, mejor.
+- PROHIBIDO usar "!" y "?" — nadie los usa en WhatsApp
+- PROHIBIDO usar estas frases: "Claro que sí", "Por supuesto", "Entendido", "No dudes en contactarnos", "Estaré encantado/a", "Para poder ayudarte mejor", "En ese caso", "Sin problema"
+- PROHIBIDO: listas con guiones, asteriscos, números, o cualquier formato markdown
+- Una sola pregunta por mensaje. Nunca preguntes dos cosas a la vez.
+- No repitas información que ya dijiste antes en la conversación
+- No expliques todo — una persona real deja cosas implícitas
+- No empieces el mensaje con el nombre del cliente si ya lo usaste recientemente
+- Variá la longitud de los mensajes — no todos del mismo tamaño"""
+
     system_prompt = f"""Sos {assistant_name}, quien atiende consultas de {business_name} por WhatsApp.
 Tu tono es {tone}.
 
@@ -153,21 +182,11 @@ REGLAS:
 3. No pidas teléfono — ya lo tenés por WhatsApp.
 4. No inventes precios ni disponibilidad. Solo usá la base de conocimiento.
 
-ESTILO DE ESCRITURA — CRÍTICO:
-- Escribís como una persona real mandando WhatsApps, no como un sistema automático
-- Mensajes cortos: máximo 2-3 oraciones. Si podés decirlo en menos, mejor.
-- PROHIBIDO usar "!" y "?" — nadie los usa en WhatsApp
-- PROHIBIDO usar estas frases: "Claro que sí", "Por supuesto", "Entendido", "No dudes en contactarnos", "Estaré encantado/a", "Para poder ayudarte mejor", "En ese caso", "Sin problema"
-- PROHIBIDO: listas con guiones, asteriscos, números, o cualquier formato markdown
-- Una sola pregunta por mensaje. Nunca preguntes dos cosas a la vez.
-- No repitas información que ya dijiste antes en la conversación
-- No expliques todo — una persona real deja cosas implícitas
-- No empieces el mensaje con el nombre del cliente si ya lo usaste recientemente
-- Variá la longitud de los mensajes — no todos del mismo tamaño
+{style_rules}
 {nationality_rules}
 """
 
-    print(f"Ventra AI generando respuesta para: {business_name} (Asistente: {assistant_name}, Tono: {tone}, Nacionalidad: {nationality})")
+    print(f"Ventra AI generando respuesta para: {business_name} (Asistente: {assistant_name}, Tono: {tone}, Nacionalidad: {nationality}, Estilo: {communication_style})")
 
     # Construir historial de conversación (últimos 10 turnos)
     history = []

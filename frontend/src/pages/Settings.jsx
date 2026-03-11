@@ -32,6 +32,11 @@ const NATIONALITIES = [
     { value: 'español',   label: 'España',    flag: '🇪🇸' },
 ];
 
+const COMM_STYLES = [
+    { value: 'estandar', label: 'Estándar', desc: 'Profesional y claro' },
+    { value: 'natural',  label: 'Natural',  desc: 'Como una persona real' },
+];
+
 const EMBEDDED_SIGNUP_CONFIG_ID = import.meta.env.VITE_FACEBOOK_EMBEDDED_SIGNUP_CONFIG_ID;
 
 function WhatsAppSection({ connected, phone, phoneNumberId, onConnected }) {
@@ -234,7 +239,8 @@ export default function Settings() {
         knowledge_base_url: '',
         phone_number_id: '',
         whatsapp_phone: '',
-        nationality: 'argentino'
+        nationality: 'argentino',
+        communication_style: 'estandar'
     });
 
     const showToast = (message, type = 'success') => {
@@ -257,7 +263,8 @@ export default function Settings() {
                     knowledge_base_url: data.knowledge_base_url || '',
                     phone_number_id: data.phone_number_id || '',
                     whatsapp_phone: data.whatsapp_phone || '',
-                    nationality: data.nationality || 'argentino'
+                    nationality: data.nationality || 'argentino',
+                    communication_style: data.communication_style || 'estandar'
                 };
                 setConfig(loaded);
                 setOriginal(loaded);
@@ -423,6 +430,27 @@ export default function Settings() {
                                             <span className="text-xs font-semibold">{n.label}</span>
                                             {config.nationality === n.value && <Zap className="w-3 h-3 text-violet-400 ml-auto" />}
                                         </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </Field>
+
+                        {/* Estilo de comunicación — selector visual */}
+                        <Field label="Estilo de comunicación" hint="Natural: sin frases de asistente, más directo y humano">
+                            <div className="grid grid-cols-2 gap-2 mt-0.5">
+                                {COMM_STYLES.map(s => (
+                                    <button
+                                        key={s.value}
+                                        type="button"
+                                        onClick={() => handleChange('communication_style', s.value)}
+                                        className={`p-3 rounded-xl border text-left transition-all ${
+                                            config.communication_style === s.value
+                                                ? 'bg-violet-500/22 border-violet-500/50 text-white'
+                                                : 'bg-white/[0.04] border-violet-500/15 text-zinc-400 hover:border-white/25 hover:text-zinc-200'
+                                        }`}
+                                    >
+                                        <div className="text-xs font-semibold mb-0.5">{s.label}</div>
+                                        <div className="text-xs opacity-60 leading-tight">{s.desc}</div>
                                     </button>
                                 ))}
                             </div>

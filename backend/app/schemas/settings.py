@@ -14,3 +14,4 @@ class SettingsUpdate(BaseModel):
     whatsapp_phone: Optional[str] = None
     nationality: Optional[str] = "argentino"
     vertical: Optional[str] = None
+    communication_style: Optional[str] = "estandar"
