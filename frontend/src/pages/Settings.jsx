@@ -52,13 +52,16 @@ function WhatsAppSection({ connected, phone, phoneNumberId, onConnected }) {
             // Capturar waba_id y phone_number_id si Meta los envía vía postMessage
             let sessionWabaId = null;
             let sessionPhoneNumberId = null;
+            let sessionIsCoexistence = false;
             const messageHandler = (event) => {
                 if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
                 try {
                     const data = JSON.parse(event.data);
-                    if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
+                    if (data.type === 'WA_EMBEDDED_SIGNUP' &&
+                        (data.event === 'FINISH' || data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING')) {
                         sessionWabaId = data.data?.waba_id || null;
                         sessionPhoneNumberId = data.data?.phone_number_id || null;
+                        sessionIsCoexistence = data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING';
                     }
                 } catch {}
             };
@@ -76,11 +79,11 @@ function WhatsAppSection({ connected, phone, phoneNumberId, onConnected }) {
                     config_id: EMBEDDED_SIGNUP_CONFIG_ID,
                     response_type: 'code',
                     override_default_response_type: true,
-                    extras: { version: 'v3', featureType: 'whatsapp_business_app_onboarding' },
+                    extras: { version: 'v3' },
                 });
             });
 
-            const result = await connectWhatsApp(code, sessionWabaId, sessionPhoneNumberId);
+            const result = await connectWhatsApp(code, sessionWabaId, sessionPhoneNumberId, sessionIsCoexistence);
             onConnected(result);
         } catch (err) {
             if (err.message !== 'Cancelado') {

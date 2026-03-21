@@ -132,13 +132,16 @@ export default function Onboarding() {
             await loadFacebookSDK();
             let sessionWabaId = null;
             let sessionPhoneNumberId = null;
+            let sessionIsCoexistence = false;
             const messageHandler = (event) => {
                 if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
                 try {
                     const data = JSON.parse(event.data);
-                    if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
+                    if (data.type === 'WA_EMBEDDED_SIGNUP' &&
+                        (data.event === 'FINISH' || data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING')) {
                         sessionWabaId = data.data?.waba_id || null;
                         sessionPhoneNumberId = data.data?.phone_number_id || null;
+                        sessionIsCoexistence = data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING';
                     }
                 } catch {}
             };
@@ -152,10 +155,10 @@ export default function Onboarding() {
                     config_id: CONFIG_ID,
                     response_type: 'code',
                     override_default_response_type: true,
-                    extras: { version: 'v3', featureType: 'whatsapp_business_app_onboarding' },
+                    extras: { version: 'v3' },
                 });
             });
-            const result = await connectWhatsApp(code, sessionWabaId, sessionPhoneNumberId);
+            const result = await connectWhatsApp(code, sessionWabaId, sessionPhoneNumberId, sessionIsCoexistence);
             setWaConnected(true);
             setWaPhone(result.phone || result.phone_number_id);
             set('whatsapp_phone', result.phone || '');
