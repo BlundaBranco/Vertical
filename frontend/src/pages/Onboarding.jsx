@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Building2, Bot, Zap, FileText, Link2, Phone, CheckCircle2, ChevronRight, ChevronLeft, Home, ArrowRight, Loader2 } from 'lucide-react';
-import { fetchMe, getToken, loadFacebookSDK } from '../api/auth';
-import { saveSettings, connectWhatsApp } from '../api/client';
+import { Building2, Bot, Zap, FileText, Link2, CheckCircle2, ChevronRight, ChevronLeft, Home, ArrowRight } from 'lucide-react';
+import { fetchMe, getToken } from '../api/auth';
+import { saveSettings } from '../api/client';
 
-const TOTAL_STEPS = 8;
+const TOTAL_STEPS = 7;
 
 const TONES = [
     { value: 'cercano', label: 'Cercano', desc: 'Amigable, genera confianza rápida' },
@@ -86,10 +86,6 @@ export default function Onboarding() {
         whatsapp_phone: '',
         vertical: 'real_estate_v1',
     });
-    const [waConnected, setWaConnected] = useState(false);
-    const [waPhone, setWaPhone] = useState('');
-    const [waLoading, setWaLoading] = useState(false);
-    const [waError, setWaError] = useState('');
     const [kbMode, setKbMode] = useState(null); // 'sheets' | 'manual' | 'later'
 
     useEffect(() => {
@@ -124,51 +120,6 @@ export default function Onboarding() {
     const next = () => setStep(s => s + 1);
     const back = () => setStep(s => Math.max(0, s - 1));
 
-    const handleConnectWhatsApp = async () => {
-        setWaError('');
-        setWaLoading(true);
-        const CONFIG_ID = import.meta.env.VITE_FACEBOOK_EMBEDDED_SIGNUP_CONFIG_ID;
-        try {
-            await loadFacebookSDK();
-            let sessionWabaId = null;
-            let sessionPhoneNumberId = null;
-            let sessionIsCoexistence = false;
-            const messageHandler = (event) => {
-                if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data.type === 'WA_EMBEDDED_SIGNUP' &&
-                        (data.event === 'FINISH' || data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING')) {
-                        sessionWabaId = data.data?.waba_id || null;
-                        sessionPhoneNumberId = data.data?.phone_number_id || null;
-                        sessionIsCoexistence = data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING';
-                    }
-                } catch {}
-            };
-            window.addEventListener('message', messageHandler);
-            const code = await new Promise((resolve, reject) => {
-                window.FB.login((response) => {
-                    window.removeEventListener('message', messageHandler);
-                    if (response.authResponse?.code) resolve(response.authResponse.code);
-                    else reject(new Error('Cancelado'));
-                }, {
-                    config_id: CONFIG_ID,
-                    response_type: 'code',
-                    override_default_response_type: true,
-                    extras: { version: 'v3' },
-                });
-            });
-            const result = await connectWhatsApp(code, sessionWabaId, sessionPhoneNumberId, sessionIsCoexistence);
-            setWaConnected(true);
-            setWaPhone(result.phone || result.phone_number_id);
-            set('whatsapp_phone', result.phone || '');
-        } catch (err) {
-            if (err.message !== 'Cancelado') setWaError(err.message || 'Error al conectar WhatsApp');
-        } finally {
-            setWaLoading(false);
-        }
-    };
-
     const handleFinish = async () => {
         await saveAll();
         setStep(TOTAL_STEPS + 1); // success screen
@@ -188,9 +139,7 @@ export default function Onboarding() {
                     </div>
                     <h2 className="text-2xl font-bold text-white mb-3 tracking-tight">¡Todo listo!</h2>
                     <p className="text-zinc-400 text-sm mb-8 leading-relaxed">
-                        {waConnected
-                            ? 'Tu agente está configurado y tu WhatsApp conectado. Ya puede recibir consultas.'
-                            : 'Tu agente está configurado. Conectá tu WhatsApp desde Configuración cuando quieras.'}
+                        Tu agente está configurado. El equipo de Vertical AI activará tu WhatsApp en breve.
                     </p>
                     <button
                         onClick={() => navigate('/dashboard')}
@@ -408,11 +357,12 @@ export default function Onboarding() {
                                 : 'El bot usa esta info para responder consultas sobre tus productos y servicios.'}
                             onNext={() => {
                                 if (kbMode === 'later') { set('knowledge_base_url', ''); set('knowledge_base', ''); }
-                                next();
+                                handleFinish();
                             }}
                             onBack={back}
                             nextDisabled={kbMode === null}
-                            nextLabel={kbMode === 'later' ? 'Configurar después' : 'Continuar'}
+                            saving={saving}
+                            nextLabel="Finalizar"
                         >
                             <div className="space-y-3">
                                 {/* Opción 1: Google Sheets */}
@@ -499,47 +449,7 @@ export default function Onboarding() {
                         </StepWrapper>
                     )}
 
-                    {/* Step 7: WhatsApp — Embedded Signup */}
-                    {step === 7 && (
-                        <StepWrapper
-                            step={7} title="Conectá tu WhatsApp Business"
-                            subtitle="Vinculá tu número para que el agente empiece a operar. Tarda menos de 2 minutos."
-                            onNext={handleFinish} onBack={back}
-                            nextLabel={waConnected ? 'Finalizar' : 'Saltar por ahora'}
-                            saving={saving}
-                        >
-                            <div className="space-y-4">
-                                {waConnected ? (
-                                    <div className="flex items-center gap-3 p-4 bg-emerald-500/10 border border-emerald-500/25 rounded-xl">
-                                        <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                                        <div>
-                                            <p className="text-sm font-medium text-white">{waPhone || 'Número conectado'}</p>
-                                            <p className="text-xs text-zinc-400 mt-0.5">Tu WhatsApp está listo. El bot ya puede operar.</p>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <button
-                                            type="button"
-                                            onClick={handleConnectWhatsApp}
-                                            disabled={waLoading}
-                                            className="w-full flex items-center justify-center gap-2.5 px-5 py-3.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all"
-                                        >
-                                            {waLoading ? (
-                                                <><Loader2 className="w-4 h-4 animate-spin" /> Conectando...</>
-                                            ) : (
-                                                <><Phone className="w-4 h-4" /> Conectar WhatsApp Business</>
-                                            )}
-                                        </button>
-                                        {waError && <p className="text-xs text-red-400">{waError}</p>}
-                                        <p className="text-xs text-zinc-600 text-center">
-                                            También podés conectarlo después desde Configuración.
-                                        </p>
-                                    </>
-                                )}
-                            </div>
-                        </StepWrapper>
-                    )}
+
                 </div>
             </div>
         </div>

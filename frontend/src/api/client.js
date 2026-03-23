@@ -75,14 +75,6 @@ export async function fetchAnalytics(tenantId) {
     return handleResponse(res);
 }
 
-export async function connectWhatsApp(code, wabaId, phoneNumberId) {
-    const res = await fetch(`${BASE_URL}/whatsapp/connect`, {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({ code, waba_id: wabaId || null, phone_number_id: phoneNumberId || null })
-    });
-    return handleResponse(res);
-}
 
 export async function fetchTemplates(tenantId) {
     const res = await fetch(`${BASE_URL}/templates/${tenantId}`, { headers: authHeaders() });

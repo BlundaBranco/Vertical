@@ -20,6 +20,7 @@ class WhatsAppConnectRequest(BaseModel):
     code: str
     waba_id: Optional[str] = None
     phone_number_id: Optional[str] = None
+    is_coexistence: bool = False
 
 
 @router.post("/connect")
@@ -93,12 +94,13 @@ def connect_whatsapp(
         ).json()
         phone_display = phone_res.get("display_phone_number", "")
 
-    # 5. Registrar el número para Cloud API (ignorar si ya está registrado)
-    http_requests.post(
-        f"{GRAPH}/{phone_number_id}/register",
-        json={"messaging_product": "whatsapp", "pin": "000000"},
-        headers={"Authorization": f"Bearer {access_token}"}
-    )
+    # 5. Registrar el número para Cloud API — solo para números nuevos (no Coexistence)
+    if not payload.is_coexistence:
+        http_requests.post(
+            f"{GRAPH}/{phone_number_id}/register",
+            json={"messaging_product": "whatsapp", "pin": "000000"},
+            headers={"Authorization": f"Bearer {access_token}"}
+        )
 
     # 6. Guardar en tenant
     tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
@@ -106,6 +108,7 @@ def connect_whatsapp(
     config = dict(tenant.business_config or {})
     config["waba_id"] = waba_id
     config["whatsapp_phone"] = phone_display
+    config["is_coexistence"] = payload.is_coexistence
     tenant.business_config = config
     db.commit()
 

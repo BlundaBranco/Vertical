@@ -22,6 +22,7 @@ import os
 from datetime import datetime, timezone, timedelta
 
 import mercadopago
+import requests as http_requests
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -178,6 +179,50 @@ async def mp_webhook(request: Request, db: Session = Depends(get_db)):
 
     # MP envía type "subscription_authorized_payment" para cobros de suscripción
     event_type = body.get("type", "")
+
+    # --- Cancelaciones / pausas de suscripción ---
+    if event_type == "subscription_preapproval":
+        preapproval_id = body.get("data", {}).get("id")
+        if not preapproval_id:
+            return {"status": "ok"}
+        token = os.getenv("MP_ACCESS_TOKEN")
+        if not token:
+            return {"status": "ok"}
+        try:
+            res = http_requests.get(
+                f"https://api.mercadopago.com/preapproval/{preapproval_id}",
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=10,
+            )
+            if res.status_code != 200:
+                return {"status": "ok"}
+            preapproval = res.json()
+        except Exception as e:
+            print(f"[BILLING] Error consultando preapproval {preapproval_id}: {e}")
+            return {"status": "ok"}
+
+        preapproval_status = preapproval.get("status")
+        if preapproval_status not in ("cancelled", "paused"):
+            return {"status": "ok"}
+
+        external_ref = preapproval.get("external_reference", "")
+        if ":" not in external_ref:
+            return {"status": "ok"}
+        tenant_id_str, _ = external_ref.split(":", 1)
+        try:
+            tenant_id = int(tenant_id_str)
+        except ValueError:
+            return {"status": "ok"}
+
+        sub = db.query(Subscription).filter(Subscription.tenant_id == tenant_id).first()
+        if sub:
+            sub.status = preapproval_status  # "cancelled" o "paused"
+            sub.updated_at = datetime.now(timezone.utc)
+            db.commit()
+            print(f"[BILLING] Suscripción {preapproval_status} — tenant {tenant_id}")
+        return {"status": "ok"}
+
+    # --- Cobros de suscripción y pagos regulares ---
     if event_type not in ("subscription_authorized_payment", "payment"):
         return {"status": "ok"}
 
@@ -185,15 +230,29 @@ async def mp_webhook(request: Request, db: Session = Depends(get_db)):
     if not payment_id:
         return {"status": "ok"}
 
+    token = os.getenv("MP_ACCESS_TOKEN")
+    if not token:
+        return {"status": "ok"}
+
     try:
-        token = os.getenv("MP_ACCESS_TOKEN")
-        if not token:
-            return {"status": "ok"}
-        sdk = mercadopago.SDK(token)
-        result = sdk.payment().get(payment_id)
-        if result["status"] != 200:
-            return {"status": "ok"}
-        payment = result["response"]
+        if event_type == "subscription_authorized_payment":
+            # Los authorized_payments tienen su propio endpoint — sdk.payment().get() no funciona aquí
+            res = http_requests.get(
+                f"https://api.mercadopago.com/authorized_payments/{payment_id}",
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=10,
+            )
+            if res.status_code != 200:
+                print(f"[BILLING] authorized_payment {payment_id} no encontrado: {res.status_code}")
+                return {"status": "ok"}
+            payment = res.json()
+        else:
+            # Pago regular (primer cobro en algunos flujos)
+            sdk = mercadopago.SDK(token)
+            result = sdk.payment().get(payment_id)
+            if result["status"] != 200:
+                return {"status": "ok"}
+            payment = result["response"]
     except Exception as e:
         print(f"[BILLING] Error consultando pago {payment_id}: {e}")
         return {"status": "ok"}
