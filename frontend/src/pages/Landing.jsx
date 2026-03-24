@@ -326,7 +326,7 @@ export default function Landing() {
                                 <div className="h-full p-7 bg-white/[0.04] border border-white/[0.10] rounded-2xl flex flex-col">
                                     <div className="mb-6">
                                         <div className="flex items-center justify-between mb-3">
-                                            <p className="text-xs text-zinc-400 font-medium uppercase tracking-widest">Digital</p>
+                                            <p className="text-xs text-zinc-400 font-medium uppercase tracking-widest">Empleado Digital</p>
                                             <span className="text-xs bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-full font-medium">Precio de lanzamiento</span>
                                         </div>
                                         <div className="flex items-baseline gap-1.5 mb-1">
@@ -367,7 +367,7 @@ export default function Landing() {
                                     <div className="relative h-full p-7 bg-violet-950/60 border border-violet-500/30 rounded-2xl flex flex-col">
                                         <div className="mb-6">
                                             <div className="flex items-center justify-between mb-3">
-                                                <p className="text-xs text-violet-300 font-medium uppercase tracking-widest">Digital + Marketing</p>
+                                                <p className="text-xs text-violet-300 font-medium uppercase tracking-widest">Empleado Digital + Marketing</p>
                                                 <span className="text-xs bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-full font-medium">Precio de lanzamiento</span>
                                             </div>
                                             <div className="flex items-baseline gap-1.5 mb-1">
@@ -378,14 +378,15 @@ export default function Landing() {
                                             <p className="text-xs text-amber-400 mt-1">Válido hasta el 30 de abril</p>
                                         </div>
                                         <ul className="space-y-3 mb-8 flex-1">
+                                            <li className="flex items-center gap-2.5 text-sm text-violet-300 font-medium">
+                                                <CheckCircle2 className="w-4 h-4 text-violet-400 shrink-0" />
+                                                Todo lo del plan Empleado Digital, más:
+                                            </li>
                                             {[
-                                                'Asistente de IA personalizado',
-                                                'WhatsApp activo 24/7',
-                                                'Conversaciones ilimitadas',
-                                                'Panel de control + Analytics',
-                                                'Sincronización con Google Sheets',
                                                 'Gestión completa de marketing digital',
-                                                'Campañas publicitarias con resultados medibles semana a semana',
+                                                'Hasta 2 campañas publicitarias activas',
+                                                'Optimización y seguimiento semanal',
+                                                'Informes de resultados y métricas',
                                                 'Soporte prioritario',
                                             ].map(item => (
                                                 <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
@@ -398,7 +399,7 @@ export default function Landing() {
                                             onClick={() => navigate('/register')}
                                             className="w-full py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-semibold transition-all hover:scale-[1.01] shadow-lg shadow-violet-600/30"
                                         >
-                                            Empezar con Pro
+                                            Empezar con Empleado Digital + Marketing
                                         </button>
                                     </div>
                                 </div>
