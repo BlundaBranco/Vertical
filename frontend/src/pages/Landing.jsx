@@ -327,17 +327,18 @@ export default function Landing() {
                                     <div className="mb-6">
                                         <p className="text-xs text-zinc-400 font-medium uppercase tracking-widest mb-3">Esencial</p>
                                         <div className="flex items-baseline gap-1.5 mb-1">
-                                            <span className="text-4xl font-bold text-white">$49</span>
-                                            <span className="text-zinc-400 text-sm">USD/mes</span>
+                                            <span className="text-4xl font-bold text-white">$700.000</span>
+                                            <span className="text-zinc-400 text-sm">ARS/mes</span>
                                         </div>
-                                        <p className="text-xs text-zinc-500">Perfecto para arrancar</p>
+                                        <p className="text-xs text-zinc-500">Todo lo que necesitás para empezar</p>
                                     </div>
                                     <ul className="space-y-3 mb-8 flex-1">
                                         {[
-                                            '1 asistente de IA',
+                                            'Asistente de IA personalizado',
                                             'WhatsApp activo 24/7',
-                                            'Hasta 300 conversaciones/mes',
-                                            'Panel de control',
+                                            'Conversaciones ilimitadas',
+                                            'Panel de control + Analytics',
+                                            'Sincronización con Google Sheets',
                                             'Soporte por email',
                                         ].map(item => (
                                             <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
@@ -366,18 +367,19 @@ export default function Landing() {
                                                 <span className="text-xs bg-violet-500/20 border border-violet-500/35 text-violet-300 px-2.5 py-0.5 rounded-full font-medium">Más elegido</span>
                                             </div>
                                             <div className="flex items-baseline gap-1.5 mb-1">
-                                                <span className="text-4xl font-bold text-white">$89</span>
-                                                <span className="text-zinc-400 text-sm">USD/mes</span>
+                                                <span className="text-4xl font-bold text-white">$850.000</span>
+                                                <span className="text-zinc-400 text-sm">ARS/mes</span>
                                             </div>
-                                            <p className="text-xs text-zinc-500">Para crecer sin límites</p>
+                                            <p className="text-xs text-zinc-500">Todo incluido + crecimiento activo</p>
                                         </div>
                                         <ul className="space-y-3 mb-8 flex-1">
                                             {[
-                                                '1 asistente de IA',
+                                                'Asistente de IA personalizado',
                                                 'WhatsApp activo 24/7',
                                                 'Conversaciones ilimitadas',
-                                                'Panel + Analytics completo',
+                                                'Panel de control + Analytics',
                                                 'Sincronización con Google Sheets',
+                                                'Gestión de marketing digital',
                                                 'Soporte prioritario',
                                             ].map(item => (
                                                 <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">

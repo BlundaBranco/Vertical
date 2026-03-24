@@ -61,7 +61,7 @@ function WhatsAppSection({ connected, phone, phoneNumberId }) {
                     </div>
                 ) : (
                     <p className="text-sm text-zinc-400">
-                        Tu número de WhatsApp fue configurado por el equipo de Vertical AI.
+                        Tu número está siendo activado. En breve el equipo de Vertical AI lo vinculará a tu cuenta.
                     </p>
                 )}
             </div>

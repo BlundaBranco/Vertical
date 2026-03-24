@@ -7,15 +7,41 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
-from app.db.database import get_db
+from app.db.database import get_db, SessionLocal
 from app.models import Tenant, Lead, Conversation
 from app.services.message_handler import process_message
 from app.services import whatsapp
 from app.services.ai_engine import transcribe_audio
+from app.services.message_debounce import schedule_response
 
 router = APIRouter()
 
 VERIFY_TOKEN = os.getenv("WEBHOOK_VERIFY_TOKEN", "admin")
+
+
+def _flush_messages(messages: list, context: dict) -> None:
+    """Procesa los mensajes acumulados y envía UNA respuesta del bot."""
+    db = SessionLocal()
+    try:
+        tenant = db.query(Tenant).filter_by(id=context["tenant_id"]).first()
+        lead = db.query(Lead).filter_by(id=context["lead_id"]).first()
+        if not tenant or not lead:
+            _log(f"[DEBOUNCE] Tenant o lead no encontrado en flush, context={context}")
+            return
+        combined = "\n".join(messages)
+        ai_response = process_message(tenant, lead, combined, db)
+        whatsapp.send_whatsapp_message(
+            context["from_number"], ai_response,
+            phone_number_id=context["phone_number_id"]
+        )
+        _log(f"[DEBOUNCE] Respuesta enviada a {context['from_number']} ({len(messages)} mensaje(s) combinado(s))")
+    except Exception as e:
+        _log(f"[DEBOUNCE] Error en _flush_messages: {e}")
+        traceback.print_exc()
+    finally:
+        db.close()
+
+
 META_APP_SECRET = os.getenv("META_APP_SECRET", "")
 
 
@@ -146,11 +172,17 @@ async def receive_whatsapp_message(request: Request, db: Session = Depends(get_d
             db.commit()
             _log(f"[WEBHOOK] Lead ZOMBIE reactivado a QUALIFYING")
 
-        ai_response = process_message(tenant, lead, txt, db)
-        whatsapp.send_whatsapp_message(num, ai_response, phone_number_id=tenant.phone_number_id)
+        key = f"{phone_number_id}:{num}"
+        context = {
+            "tenant_id": tenant.id,
+            "lead_id": lead.id,
+            "from_number": num,
+            "phone_number_id": tenant.phone_number_id,
+        }
+        schedule_response(key, txt, context, _flush_messages)
 
-        _log(f"[WEBHOOK] Respuesta enviada a {num}")
-        return {"status": "processed"}
+        _log(f"[WEBHOOK] Mensaje de {num} encolado (debounce)")
+        return {"status": "queued"}
 
     except Exception as e:
         _log(f"[WEBHOOK] Error critico: {e}")

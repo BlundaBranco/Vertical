@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from app.db.database import get_db
 from app.models import Lead, Conversation
@@ -17,16 +17,21 @@ STATUS_MAP = {
     "ZOMBIE": "zombie"
 }
 
+ART = timezone(timedelta(hours=-3))
+
 
 def _format_time(dt: datetime) -> str:
-    now = datetime.now(timezone.utc)
-    diff = now.date() - dt.date()
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    dt_art = dt.astimezone(ART)
+    now_art = datetime.now(ART)
+    diff = now_art.date() - dt_art.date()
     if diff.days == 0:
-        return dt.strftime("%H:%M")
+        return dt_art.strftime("%H:%M")
     elif diff.days == 1:
-        return f"Ayer {dt.strftime('%H:%M')}"
+        return f"Ayer {dt_art.strftime('%H:%M')}"
     else:
-        return dt.strftime("%d/%m %H:%M")
+        return dt_art.strftime("%d/%m %H:%M")
 
 
 @router.get("/leads/{tenant_id}")
