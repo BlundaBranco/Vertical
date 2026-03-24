@@ -74,6 +74,7 @@ const inputClass = "w-full bg-white/[0.04] border border-white/[0.07] rounded-xl
 export default function Onboarding() {
     const navigate = useNavigate();
     const [step, setStep] = useState(0);
+    const [direction, setDirection] = useState(1);
     const [tenantId, setTenantId] = useState(null);
     const [saving, setSaving] = useState(false);
     const [answers, setAnswers] = useState({
@@ -117,11 +118,12 @@ export default function Onboarding() {
         }
     };
 
-    const next = () => setStep(s => s + 1);
-    const back = () => setStep(s => Math.max(0, s - 1));
+    const next = () => { setDirection(1); setStep(s => s + 1); };
+    const back = () => { setDirection(-1); setStep(s => Math.max(0, s - 1)); };
 
     const handleFinish = async () => {
         await saveAll();
+        setDirection(1);
         setStep(TOTAL_STEPS + 1); // success screen
     };
 
@@ -133,7 +135,7 @@ export default function Onboarding() {
                     <div className="absolute inset-0 bg-grid" />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-600/20 rounded-full blur-3xl" />
                 </div>
-                <div className="text-center max-w-sm">
+                <div className="text-center max-w-sm animate-fade-in-up">
                     <div className="w-16 h-16 bg-emerald-500/15 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/10">
                         <CheckCircle2 className="w-8 h-8 text-emerald-400" />
                     </div>
@@ -171,7 +173,10 @@ export default function Onboarding() {
             </div>
 
             <div className="flex-1 flex items-center justify-center px-4 py-8">
-                <div className="w-full max-w-lg">
+                <div
+                    key={step}
+                    className={`w-full max-w-lg ${direction >= 0 ? 'animate-slide-in-right' : 'animate-slide-in-left'}`}
+                >
 
                     {/* Step 0: Bienvenida */}
                     {step === 0 && (
