@@ -334,7 +334,7 @@ export default function Landing() {
                                             <span className="text-zinc-400 text-sm">ARS/mes</span>
                                         </div>
                                         <p className="text-xs text-zinc-500 line-through">$350.000 ARS/mes</p>
-                                        <p className="text-xs text-amber-400 mt-1">Solo para los primeros 10 clientes</p>
+                                        <p className="text-xs text-amber-400 mt-1">Válido hasta el 30 de abril</p>
                                     </div>
                                     <ul className="space-y-3 mb-8 flex-1">
                                         {[
@@ -375,7 +375,7 @@ export default function Landing() {
                                                 <span className="text-zinc-400 text-sm">ARS/mes</span>
                                             </div>
                                             <p className="text-xs text-zinc-500 line-through">$700.000 ARS/mes</p>
-                                            <p className="text-xs text-amber-400 mt-1">Solo para los primeros 10 clientes</p>
+                                            <p className="text-xs text-amber-400 mt-1">Válido hasta el 30 de abril</p>
                                         </div>
                                         <ul className="space-y-3 mb-8 flex-1">
                                             {[
@@ -385,6 +385,7 @@ export default function Landing() {
                                                 'Panel de control + Analytics',
                                                 'Sincronización con Google Sheets',
                                                 'Gestión de marketing digital',
+                                                '$100.000 ARS en publicidad incluidos',
                                                 'Soporte prioritario',
                                             ].map(item => (
                                                 <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
