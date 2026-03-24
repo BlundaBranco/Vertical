@@ -9,7 +9,7 @@ import threading
 _lock = threading.Lock()
 _pending: dict[str, dict] = {}
 
-DEBOUNCE_SECONDS = 5
+DEBOUNCE_SECONDS = 3
 
 
 def schedule_response(key: str, message: str, context: dict, flush_fn) -> None:
