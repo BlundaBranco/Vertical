@@ -325,12 +325,16 @@ export default function Landing() {
                             <Reveal style={{ transitionDelay: '100ms' }} className="h-full">
                                 <div className="h-full p-7 bg-white/[0.04] border border-white/[0.10] rounded-2xl flex flex-col">
                                     <div className="mb-6">
-                                        <p className="text-xs text-zinc-400 font-medium uppercase tracking-widest mb-3">Esencial</p>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <p className="text-xs text-zinc-400 font-medium uppercase tracking-widest">Esencial</p>
+                                            <span className="text-xs bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-full font-medium">Precio de lanzamiento</span>
+                                        </div>
                                         <div className="flex items-baseline gap-1.5 mb-1">
-                                            <span className="text-4xl font-bold text-white">$700.000</span>
+                                            <span className="text-4xl font-bold text-white">$175.000</span>
                                             <span className="text-zinc-400 text-sm">ARS/mes</span>
                                         </div>
-                                        <p className="text-xs text-zinc-500">Todo lo que necesitás para empezar</p>
+                                        <p className="text-xs text-zinc-500 line-through">$350.000 ARS/mes</p>
+                                        <p className="text-xs text-amber-400 mt-1">Solo para los primeros 10 clientes</p>
                                     </div>
                                     <ul className="space-y-3 mb-8 flex-1">
                                         {[
@@ -364,13 +368,14 @@ export default function Landing() {
                                         <div className="mb-6">
                                             <div className="flex items-center justify-between mb-3">
                                                 <p className="text-xs text-violet-300 font-medium uppercase tracking-widest">Pro</p>
-                                                <span className="text-xs bg-violet-500/20 border border-violet-500/35 text-violet-300 px-2.5 py-0.5 rounded-full font-medium">Más elegido</span>
+                                                <span className="text-xs bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-full font-medium">Precio de lanzamiento</span>
                                             </div>
                                             <div className="flex items-baseline gap-1.5 mb-1">
-                                                <span className="text-4xl font-bold text-white">$850.000</span>
+                                                <span className="text-4xl font-bold text-white">$350.000</span>
                                                 <span className="text-zinc-400 text-sm">ARS/mes</span>
                                             </div>
-                                            <p className="text-xs text-zinc-500">Todo incluido + crecimiento activo</p>
+                                            <p className="text-xs text-zinc-500 line-through">$700.000 ARS/mes</p>
+                                            <p className="text-xs text-amber-400 mt-1">Solo para los primeros 10 clientes</p>
                                         </div>
                                         <ul className="space-y-3 mb-8 flex-1">
                                             {[
