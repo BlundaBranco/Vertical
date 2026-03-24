@@ -326,7 +326,7 @@ export default function Landing() {
                                 <div className="h-full p-7 bg-white/[0.04] border border-white/[0.10] rounded-2xl flex flex-col">
                                     <div className="mb-6">
                                         <div className="flex items-center justify-between mb-3">
-                                            <p className="text-xs text-zinc-400 font-medium uppercase tracking-widest">Esencial</p>
+                                            <p className="text-xs text-zinc-400 font-medium uppercase tracking-widest">Digital</p>
                                             <span className="text-xs bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-full font-medium">Precio de lanzamiento</span>
                                         </div>
                                         <div className="flex items-baseline gap-1.5 mb-1">
@@ -367,7 +367,7 @@ export default function Landing() {
                                     <div className="relative h-full p-7 bg-violet-950/60 border border-violet-500/30 rounded-2xl flex flex-col">
                                         <div className="mb-6">
                                             <div className="flex items-center justify-between mb-3">
-                                                <p className="text-xs text-violet-300 font-medium uppercase tracking-widest">Pro</p>
+                                                <p className="text-xs text-violet-300 font-medium uppercase tracking-widest">Digital + Marketing</p>
                                                 <span className="text-xs bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-full font-medium">Precio de lanzamiento</span>
                                             </div>
                                             <div className="flex items-baseline gap-1.5 mb-1">
@@ -384,8 +384,8 @@ export default function Landing() {
                                                 'Conversaciones ilimitadas',
                                                 'Panel de control + Analytics',
                                                 'Sincronización con Google Sheets',
-                                                'Gestión de marketing digital',
-                                                '$100.000 ARS en publicidad incluidos',
+                                                'Gestión completa de marketing digital',
+                                                'Campañas publicitarias con resultados medibles semana a semana',
                                                 'Soporte prioritario',
                                             ].map(item => (
                                                 <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
