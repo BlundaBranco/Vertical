@@ -2,6 +2,13 @@ from pydantic import BaseModel
 from typing import Optional
 
 
+class WhatsAppProfileUpdate(BaseModel):
+    about: Optional[str] = None        # bio visible en WhatsApp, max 139 chars
+    description: Optional[str] = None
+    email: Optional[str] = None
+    website: Optional[str] = None
+
+
 class SettingsUpdate(BaseModel):
     business_name: str
     assistant_name: str

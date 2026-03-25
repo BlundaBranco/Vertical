@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Bot, Building, BookOpen, Loader2, CheckCircle2, XCircle, Zap, Link2, Phone, Lock } from 'lucide-react';
-import { fetchSettings, saveSettings, changePassword } from '../api/client';
+import { fetchSettings, saveSettings, changePassword, updateWhatsAppProfile } from '../api/client';
 import { fetchMe, getToken } from '../api/auth';
 
 function Toast({ toast }) {
@@ -36,7 +36,33 @@ const COMM_STYLES = [
     { value: 'natural',  label: 'Natural',  desc: 'Como una persona real' },
 ];
 
-function WhatsAppSection({ connected, phone, phoneNumberId }) {
+function WhatsAppSection({ connected, phone, phoneNumberId, tenantId, initialAbout, initialDescription, initialEmail, initialWebsite }) {
+    const inputCls = "w-full bg-white/[0.05] border border-violet-500/15 rounded-lg px-3 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500/50 transition-all disabled:opacity-40 disabled:cursor-not-allowed";
+
+    const [profile, setProfile] = useState({
+        about: initialAbout || '',
+        description: initialDescription || '',
+        email: initialEmail || '',
+        website: initialWebsite || '',
+    });
+    const [saving, setSaving] = useState(false);
+    const [msg, setMsg] = useState(null);
+
+    const handleChange = (field, value) => setProfile(p => ({ ...p, [field]: value }));
+
+    const handleSave = async () => {
+        setSaving(true);
+        setMsg(null);
+        try {
+            await updateWhatsAppProfile(tenantId, profile);
+            setMsg({ ok: true, text: 'Perfil actualizado en WhatsApp.' });
+        } catch (err) {
+            setMsg({ ok: false, text: err.message || 'Error al actualizar el perfil.' });
+        } finally {
+            setSaving(false);
+        }
+    };
+
     return (
         <section className="bg-white/[0.04] rounded-2xl border border-violet-500/15 overflow-hidden">
             <div className="flex items-center gap-2.5 px-5 py-4 border-b border-violet-500/15">
@@ -50,7 +76,8 @@ function WhatsAppSection({ connected, phone, phoneNumberId }) {
                     {connected ? 'Conectado' : 'Sin conectar'}
                 </span>
             </div>
-            <div className="p-5">
+            <div className="p-5 space-y-4">
+                {/* Número vinculado */}
                 {connected ? (
                     <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
                         <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
@@ -63,6 +90,86 @@ function WhatsAppSection({ connected, phone, phoneNumberId }) {
                     <p className="text-sm text-zinc-400">
                         Tu número está siendo activado. En breve el equipo de Vertical AI lo vinculará a tu cuenta.
                     </p>
+                )}
+
+                {/* Perfil del negocio en WhatsApp */}
+                {connected && (
+                    <div className="space-y-3 pt-1">
+                        <p className="text-xs text-zinc-400">Información visible en el perfil de WhatsApp del número.</p>
+
+                        <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                                <label className="text-xs text-zinc-300 font-medium">Bio</label>
+                                <span className={`text-xs font-mono ${profile.about.length > 120 ? 'text-amber-400' : 'text-zinc-500'}`}>
+                                    {profile.about.length}/139
+                                </span>
+                            </div>
+                            <textarea
+                                rows={2}
+                                maxLength={139}
+                                value={profile.about}
+                                onChange={e => handleChange('about', e.target.value)}
+                                className={`${inputCls} resize-none`}
+                                placeholder="Texto corto visible cuando alguien abre el chat"
+                                disabled={!connected}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs text-zinc-300 font-medium mb-1.5">Descripción</label>
+                            <textarea
+                                rows={3}
+                                value={profile.description}
+                                onChange={e => handleChange('description', e.target.value)}
+                                className={`${inputCls} resize-none`}
+                                placeholder="Descripción del negocio en el perfil"
+                                disabled={!connected}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs text-zinc-300 font-medium mb-1.5">Email de contacto</label>
+                                <input
+                                    type="email"
+                                    value={profile.email}
+                                    onChange={e => handleChange('email', e.target.value)}
+                                    className={inputCls}
+                                    placeholder="contacto@negocio.com"
+                                    disabled={!connected}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs text-zinc-300 font-medium mb-1.5">Sitio web</label>
+                                <input
+                                    type="url"
+                                    value={profile.website}
+                                    onChange={e => handleChange('website', e.target.value)}
+                                    className={inputCls}
+                                    placeholder="https://tu-sitio.com"
+                                    disabled={!connected}
+                                />
+                            </div>
+                        </div>
+
+                        {msg && (
+                            <p className={`text-xs px-3 py-2 rounded-lg border ${msg.ok
+                                ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                                : 'text-red-400 bg-red-500/10 border-red-500/20'}`}>
+                                {msg.text}
+                            </p>
+                        )}
+
+                        <div className="flex justify-end">
+                            <button
+                                onClick={handleSave}
+                                disabled={saving}
+                                className="flex items-center gap-2 px-4 py-2 bg-white/[0.06] hover:bg-white/[0.10] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-medium rounded-lg transition-colors border border-violet-500/15"
+                            >
+                                {saving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Guardando...</> : <><Save className="w-3.5 h-3.5" /> Guardar perfil WhatsApp</>}
+                            </button>
+                        </div>
+                    </div>
                 )}
             </div>
         </section>
@@ -155,7 +262,11 @@ export default function Settings() {
         phone_number_id: '',
         whatsapp_phone: '',
         nationality: 'argentino',
-        communication_style: 'estandar'
+        communication_style: 'estandar',
+        wa_about: '',
+        wa_description: '',
+        wa_email: '',
+        wa_website: '',
     });
 
     const showToast = (message, type = 'success') => {
@@ -179,7 +290,11 @@ export default function Settings() {
                     phone_number_id: data.phone_number_id || '',
                     whatsapp_phone: data.whatsapp_phone || '',
                     nationality: data.nationality || 'argentino',
-                    communication_style: data.communication_style || 'estandar'
+                    communication_style: data.communication_style || 'estandar',
+                    wa_about: data.wa_about || '',
+                    wa_description: data.wa_description || '',
+                    wa_email: data.wa_email || '',
+                    wa_website: data.wa_website || '',
                 };
                 setConfig(loaded);
                 setOriginal(loaded);
@@ -259,6 +374,11 @@ export default function Settings() {
                     connected={!!config.phone_number_id}
                     phone={config.whatsapp_phone}
                     phoneNumberId={config.phone_number_id}
+                    tenantId={tenantId}
+                    initialAbout={config.wa_about}
+                    initialDescription={config.wa_description}
+                    initialEmail={config.wa_email}
+                    initialWebsite={config.wa_website}
                 />
 
                 {/* Negocio */}

@@ -56,21 +56,20 @@ def extract_information(lead_data_actual: dict, user_message: str, template_name
         prompt_extractor = f"{custom_prompt}\n\nDatos que ya tenemos: {json.dumps(lead_data_actual)}"
     else:
         prompt_extractor = f"""
-    Eres un analista de datos experto en Real Estate. Tu única tarea es extraer información del mensaje del usuario.
-    Datos que ya tenemos: {json.dumps(lead_data_actual)}
+Eres un analista de datos. Tu única tarea es extraer información del mensaje del usuario.
+Datos que ya tenemos: {json.dumps(lead_data_actual)}
 
-    Instrucciones para extracción:
-    - Si el usuario menciona un dato nuevo, extráelo.
-    - Si el usuario corrige un dato existente, actualízalo.
+Extrae si el usuario menciona: nombre, presupuesto, zona, tipo de propiedad.
 
-    Instrucciones para 'motivo_rechazo':
-    - Si el usuario dice que es muy caro -> "presupuesto_bajo"
-    - Si busca en una zona que no trabajamos -> "zona_no_cubierta"
-    - Si ya compró/alquiló con otro -> "ya_compro"
-    - Si muestra desinterés explícito o pide no molestar -> "desinteres"
+Para motivo_rechazo — SOLO marcarlo si el usuario lo dice EXPLÍCITAMENTE:
+- "presupuesto_bajo": el usuario dice que el precio le parece caro o que no le alcanza el dinero.
+- "zona_no_cubierta": el usuario dice que necesita una zona específica y se le confirma que no se trabaja ahí.
+- "ya_compro": el usuario dice que ya compró, ya alquiló, o ya resolvió el tema con otro.
+- "desinteres": el usuario pide que no lo contacten más, dice que no le interesa, o indica claramente que no quiere continuar.
 
-    Mantén el formato JSON limpio.
-    """
+IMPORTANTE: NO deduzcas motivo_rechazo por tu cuenta. Solo ponlo si el usuario lo dijo textualmente.
+Si no hay rechazo explícito, devuelve motivo_rechazo como null.
+"""
 
     try:
         completion = client.beta.chat.completions.parse(
@@ -82,7 +81,11 @@ def extract_information(lead_data_actual: dict, user_message: str, template_name
             response_format=ExtractionSchema,
         )
         nuevos_datos = completion.choices[0].message.parsed
-        return {k: v for k, v in nuevos_datos.model_dump().items() if v is not None}
+        # motivo_rechazo=None siempre se incluye para poder limpiar un valor previo incorrecto
+        return {
+            k: v for k, v in nuevos_datos.model_dump().items()
+            if v is not None or k == "motivo_rechazo"
+        }
     except Exception as e:
         print(f"[ERROR] Extraccion: {e}")
         return {}
@@ -114,13 +117,22 @@ def generate_response(tenant, lead, user_message: str, conversations=None):
 
     datos_extraidos = json.dumps(lead.extracted_data) if lead.extracted_data else "No tenemos datos aún."
 
+    # Campos requeridos dinámicos según el vertical del tenant
+    template = lead.tenant.template if lead.tenant else None
+    required_fields = (
+        template.required_fields_schema
+        if template and template.required_fields_schema
+        else ["nombre", "presupuesto", "zona"]
+    )
+    campos_objetivo = ", ".join(required_fields)
+
     kb_section = ""
     if knowledge_base and knowledge_base.strip():
         kb_section = f"""
 BASE DE CONOCIMIENTO (INFORMACIÓN DE PROPIEDADES Y SERVICIOS):
 {knowledge_base}
 
-IMPORTANTE: Usá esta información para responder preguntas sobre propiedades, precios, características y disponibilidad.
+IMPORTANTE: Usá esta información para responder preguntas del cliente.
 Si no encontrás información específica en la base de conocimiento, NO inventes datos. Decí que vas a consultar y que te ponés en contacto.
 """
 
@@ -173,14 +185,14 @@ CONTEXTO DEL NEGOCIO:
 - Al cerrar la calificación, avisá que {agent_ref} los va a contactar.
 {kb_section}
 OBJETIVO:
-Obtener de forma natural: nombre, presupuesto, zona y tipo de propiedad.
+Obtener de forma natural los siguientes datos del cliente: {campos_objetivo}.
 Datos que ya tenés del lead: {datos_extraidos}
 
 REGLAS:
 1. Si el dato ya está en los datos del lead, NO lo volvás a pedir.
-2. Si detectás rechazo claro (presupuesto bajo, zona no cubierta, ya compró, desinterés): cerrá amablemente sin insistir.
+2. Si el cliente muestra rechazo claro o desinterés explícito: cerrá amablemente sin insistir.
 3. No pidas teléfono — ya lo tenés por WhatsApp.
-4. No inventes precios ni disponibilidad. Solo usá la base de conocimiento.
+4. No inventes información. Solo usá la base de conocimiento.
 
 {style_rules}
 {nationality_rules}

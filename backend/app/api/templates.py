@@ -13,7 +13,7 @@ from app.services.auth_service import get_current_user
 router = APIRouter()
 
 WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
-GRAPH_URL = "https://graph.facebook.com/v20.0"
+GRAPH_URL = "https://graph.facebook.com/v21.0"
 
 
 def _get_waba_id(tenant: Tenant):
@@ -44,7 +44,8 @@ def get_templates(tenant_id: int, db: Session = Depends(get_db), current_user=De
     res = requests.get(
         f"{GRAPH_URL}/{waba_id}/message_templates",
         params={"fields": "name,category,status,language,components", "limit": 100},
-        headers=_meta_headers()
+        headers=_meta_headers(),
+        timeout=10
     )
     if not res.ok:
         err = res.json().get("error", {}).get("message", f"Error {res.status_code}")
@@ -106,7 +107,8 @@ def create_template(
     res = requests.post(
         f"{GRAPH_URL}/{waba_id}/message_templates",
         json=body,
-        headers={**_meta_headers(), "Content-Type": "application/json"}
+        headers={**_meta_headers(), "Content-Type": "application/json"},
+        timeout=10
     )
 
     data = res.json()
@@ -143,7 +145,8 @@ def send_template(
     phones_res = requests.get(
         f"{GRAPH_URL}/{waba_id}/phone_numbers",
         params={"fields": "id,display_phone_number"},
-        headers=_meta_headers()
+        headers=_meta_headers(),
+        timeout=10
     )
     if phones_res.ok:
         phones = phones_res.json().get("data", [])
@@ -161,7 +164,8 @@ def send_template(
     res = requests.get(
         f"{GRAPH_URL}/{waba_id}/message_templates",
         params={"fields": "name,language,status", "limit": 100},
-        headers=_meta_headers()
+        headers=_meta_headers(),
+        timeout=10
     )
     templates = res.json().get("data", []) if res.ok else []
     tmpl = next((t for t in templates if t["name"] == template_name), None)
@@ -181,7 +185,8 @@ def send_template(
     send_res = requests.post(
         f"https://graph.facebook.com/v21.0/{pid}/messages",
         json=send_body,
-        headers={**_meta_headers(), "Content-Type": "application/json"}
+        headers={**_meta_headers(), "Content-Type": "application/json"},
+        timeout=10
     )
     data = send_res.json()
     if not send_res.ok:
@@ -208,7 +213,8 @@ def delete_template(
     res = requests.delete(
         f"{GRAPH_URL}/{waba_id}/message_templates",
         params={"name": template_name},
-        headers=_meta_headers()
+        headers=_meta_headers(),
+        timeout=10
     )
 
     data = res.json()

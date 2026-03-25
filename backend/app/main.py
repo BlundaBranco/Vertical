@@ -32,6 +32,15 @@ def _seed_verticals():
     from app.models import VerticalTemplate
     db = SessionLocal()
     try:
+        if not db.query(VerticalTemplate).filter(VerticalTemplate.name == "real_estate_v1").first():
+            db.add(VerticalTemplate(
+                name="real_estate_v1",
+                assistant_name="Ana",
+                system_prompt_base="Sos {assistant_name}, asesora de {business_name}.",
+                required_fields_schema=["nombre", "presupuesto", "zona"],
+            ))
+            db.commit()
+            print("[SEED] Vertical 'real_estate_v1' creado.")
         if not db.query(VerticalTemplate).filter(VerticalTemplate.name == "general_v1").first():
             db.add(VerticalTemplate(
                 name="general_v1",
@@ -42,7 +51,7 @@ def _seed_verticals():
             db.commit()
             print("[SEED] Vertical 'general_v1' creado.")
     except Exception as e:
-        print(f"[SEED] Error al crear general_v1: {e}")
+        print(f"[SEED] Error al crear verticales: {e}")
     finally:
         db.close()
 
@@ -64,7 +73,7 @@ async def lifespan(app: FastAPI):
     scheduler.shutdown()
 
 
-app = FastAPI(title="Ventra AI - Sistema de Agentes IA para WhatsApp", lifespan=lifespan)
+app = FastAPI(title="Vertical AI - Sistema de Agentes IA para WhatsApp", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

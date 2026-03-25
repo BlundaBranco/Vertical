@@ -107,6 +107,15 @@ export async function deleteTemplate(tenantId, templateName) {
     return handleResponse(res);
 }
 
+export async function updateWhatsAppProfile(tenantId, data) {
+    const res = await fetch(`${BASE_URL}/settings/${tenantId}/whatsapp-profile`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify(data)
+    });
+    return handleResponse(res);
+}
+
 export async function toggleBot(tenantId) {
     const res = await fetch(`${BASE_URL}/settings/${tenantId}/bot-toggle`, {
         method: "PATCH",

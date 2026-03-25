@@ -77,10 +77,14 @@ def facebook_login(payload: FacebookLoginRequest, db: Session = Depends(get_db))
 
     # Verificar token con Facebook
     app_token = f"{FACEBOOK_APP_ID}|{FACEBOOK_APP_SECRET}"
-    debug_res = http_requests.get(
-        "https://graph.facebook.com/debug_token",
-        params={"input_token": payload.access_token, "access_token": app_token}
-    ).json()
+    try:
+        debug_res = http_requests.get(
+            "https://graph.facebook.com/debug_token",
+            params={"input_token": payload.access_token, "access_token": app_token},
+            timeout=8
+        ).json()
+    except Exception:
+        raise HTTPException(status_code=503, detail="No se pudo verificar el token con Facebook")
 
     fb_data = debug_res.get("data", {})
     if not fb_data.get("is_valid"):
@@ -89,10 +93,14 @@ def facebook_login(payload: FacebookLoginRequest, db: Session = Depends(get_db))
         raise HTTPException(status_code=401, detail="Token no pertenece a esta app")
 
     # Obtener datos del usuario
-    user_info = http_requests.get(
-        "https://graph.facebook.com/me",
-        params={"fields": "id,name,email", "access_token": payload.access_token}
-    ).json()
+    try:
+        user_info = http_requests.get(
+            "https://graph.facebook.com/me",
+            params={"fields": "id,name,email", "access_token": payload.access_token},
+            timeout=8
+        ).json()
+    except Exception:
+        raise HTTPException(status_code=503, detail="No se pudo obtener información de Facebook")
 
     fb_id = user_info.get("id")
     email = user_info.get("email")
@@ -127,10 +135,14 @@ def google_login(payload: GoogleLoginRequest, db: Session = Depends(get_db)):
     if not GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=500, detail="Google Login no configurado")
 
-    verify_res = http_requests.get(
-        "https://oauth2.googleapis.com/tokeninfo",
-        params={"id_token": payload.credential}
-    ).json()
+    try:
+        verify_res = http_requests.get(
+            "https://oauth2.googleapis.com/tokeninfo",
+            params={"id_token": payload.credential},
+            timeout=8
+        ).json()
+    except Exception:
+        raise HTTPException(status_code=503, detail="No se pudo verificar el token con Google")
 
     if "error_description" in verify_res or "error" in verify_res:
         raise HTTPException(status_code=401, detail="Token de Google inválido")
