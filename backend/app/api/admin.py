@@ -7,7 +7,7 @@ from sqlalchemy import func
 from typing import Optional
 
 from app.db.database import get_db
-from app.models.db_models import Tenant, User, Lead, VerticalTemplate
+from app.models.db_models import Tenant, User, Lead, Conversation, VerticalTemplate
 from app.services.auth_service import get_admin_user
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -126,6 +126,28 @@ def admin_update_tenant(
     return {"status": "updated", "tenant_id": tenant_id}
 
 
+@router.delete("/tenants/{tenant_id}")
+def admin_delete_tenant(
+    tenant_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_admin_user)
+):
+    if tenant_id == current_user.tenant_id:
+        raise HTTPException(status_code=400, detail="No podés eliminar tu propio tenant")
+    tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant no encontrado")
+    # Borrar en cascada: conversaciones → leads → usuarios → tenant
+    leads = db.query(Lead).filter(Lead.tenant_id == tenant_id).all()
+    for lead in leads:
+        db.query(Conversation).filter(Conversation.lead_id == lead.id).delete()
+    db.query(Lead).filter(Lead.tenant_id == tenant_id).delete()
+    db.query(User).filter(User.tenant_id == tenant_id).delete()
+    db.delete(tenant)
+    db.commit()
+    return {"status": "deleted", "tenant_id": tenant_id}
+
+
 # ─── Users ────────────────────────────────────────────────────────────────────
 
 @router.get("/users")
@@ -142,6 +164,22 @@ def admin_users(db: Session = Depends(get_db), _=Depends(get_admin_user)):
         }
         for u in users
     ]
+
+
+@router.delete("/users/{user_id}")
+def admin_delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_admin_user)
+):
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="No podés eliminarte a vos mismo")
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    db.delete(user)
+    db.commit()
+    return {"status": "deleted", "user_id": user_id}
 
 
 # ─── WhatsApp Linking ─────────────────────────────────────────────────────────

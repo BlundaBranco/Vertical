@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     fetchAdminDashboard, fetchAdminTenants, fetchAdminUsers,
-    fetchAdminTemplates, adminUpdateTenant,
+    fetchAdminTemplates, adminUpdateTenant, adminDeleteTenant, adminDeleteUser,
     adminRequestOTP, adminVerifyOTP, adminRegisterNumber
 } from '../api/client';
 import { Users, Building2, BarChart3, Wifi, CheckCircle, AlertCircle, Loader2, Bot, Phone } from 'lucide-react';
@@ -82,7 +82,7 @@ function TenantsTab() {
     const [tenants, setTenants] = useState([]);
     const [templates, setTemplates] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [editing, setEditing] = useState(null); // tenant id being edited
+    const [editing, setEditing] = useState(null);
     const [editForm, setEditForm] = useState({});
     const [saving, setSaving] = useState(false);
 
@@ -111,11 +111,21 @@ function TenantsTab() {
         }
     };
 
+    const deleteTenant = async (t) => {
+        if (!confirm(`¿Eliminar a "${t.name}" y todos sus datos? Esta acción no se puede deshacer.`)) return;
+        try {
+            await adminDeleteTenant(t.id);
+            setTenants(prev => prev.filter(x => x.id !== t.id));
+        } catch (e) {
+            alert(e.message);
+        }
+    };
+
     if (loading) return <Spinner />;
 
     return (
-        <div className="bg-white/3 border border-white/8 rounded-xl overflow-hidden">
-            <table className="w-full text-sm">
+        <div className="bg-white/3 border border-white/8 rounded-xl overflow-x-auto">
+            <table className="w-full text-sm min-w-[700px]">
                 <thead>
                     <tr className="text-zinc-500 text-xs border-b border-white/5">
                         <th className="text-left px-4 py-3">Cliente</th>
@@ -134,14 +144,14 @@ function TenantsTab() {
                                 <>
                                     <td className="px-4 py-2">
                                         <input
-                                            className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-white text-xs w-full"
+                                            className="bg-zinc-800 border border-zinc-600 rounded-lg px-2 py-1 text-white text-xs w-full"
                                             value={editForm.name}
                                             onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
                                         />
                                     </td>
                                     <td className="px-4 py-2">
                                         <select
-                                            className="bg-[#0d0d1a] border border-white/10 rounded-lg px-2 py-1 text-white text-xs"
+                                            className="bg-zinc-800 border border-zinc-600 rounded-lg px-2 py-1 text-white text-xs"
                                             value={editForm.template_name}
                                             onChange={e => setEditForm(f => ({ ...f, template_name: e.target.value }))}
                                         >
@@ -161,17 +171,16 @@ function TenantsTab() {
                                             {editForm.bot_active ? 'Activo' : 'Pausado'}
                                         </button>
                                     </td>
-                                    <td className="px-4 py-2 flex gap-2">
-                                        <button
-                                            onClick={() => saveEdit(t.id)}
-                                            disabled={saving}
-                                            className="text-xs px-2 py-1 bg-violet-600 hover:bg-violet-700 text-white rounded-lg disabled:opacity-50"
-                                        >
-                                            {saving ? '...' : 'Guardar'}
-                                        </button>
-                                        <button onClick={() => setEditing(null)} className="text-xs px-2 py-1 text-zinc-400 hover:text-white">
-                                            Cancelar
-                                        </button>
+                                    <td className="px-4 py-2">
+                                        <div className="flex gap-2">
+                                            <button onClick={() => saveEdit(t.id)} disabled={saving}
+                                                className="text-xs px-2 py-1 bg-violet-600 hover:bg-violet-700 text-white rounded-lg disabled:opacity-50">
+                                                {saving ? '...' : 'Guardar'}
+                                            </button>
+                                            <button onClick={() => setEditing(null)} className="text-xs px-2 py-1 text-zinc-400 hover:text-white">
+                                                Cancelar
+                                            </button>
+                                        </div>
                                     </td>
                                 </>
                             ) : (
@@ -187,12 +196,16 @@ function TenantsTab() {
                                         </span>
                                     </td>
                                     <td className="px-4 py-3">
-                                        <button
-                                            onClick={() => startEdit(t)}
-                                            className="text-xs px-2 py-1 text-zinc-400 hover:text-white border border-white/10 hover:border-white/20 rounded-lg transition-colors"
-                                        >
-                                            Editar
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => startEdit(t)}
+                                                className="text-xs px-2 py-1 text-zinc-400 hover:text-white border border-white/10 hover:border-white/20 rounded-lg transition-colors">
+                                                Editar
+                                            </button>
+                                            <button onClick={() => deleteTenant(t)}
+                                                className="text-xs px-2 py-1 text-red-400/60 hover:text-red-400 border border-red-500/10 hover:border-red-500/30 rounded-lg transition-colors">
+                                                Eliminar
+                                            </button>
+                                        </div>
                                     </td>
                                 </>
                             )}
@@ -213,6 +226,16 @@ function UsersTab() {
         fetchAdminUsers().then(setUsers).catch(() => {}).finally(() => setLoading(false));
     }, []);
 
+    const deleteUser = async (u) => {
+        if (!confirm(`¿Eliminar al usuario "${u.email}"?`)) return;
+        try {
+            await adminDeleteUser(u.id);
+            setUsers(prev => prev.filter(x => x.id !== u.id));
+        } catch (e) {
+            alert(e.message);
+        }
+    };
+
     if (loading) return <Spinner />;
 
     return (
@@ -224,6 +247,7 @@ function UsersTab() {
                         <th className="text-left px-4 py-3">Tenant</th>
                         <th className="text-left px-4 py-3">Rol</th>
                         <th className="text-left px-4 py-3">Creado</th>
+                        <th className="text-left px-4 py-3"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -239,6 +263,14 @@ function UsersTab() {
                             </td>
                             <td className="px-4 py-3 text-zinc-500 text-xs">
                                 {u.created_at ? new Date(u.created_at).toLocaleDateString('es-AR') : '—'}
+                            </td>
+                            <td className="px-4 py-3">
+                                {!u.is_admin && (
+                                    <button onClick={() => deleteUser(u)}
+                                        className="text-xs px-2 py-1 text-red-400/60 hover:text-red-400 border border-red-500/10 hover:border-red-500/30 rounded-lg transition-colors">
+                                        Eliminar
+                                    </button>
+                                )}
                             </td>
                         </tr>
                     ))}
@@ -356,12 +388,12 @@ function WhatsAppTab() {
                     <div>
                         <label className="text-xs text-zinc-400 mb-1 block">Cliente (tenant)</label>
                         <select
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500/50"
+                            className="w-full bg-zinc-800 border border-zinc-600 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500/50"
                             value={selectedTenant}
                             onChange={e => setSelectedTenant(e.target.value)}
                         >
-                            <option value="">Seleccionar cliente...</option>
-                            {tenants.map(t => <option key={t.id} value={t.id}>{t.name} (ID {t.id})</option>)}
+                            <option value="" className="bg-zinc-800">Seleccionar cliente...</option>
+                            {tenants.map(t => <option key={t.id} value={t.id} className="bg-zinc-800">{t.name} (ID {t.id})</option>)}
                         </select>
                     </div>
                     <div className="flex gap-3">

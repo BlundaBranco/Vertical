@@ -56,6 +56,17 @@ def _seed_verticals():
         db.close()
 
 
+def _run_migrations():
+    """Migraciones incrementales seguras — idempotentes, no destruyen datos."""
+    from sqlalchemy import text
+    from app.db.database import engine
+    with engine.connect() as conn:
+        conn.execute(text(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN NOT NULL DEFAULT FALSE"
+        ))
+        conn.commit()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Crear tablas nuevas si no existen (seguro en producción — no borra datos)
@@ -63,6 +74,7 @@ async def lifespan(app: FastAPI):
     from app.db.database import engine
     import app.models  # noqa
     Base.metadata.create_all(bind=engine)
+    _run_migrations()
     _seed_verticals()
 
     scheduler = BackgroundScheduler()

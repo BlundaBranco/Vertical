@@ -183,6 +183,22 @@ export async function adminUpdateTenant(tenantId, data) {
     return handleResponse(res);
 }
 
+export async function adminDeleteTenant(tenantId) {
+    const res = await fetch(`${BASE_URL}/admin/tenants/${tenantId}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+    });
+    return handleResponse(res);
+}
+
+export async function adminDeleteUser(userId) {
+    const res = await fetch(`${BASE_URL}/admin/users/${userId}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+    });
+    return handleResponse(res);
+}
+
 export async function adminRequestOTP(phoneNumber, countryCode, wabaId) {
     const res = await fetch(`${BASE_URL}/admin/whatsapp/request-otp`, {
         method: "POST",
