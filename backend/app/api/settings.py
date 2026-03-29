@@ -1,7 +1,7 @@
 import os
 
 import requests
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
@@ -43,7 +43,7 @@ def get_settings(tenant_id: int, db: Session = Depends(get_db), current_user=Dep
             # Perfil del negocio
             r2 = requests.get(
                 f"https://graph.facebook.com/v21.0/{pid}/whatsapp_business_profile",
-                params={"fields": "about,description,email,websites"},
+                params={"fields": "about,description,email,websites,profile_picture_url,address,vertical"},
                 headers={"Authorization": f"Bearer {token}"},
                 timeout=4
             )
@@ -72,6 +72,9 @@ def get_settings(tenant_id: int, db: Session = Depends(get_db), current_user=Dep
         "wa_description": config.get("wa_description", wa_profile.get("description", "")),
         "wa_email": config.get("wa_email", wa_profile.get("email", "")),
         "wa_website": config.get("wa_website", (wa_profile.get("websites") or [""])[0]),
+        "wa_address": config.get("wa_address", wa_profile.get("address", "")),
+        "wa_vertical": config.get("wa_vertical", wa_profile.get("vertical", "")),
+        "wa_profile_picture_url": wa_profile.get("profile_picture_url", ""),
     }
 
 
@@ -143,7 +146,11 @@ def update_whatsapp_profile(tenant_id: int, payload: WhatsAppProfileUpdate, db: 
     if payload.email is not None:
         body["email"] = payload.email
     if payload.website is not None:
-        body["websites"] = f'["{payload.website}"]' if payload.website else "[]"
+        body["websites"] = [payload.website] if payload.website else []
+    if payload.address is not None:
+        body["address"] = payload.address
+    if payload.vertical is not None:
+        body["vertical"] = payload.vertical
 
     try:
         r = requests.post(
@@ -170,11 +177,62 @@ def update_whatsapp_profile(tenant_id: int, payload: WhatsAppProfileUpdate, db: 
         config["wa_email"] = payload.email
     if payload.website is not None:
         config["wa_website"] = payload.website
+    if payload.address is not None:
+        config["wa_address"] = payload.address
+    if payload.vertical is not None:
+        config["wa_vertical"] = payload.vertical
     tenant.business_config = config
     flag_modified(tenant, "business_config")
     db.commit()
 
     return {"status": "success", "message": "Perfil de WhatsApp actualizado"}
+
+
+@router.post("/settings/{tenant_id}/whatsapp-photo")
+async def update_whatsapp_photo(
+    tenant_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    if current_user.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+    if not tenant or not tenant.phone_number_id:
+        raise HTTPException(status_code=400, detail="No hay número de WhatsApp vinculado")
+
+    token = os.getenv("WHATSAPP_TOKEN")
+    pid = tenant.phone_number_id
+    content = await file.read()
+
+    # Paso 1: subir imagen a Meta
+    upload_res = requests.post(
+        f"https://graph.facebook.com/v21.0/{pid}/media",
+        data={"messaging_product": "whatsapp", "type": file.content_type},
+        files={"file": (file.filename, content, file.content_type)},
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=20
+    )
+    if not upload_res.ok:
+        err = upload_res.json().get("error", {}).get("message", upload_res.text)
+        raise HTTPException(status_code=400, detail=f"Error al subir imagen: {err}")
+
+    media_id = upload_res.json().get("id")
+    if not media_id:
+        raise HTTPException(status_code=400, detail="Meta no devolvió un media ID")
+
+    # Paso 2: asignar como foto de perfil
+    profile_res = requests.post(
+        f"https://graph.facebook.com/v21.0/{pid}/whatsapp_business_profile",
+        json={"messaging_product": "whatsapp", "profile_picture_handle": media_id},
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=10
+    )
+    if not profile_res.ok:
+        err = profile_res.json().get("error", {}).get("message", profile_res.text)
+        raise HTTPException(status_code=400, detail=f"Error al actualizar foto: {err}")
+
+    return {"status": "success", "message": "Foto de perfil actualizada"}
 
 
 @router.patch("/settings/{tenant_id}/bot-toggle")

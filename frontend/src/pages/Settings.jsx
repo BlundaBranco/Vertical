@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Save, Bot, Building, BookOpen, Loader2, CheckCircle2, XCircle, Zap, Link2, Phone, Lock } from 'lucide-react';
-import { fetchSettings, saveSettings, changePassword, updateWhatsAppProfile } from '../api/client';
+import React, { useState, useEffect, useRef } from 'react';
+import { Save, Bot, Building, BookOpen, Loader2, CheckCircle2, XCircle, Zap, Link2, Phone, Lock, Camera } from 'lucide-react';
+import { fetchSettings, saveSettings, changePassword, updateWhatsAppProfile, uploadWhatsAppPhoto } from '../api/client';
 import { fetchMe, getToken } from '../api/auth';
 
 function Toast({ toast }) {
@@ -36,7 +36,27 @@ const COMM_STYLES = [
     { value: 'natural',  label: 'Natural',  desc: 'Como una persona real' },
 ];
 
-function WhatsAppSection({ connected, phone, phoneNumberId, tenantId, initialAbout, initialDescription, initialEmail, initialWebsite }) {
+const WA_CATEGORIES = [
+    { value: '', label: 'Sin categoría' },
+    { value: 'REAL_ESTATE', label: 'Inmobiliaria' },
+    { value: 'AUTOMOTIVE', label: 'Automotriz' },
+    { value: 'BEAUTY_SPA_AND_SALON', label: 'Belleza, Spa y Salón' },
+    { value: 'CLOTHING_AND_APPAREL', label: 'Ropa y Vestimenta' },
+    { value: 'EDUCATION', label: 'Educación' },
+    { value: 'ENTERTAINMENT', label: 'Entretenimiento' },
+    { value: 'EVENT_PLANNING_AND_SERVICE', label: 'Eventos' },
+    { value: 'FINANCE_AND_BANKING', label: 'Finanzas y Banca' },
+    { value: 'FOOD_AND_GROCERY', label: 'Alimentos y Supermercado' },
+    { value: 'HOTEL_AND_LODGING', label: 'Hotel y Alojamiento' },
+    { value: 'MEDICAL_AND_HEALTH', label: 'Salud y Medicina' },
+    { value: 'NON_PROFIT', label: 'Sin fines de lucro' },
+    { value: 'PROFESSIONAL_SERVICES', label: 'Servicios Profesionales' },
+    { value: 'RETAIL', label: 'Comercio / Retail' },
+    { value: 'TRAVEL_AND_TRANSPORTATION', label: 'Viajes y Transporte' },
+    { value: 'OTHER', label: 'Otro' },
+];
+
+function WhatsAppSection({ connected, phone, phoneNumberId, tenantId, initialAbout, initialDescription, initialEmail, initialWebsite, initialAddress, initialVertical, initialPhotoUrl }) {
     const inputCls = "w-full bg-white/[0.05] border border-violet-500/15 rounded-lg px-3 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500/50 transition-all disabled:opacity-40 disabled:cursor-not-allowed";
 
     const [profile, setProfile] = useState({
@@ -44,11 +64,42 @@ function WhatsAppSection({ connected, phone, phoneNumberId, tenantId, initialAbo
         description: initialDescription || '',
         email: initialEmail || '',
         website: initialWebsite || '',
+        address: initialAddress || '',
+        vertical: initialVertical || '',
     });
     const [saving, setSaving] = useState(false);
     const [msg, setMsg] = useState(null);
 
+    // Foto de perfil
+    const [photoFile, setPhotoFile] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState(initialPhotoUrl || null);
+    const [uploadingPhoto, setUploadingPhoto] = useState(false);
+    const photoInputRef = useRef(null);
+
     const handleChange = (field, value) => setProfile(p => ({ ...p, [field]: value }));
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setPhotoFile(file);
+        setPhotoPreview(URL.createObjectURL(file));
+        setMsg(null);
+    };
+
+    const handleUploadPhoto = async () => {
+        if (!photoFile) return;
+        setUploadingPhoto(true);
+        setMsg(null);
+        try {
+            await uploadWhatsAppPhoto(tenantId, photoFile);
+            setMsg({ ok: true, text: 'Foto de perfil actualizada en WhatsApp.' });
+            setPhotoFile(null);
+        } catch (err) {
+            setMsg({ ok: false, text: err.message || 'Error al subir la foto.' });
+        } finally {
+            setUploadingPhoto(false);
+        }
+    };
 
     const handleSave = async () => {
         setSaving(true);
@@ -92,11 +143,60 @@ function WhatsAppSection({ connected, phone, phoneNumberId, tenantId, initialAbo
                     </p>
                 )}
 
-                {/* Perfil del negocio en WhatsApp */}
                 {connected && (
-                    <div className="space-y-3 pt-1">
+                    <div className="space-y-4 pt-1">
                         <p className="text-xs text-zinc-400">Información visible en el perfil de WhatsApp del número.</p>
 
+                        {/* Foto de perfil */}
+                        <div>
+                            <label className="block text-xs text-zinc-300 font-medium mb-2">Foto de perfil</label>
+                            <div className="flex items-center gap-4">
+                                <div
+                                    className="relative w-16 h-16 rounded-full cursor-pointer group shrink-0"
+                                    onClick={() => photoInputRef.current?.click()}
+                                >
+                                    {photoPreview ? (
+                                        <img src={photoPreview} alt="Foto de perfil" className="w-16 h-16 rounded-full object-cover border-2 border-violet-500/30" />
+                                    ) : (
+                                        <div className="w-16 h-16 rounded-full bg-zinc-800 border-2 border-dashed border-zinc-600 flex items-center justify-center">
+                                            <Camera className="w-5 h-5 text-zinc-500" />
+                                        </div>
+                                    )}
+                                    <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <Camera className="w-5 h-5 text-white" />
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <button
+                                        type="button"
+                                        onClick={() => photoInputRef.current?.click()}
+                                        className="text-xs px-3 py-1.5 bg-white/[0.06] hover:bg-white/[0.10] text-zinc-300 rounded-lg border border-white/10 transition-colors"
+                                    >
+                                        Elegir imagen
+                                    </button>
+                                    {photoFile && (
+                                        <button
+                                            type="button"
+                                            onClick={handleUploadPhoto}
+                                            disabled={uploadingPhoto}
+                                            className="block text-xs px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-lg transition-colors"
+                                        >
+                                            {uploadingPhoto ? <span className="flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" />Subiendo...</span> : 'Subir foto'}
+                                        </button>
+                                    )}
+                                    <p className="text-xs text-zinc-600">JPG o PNG, máx. 5 MB</p>
+                                </div>
+                            </div>
+                            <input
+                                ref={photoInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png"
+                                className="hidden"
+                                onChange={handlePhotoChange}
+                            />
+                        </div>
+
+                        {/* Bio */}
                         <div>
                             <div className="flex items-center justify-between mb-1.5">
                                 <label className="text-xs text-zinc-300 font-medium">Bio</label>
@@ -111,10 +211,10 @@ function WhatsAppSection({ connected, phone, phoneNumberId, tenantId, initialAbo
                                 onChange={e => handleChange('about', e.target.value)}
                                 className={`${inputCls} resize-none`}
                                 placeholder="Texto corto visible cuando alguien abre el chat"
-                                disabled={!connected}
                             />
                         </div>
 
+                        {/* Descripción */}
                         <div>
                             <label className="block text-xs text-zinc-300 font-medium mb-1.5">Descripción</label>
                             <textarea
@@ -123,10 +223,10 @@ function WhatsAppSection({ connected, phone, phoneNumberId, tenantId, initialAbo
                                 onChange={e => handleChange('description', e.target.value)}
                                 className={`${inputCls} resize-none`}
                                 placeholder="Descripción del negocio en el perfil"
-                                disabled={!connected}
                             />
                         </div>
 
+                        {/* Email + Web */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label className="block text-xs text-zinc-300 font-medium mb-1.5">Email de contacto</label>
@@ -136,7 +236,6 @@ function WhatsAppSection({ connected, phone, phoneNumberId, tenantId, initialAbo
                                     onChange={e => handleChange('email', e.target.value)}
                                     className={inputCls}
                                     placeholder="contacto@negocio.com"
-                                    disabled={!connected}
                                 />
                             </div>
                             <div>
@@ -147,8 +246,33 @@ function WhatsAppSection({ connected, phone, phoneNumberId, tenantId, initialAbo
                                     onChange={e => handleChange('website', e.target.value)}
                                     className={inputCls}
                                     placeholder="https://tu-sitio.com"
-                                    disabled={!connected}
                                 />
+                            </div>
+                        </div>
+
+                        {/* Dirección + Categoría */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs text-zinc-300 font-medium mb-1.5">Dirección</label>
+                                <input
+                                    type="text"
+                                    value={profile.address}
+                                    onChange={e => handleChange('address', e.target.value)}
+                                    className={inputCls}
+                                    placeholder="Av. Corrientes 1234, Buenos Aires"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs text-zinc-300 font-medium mb-1.5">Categoría del negocio</label>
+                                <select
+                                    value={profile.vertical}
+                                    onChange={e => handleChange('vertical', e.target.value)}
+                                    className={`${inputCls} bg-zinc-900`}
+                                >
+                                    {WA_CATEGORIES.map(c => (
+                                        <option key={c.value} value={c.value} className="bg-zinc-900">{c.label}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
@@ -267,6 +391,9 @@ export default function Settings() {
         wa_description: '',
         wa_email: '',
         wa_website: '',
+        wa_address: '',
+        wa_vertical: '',
+        wa_profile_picture_url: '',
     });
 
     const showToast = (message, type = 'success') => {
@@ -295,6 +422,9 @@ export default function Settings() {
                     wa_description: data.wa_description || '',
                     wa_email: data.wa_email || '',
                     wa_website: data.wa_website || '',
+                    wa_address: data.wa_address || '',
+                    wa_vertical: data.wa_vertical || '',
+                    wa_profile_picture_url: data.wa_profile_picture_url || '',
                 };
                 setConfig(loaded);
                 setOriginal(loaded);
@@ -379,6 +509,9 @@ export default function Settings() {
                     initialDescription={config.wa_description}
                     initialEmail={config.wa_email}
                     initialWebsite={config.wa_website}
+                    initialAddress={config.wa_address}
+                    initialVertical={config.wa_vertical}
+                    initialPhotoUrl={config.wa_profile_picture_url}
                 />
 
                 {/* Negocio */}

@@ -7,6 +7,8 @@ class WhatsAppProfileUpdate(BaseModel):
     description: Optional[str] = None
     email: Optional[str] = None
     website: Optional[str] = None
+    address: Optional[str] = None
+    vertical: Optional[str] = None     # categoría del negocio (REAL_ESTATE, RETAIL, etc.)
 
 
 class SettingsUpdate(BaseModel):

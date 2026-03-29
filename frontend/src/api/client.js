@@ -107,6 +107,18 @@ export async function deleteTemplate(tenantId, templateName) {
     return handleResponse(res);
 }
 
+export async function uploadWhatsAppPhoto(tenantId, file) {
+    const token = getToken();
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${BASE_URL}/settings/${tenantId}/whatsapp-photo`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+    });
+    return handleResponse(res);
+}
+
 export async function updateWhatsAppProfile(tenantId, data) {
     const res = await fetch(`${BASE_URL}/settings/${tenantId}/whatsapp-profile`, {
         method: "PATCH",
@@ -213,15 +225,6 @@ export async function adminVerifyOTP(phoneNumberId, code) {
         method: "POST",
         headers: authHeaders(),
         body: JSON.stringify({ phone_number_id: phoneNumberId, code }),
-    });
-    return handleResponse(res);
-}
-
-export async function adminCreateClient(data) {
-    const res = await fetch(`${BASE_URL}/admin/clients`, {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify(data),
     });
     return handleResponse(res);
 }
