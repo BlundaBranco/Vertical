@@ -217,6 +217,15 @@ export async function adminVerifyOTP(phoneNumberId, code) {
     return handleResponse(res);
 }
 
+export async function adminCreateClient(data) {
+    const res = await fetch(`${BASE_URL}/admin/clients`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+}
+
 export async function adminRegisterNumber(phoneNumberId, wabaId, tenantId, pin) {
     const res = await fetch(`${BASE_URL}/admin/whatsapp/register`, {
         method: "POST",

@@ -328,6 +328,75 @@ def register_number(
     }
 
 
+# ─── Crear cliente ────────────────────────────────────────────────────────────
+
+class CreateClientPayload(BaseModel):
+    email: str
+    password: str
+    business_name: str
+    vertical: str = "real_estate_v1"
+    assistant_name: str = "Ana"
+    tone: str = "cercano"
+    specialty: str = ""
+    knowledge_base: str = ""
+    knowledge_base_url: str = ""
+
+
+@router.post("/clients")
+def admin_create_client(
+    payload: CreateClientPayload,
+    db: Session = Depends(get_db),
+    _=Depends(get_admin_user)
+):
+    from app.services.auth_service import hash_password
+
+    existing = db.query(User).filter(User.email == payload.email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="El email ya está registrado")
+
+    template = db.query(VerticalTemplate).filter(VerticalTemplate.name == payload.vertical).first()
+    if not template:
+        raise HTTPException(status_code=404, detail=f"Vertical '{payload.vertical}' no existe")
+
+    business_config = {
+        "agent_name": payload.assistant_name,
+        "tone": payload.tone,
+        "specialty": payload.specialty,
+        "knowledge_base": payload.knowledge_base,
+        "knowledge_base_url": payload.knowledge_base_url,
+        "bot_active": False,
+        "nationality": "argentino",
+        "communication_style": "estandar",
+        "catalog_url": "",
+    }
+
+    tenant = Tenant(
+        name=payload.business_name,
+        phone_number_id=None,
+        template_id=template.id,
+        business_config=business_config,
+    )
+    db.add(tenant)
+    db.flush()
+
+    user = User(
+        email=payload.email,
+        password_hash=hash_password(payload.password),
+        tenant_id=tenant.id,
+        is_admin=False,
+    )
+    db.add(user)
+    db.commit()
+
+    return {
+        "status": "created",
+        "tenant_id": tenant.id,
+        "user_id": user.id,
+        "email": payload.email,
+        "business_name": payload.business_name,
+    }
+
+
 # ─── Templates disponibles ────────────────────────────────────────────────────
 
 @router.get("/templates")
