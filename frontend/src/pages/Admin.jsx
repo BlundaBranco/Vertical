@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     fetchAdminDashboard, fetchAdminTenants, fetchAdminUsers,
     fetchAdminTemplates, adminUpdateTenant, adminDeleteTenant, adminDeleteUser,
     adminRequestOTP, adminVerifyOTP, adminRegisterNumber
 } from '../api/client';
+import { fetchMe, getToken } from '../api/auth';
 import { Users, Building2, BarChart3, Wifi, CheckCircle, AlertCircle, Loader2, Bot, Phone } from 'lucide-react';
 
 const MAIN_WABA_ID = '2412689112513021';
@@ -539,7 +541,18 @@ function ErrorMsg({ text }) {
 
 // ─── Main Admin Page ──────────────────────────────────────────────────────────
 export default function Admin() {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('dashboard');
+    const [authorized, setAuthorized] = useState(false);
+
+    useEffect(() => {
+        fetchMe(getToken()).then(user => {
+            if (!user.is_admin) navigate('/dashboard', { replace: true });
+            else setAuthorized(true);
+        }).catch(() => navigate('/login', { replace: true }));
+    }, []);
+
+    if (!authorized) return null;
 
     const tabContent = {
         dashboard: <DashboardTab />,
