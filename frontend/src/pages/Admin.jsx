@@ -360,7 +360,7 @@ function WhatsAppTab() {
             <div className="flex flex-col items-center justify-center py-16 space-y-4">
                 <CheckCircle className="w-14 h-14 text-emerald-400" />
                 <p className="text-lg font-semibold text-white">Número vinculado correctamente</p>
-                <p className="text-zinc-400 text-sm">{tenant?.name} ya tiene su bot activo en WhatsApp.</p>
+                <p className="text-zinc-400 text-sm">{tenant?.name} tiene el número vinculado. Activá el bot desde la tabla de Clientes.</p>
                 <button onClick={reset} className="mt-4 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm">
                     Vincular otro número
                 </button>
