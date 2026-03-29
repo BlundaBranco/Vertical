@@ -3,11 +3,10 @@ import requests as http_requests
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 from typing import Optional
 
 from app.db.database import get_db
-from app.models.db_models import Tenant, User, Lead, Conversation, VerticalTemplate
+from app.models.db_models import Tenant, User, Lead, Conversation, Subscription, VerticalTemplate
 from app.services.auth_service import get_admin_user
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -137,11 +136,12 @@ def admin_delete_tenant(
     tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
     if not tenant:
         raise HTTPException(status_code=404, detail="Tenant no encontrado")
-    # Borrar en cascada: conversaciones → leads → usuarios → tenant
+    # Borrar en cascada: conversaciones → leads → suscripción → usuarios → tenant
     leads = db.query(Lead).filter(Lead.tenant_id == tenant_id).all()
     for lead in leads:
         db.query(Conversation).filter(Conversation.lead_id == lead.id).delete()
     db.query(Lead).filter(Lead.tenant_id == tenant_id).delete()
+    db.query(Subscription).filter(Subscription.tenant_id == tenant_id).delete()
     db.query(User).filter(User.tenant_id == tenant_id).delete()
     db.delete(tenant)
     db.commit()
