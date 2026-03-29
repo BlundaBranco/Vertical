@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Settings, BarChart2, LogOut, Bot, Menu, X, FileText, CreditCard } from 'lucide-react';
+import { LayoutDashboard, Settings, BarChart2, LogOut, Bot, Menu, X, FileText, CreditCard, ShieldCheck } from 'lucide-react';
 import { logout, toggleBot } from '../api/client';
 import { fetchMe, getToken } from '../api/auth';
 import { fetchSettings } from '../api/client';
@@ -10,12 +10,14 @@ export default function Layout({ children }) {
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [tenantId, setTenantId] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [botActive, setBotActive] = useState(true);
     const [togglingBot, setTogglingBot] = useState(false);
 
     useEffect(() => {
         fetchMe(getToken()).then(user => {
             setTenantId(user.tenant_id);
+            setIsAdmin(!!user.is_admin);
             return fetchSettings(user.tenant_id);
         }).then(s => {
             setBotActive(s.bot_active !== false);
@@ -41,6 +43,7 @@ export default function Layout({ children }) {
         { id: 'templates', label: 'Plantillas', icon: FileText, path: '/templates' },
         { id: 'billing', label: 'Facturación', icon: CreditCard, path: '/billing' },
         { id: 'settings', label: 'Configuración', icon: Settings, path: '/settings' },
+        ...(isAdmin ? [{ id: 'admin', label: 'Admin', icon: ShieldCheck, path: '/admin', adminOnly: true }] : []),
     ];
 
     const isActive = (path) => location.pathname === path;
@@ -95,18 +98,28 @@ export default function Layout({ children }) {
                 {/* Navigation */}
                 <nav className="flex-1 p-3 space-y-0.5">
                     {menuItems.map((item) => (
-                        <button
-                            key={item.id}
-                            onClick={() => handleNav(item.path)}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
-                                isActive(item.path)
-                                    ? 'bg-violet-500/15 text-violet-300 border border-violet-500/25'
-                                    : 'text-zinc-300 hover:bg-violet-500/10 hover:text-white'
-                            }`}
-                        >
-                            <item.icon className={`w-4 h-4 ${isActive(item.path) ? 'text-violet-400' : ''}`} />
-                            <span className="font-medium text-sm">{item.label}</span>
-                        </button>
+                        <React.Fragment key={item.id}>
+                            {item.adminOnly && <div className="my-2 border-t border-violet-500/10" />}
+                            <button
+                                onClick={() => handleNav(item.path)}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
+                                    isActive(item.path)
+                                        ? item.adminOnly
+                                            ? 'bg-amber-500/15 text-amber-300 border border-amber-500/25'
+                                            : 'bg-violet-500/15 text-violet-300 border border-violet-500/25'
+                                        : item.adminOnly
+                                            ? 'text-amber-400/70 hover:bg-amber-500/10 hover:text-amber-300'
+                                            : 'text-zinc-300 hover:bg-violet-500/10 hover:text-white'
+                                }`}
+                            >
+                                <item.icon className={`w-4 h-4 ${
+                                    isActive(item.path)
+                                        ? item.adminOnly ? 'text-amber-400' : 'text-violet-400'
+                                        : item.adminOnly ? 'text-amber-500/70' : ''
+                                }`} />
+                                <span className="font-medium text-sm">{item.label}</span>
+                            </button>
+                        </React.Fragment>
                     ))}
                 </nav>
 

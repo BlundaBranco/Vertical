@@ -56,7 +56,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email).first()
     if not user or not user.password_hash or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales incorrectas")
-    token = create_token(user.id, user.tenant_id)
+    token = create_token(user.id, user.tenant_id, user.is_admin)
     return {"access_token": token, "token_type": "bearer"}
 
 
@@ -66,7 +66,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email ya registrado")
     user = _create_tenant_and_user(db, payload.email, password_hash=hash_password(payload.password))
-    token = create_token(user.id, user.tenant_id)
+    token = create_token(user.id, user.tenant_id, user.is_admin)
     return {"access_token": token, "token_type": "bearer"}
 
 
@@ -126,7 +126,7 @@ def facebook_login(payload: FacebookLoginRequest, db: Session = Depends(get_db))
         user = _create_tenant_and_user(db, fallback_email, facebook_id=fb_id)
         is_new = True
 
-    token = create_token(user.id, user.tenant_id)
+    token = create_token(user.id, user.tenant_id, user.is_admin)
     return {"access_token": token, "token_type": "bearer", "is_new": is_new}
 
 
@@ -169,7 +169,7 @@ def google_login(payload: GoogleLoginRequest, db: Session = Depends(get_db)):
         user = _create_tenant_and_user(db, fallback_email, google_id=google_id)
         is_new = True
 
-    token = create_token(user.id, user.tenant_id)
+    token = create_token(user.id, user.tenant_id, user.is_admin)
     return {"access_token": token, "token_type": "bearer", "is_new": is_new}
 
 
@@ -196,5 +196,6 @@ def me(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
         "email": current_user.email,
-        "tenant_id": current_user.tenant_id
+        "tenant_id": current_user.tenant_id,
+        "is_admin": current_user.is_admin,
     }

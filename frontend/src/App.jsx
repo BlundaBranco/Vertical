@@ -6,6 +6,7 @@ import Settings from './pages/Settings';
 import Analytics from './pages/Analytics';
 import Templates from './pages/Templates';
 import Billing from './pages/Billing';
+import Admin from './pages/Admin';
 import Privacy from './pages/Privacy';
 import GoogleCallback from './pages/GoogleCallback';
 import FacebookCallback from './pages/FacebookCallback';
@@ -59,6 +60,11 @@ function App() {
                 <Route path="/billing" element={
                     <PrivateRoute>
                         <Layout><Billing /></Layout>
+                    </PrivateRoute>
+                } />
+                <Route path="/admin" element={
+                    <PrivateRoute>
+                        <Layout><Admin /></Layout>
                     </PrivateRoute>
                 } />
             </Routes>

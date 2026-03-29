@@ -90,6 +90,7 @@ class User(Base):
     facebook_id = Column(String, unique=True, nullable=True, index=True)
     google_id = Column(String, unique=True, nullable=True, index=True)
     tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=False)
+    is_admin = Column(Boolean, default=False, nullable=False, server_default="false")
     created_at = Column(DateTime, default=_utcnow)
 
     tenant = relationship("Tenant")

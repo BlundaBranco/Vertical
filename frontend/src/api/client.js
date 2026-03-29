@@ -151,3 +151,61 @@ export function logout() {
     clearToken();
     window.location.href = '/login';
 }
+
+// ─── Admin ────────────────────────────────────────────────────────────────────
+
+export async function fetchAdminDashboard() {
+    const res = await fetch(`${BASE_URL}/admin/dashboard`, { headers: authHeaders() });
+    return handleResponse(res);
+}
+
+export async function fetchAdminTenants() {
+    const res = await fetch(`${BASE_URL}/admin/tenants`, { headers: authHeaders() });
+    return handleResponse(res);
+}
+
+export async function fetchAdminUsers() {
+    const res = await fetch(`${BASE_URL}/admin/users`, { headers: authHeaders() });
+    return handleResponse(res);
+}
+
+export async function fetchAdminTemplates() {
+    const res = await fetch(`${BASE_URL}/admin/templates`, { headers: authHeaders() });
+    return handleResponse(res);
+}
+
+export async function adminUpdateTenant(tenantId, data) {
+    const res = await fetch(`${BASE_URL}/admin/tenants/${tenantId}`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+}
+
+export async function adminRequestOTP(phoneNumber, countryCode, wabaId) {
+    const res = await fetch(`${BASE_URL}/admin/whatsapp/request-otp`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ phone_number: phoneNumber, country_code: countryCode, waba_id: wabaId }),
+    });
+    return handleResponse(res);
+}
+
+export async function adminVerifyOTP(phoneNumberId, code) {
+    const res = await fetch(`${BASE_URL}/admin/whatsapp/verify-otp`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ phone_number_id: phoneNumberId, code }),
+    });
+    return handleResponse(res);
+}
+
+export async function adminRegisterNumber(phoneNumberId, wabaId, tenantId, pin) {
+    const res = await fetch(`${BASE_URL}/admin/whatsapp/register`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ phone_number_id: phoneNumberId, waba_id: wabaId, tenant_id: tenantId, pin }),
+    });
+    return handleResponse(res);
+}
