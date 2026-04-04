@@ -16,7 +16,7 @@ export default function Login() {
         try {
             const data = await login(email, password);
             saveToken(data.access_token);
-            navigate(data.needs_onboarding ? '/onboarding' : '/dashboard');
+            navigate('/dashboard');
         } catch (err) {
             setError(err.message || 'Credenciales incorrectas');
         } finally {

@@ -44,9 +44,15 @@ export default function Landing() {
                         <div className="flex items-center gap-2 shrink-0">
                             <button
                                 onClick={() => navigate('/login')}
-                                className="px-3 sm:px-5 py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-violet-600/25 whitespace-nowrap"
+                                className="hidden sm:block px-4 py-1.5 text-sm text-zinc-400 hover:text-white rounded-lg hover:bg-white/5 transition-all"
                             >
                                 Iniciar sesión
+                            </button>
+                            <button
+                                onClick={() => navigate('/register')}
+                                className="px-3 sm:px-5 py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-violet-600/25 whitespace-nowrap"
+                            >
+                                Crear cuenta
                             </button>
                         </div>
                     </div>
@@ -80,7 +86,7 @@ export default function Landing() {
 
                                 <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-fade-in-up anim-d400">
                                     <button
-                                        onClick={() => navigate('/login')}
+                                        onClick={() => navigate('/register')}
                                         className="flex items-center justify-center gap-2 px-6 py-3.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-violet-600/30"
                                     >
                                         Probalo gratis
@@ -346,7 +352,7 @@ export default function Landing() {
                                         ))}
                                     </ul>
                                     <button
-                                        onClick={() => navigate('/login')}
+                                        onClick={() => navigate('/register')}
                                         className="w-full py-3 border border-violet-500/35 text-violet-300 hover:bg-violet-500/10 rounded-xl text-sm font-medium transition-all hover:scale-[1.01]"
                                     >
                                         Empezar
@@ -390,7 +396,7 @@ export default function Landing() {
                                             ))}
                                         </ul>
                                         <button
-                                            onClick={() => navigate('/login')}
+                                            onClick={() => navigate('/register')}
                                             className="w-full py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-semibold transition-all hover:scale-[1.01] shadow-lg shadow-violet-600/30"
                                         >
                                             Empezar con Empleado Digital + Marketing
@@ -431,7 +437,7 @@ export default function Landing() {
                                 Atendiendo clientes desde el primer día.
                             </p>
                             <button
-                                onClick={() => navigate('/login')}
+                                onClick={() => navigate('/register')}
                                 className="inline-flex items-center gap-2.5 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.03] active:scale-[0.98] shadow-2xl shadow-violet-600/50"
                             >
                                 Probalo gratis

@@ -56,10 +56,8 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email).first()
     if not user or not user.password_hash or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales incorrectas")
-    tenant = db.query(Tenant).filter(Tenant.id == user.tenant_id).first()
-    needs_onboarding = not (tenant and tenant.business_config and tenant.business_config.get("agent_name"))
     token = create_token(user.id, user.tenant_id, user.is_admin)
-    return {"access_token": token, "token_type": "bearer", "needs_onboarding": needs_onboarding}
+    return {"access_token": token, "token_type": "bearer"}
 
 
 @router.post("/register")

@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import {
     fetchAdminDashboard, fetchAdminTenants, fetchAdminUsers,
     fetchAdminTemplates, adminUpdateTenant, adminDeleteTenant, adminDeleteUser,
-    adminRequestOTP, adminVerifyOTP, adminRegisterNumber, adminCreateClient
+    adminRequestOTP, adminVerifyOTP, adminRegisterNumber
 } from '../api/client';
 import { fetchMe, getToken } from '../api/auth';
-import { Users, Building2, BarChart3, Wifi, CheckCircle, AlertCircle, Loader2, Bot, Phone, Plus, X, Eye, EyeOff } from 'lucide-react';
+import { Users, Building2, BarChart3, Wifi, CheckCircle, AlertCircle, Loader2, Bot, Phone } from 'lucide-react';
 
 const MAIN_WABA_ID = '2412689112513021';
 
@@ -87,7 +87,6 @@ function TenantsTab() {
     const [editing, setEditing] = useState(null);
     const [editForm, setEditForm] = useState({});
     const [saving, setSaving] = useState(false);
-    const [showCreate, setShowCreate] = useState(false);
 
     useEffect(() => {
         Promise.all([fetchAdminTenants(), fetchAdminTemplates()])
@@ -127,25 +126,6 @@ function TenantsTab() {
     if (loading) return <Spinner />;
 
     return (
-        <>
-        {showCreate && (
-            <CreateClientModal
-                onClose={() => setShowCreate(false)}
-                onCreated={() => {
-                    fetchAdminTenants().then(setTenants).catch(() => {});
-                }}
-            />
-        )}
-        <div className="space-y-4">
-        <div className="flex justify-end">
-            <button
-                onClick={() => setShowCreate(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-xl transition-colors"
-            >
-                <Plus className="w-4 h-4" />
-                Nuevo cliente
-            </button>
-        </div>
         <div className="bg-white/3 border border-white/8 rounded-xl overflow-x-auto">
             <table className="w-full text-sm min-w-[700px]">
                 <thead>
@@ -236,8 +216,6 @@ function TenantsTab() {
                 </tbody>
             </table>
         </div>
-        </div>
-        </>
     );
 }
 
@@ -524,202 +502,6 @@ function WhatsAppTab() {
                     </button>
                 </div>
             )}
-        </div>
-    );
-}
-
-// ─── Create Client Modal ──────────────────────────────────────────────────────
-const VERTICALS = [
-    { value: 'real_estate_v1', label: 'Inmobiliaria' },
-    { value: 'general_v1', label: 'General' },
-];
-const TONES = [
-    { value: 'cercano', label: 'Cercano' },
-    { value: 'formal', label: 'Formal' },
-    { value: 'empatico', label: 'Empático' },
-];
-const STEPS = ['Cuenta', 'Bot', 'Conocimiento'];
-
-function CreateClientModal({ onClose, onCreated }) {
-    const [step, setStep] = useState(0);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [showPass, setShowPass] = useState(false);
-    const [result, setResult] = useState(null);
-
-    const [form, setForm] = useState({
-        email: '', password: '', business_name: '',
-        vertical: 'real_estate_v1', assistant_name: 'Ana', tone: 'cercano',
-        specialty: '', knowledge_base: '', knowledge_base_url: '',
-    });
-
-    const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
-
-    const canNext = () => {
-        if (step === 0) return form.email.trim() && form.password.length >= 6 && form.business_name.trim();
-        if (step === 1) return form.assistant_name.trim();
-        return true;
-    };
-
-    const handleSubmit = async () => {
-        setError(''); setLoading(true);
-        try {
-            const res = await adminCreateClient(form);
-            setResult(res);
-        } catch (e) {
-            setError(e.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const inputCls = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500/50";
-    const labelCls = "text-xs text-zinc-400 mb-1 block";
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="w-full max-w-md bg-[#0d0d1a] border border-white/10 rounded-2xl shadow-2xl">
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
-                    <h2 className="text-base font-semibold text-white">Nuevo cliente</h2>
-                    <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors"><X className="w-4 h-4" /></button>
-                </div>
-
-                {result ? (
-                    /* Success */
-                    <div className="p-6 space-y-4">
-                        <div className="flex flex-col items-center py-4 space-y-3">
-                            <CheckCircle className="w-12 h-12 text-emerald-400" />
-                            <p className="text-base font-semibold text-white">Cliente creado</p>
-                        </div>
-                        <div className="bg-white/3 border border-white/8 rounded-xl p-4 space-y-2 text-sm font-mono">
-                            <div className="flex justify-between gap-4">
-                                <span className="text-zinc-500">Email</span>
-                                <span className="text-white">{result.email}</span>
-                            </div>
-                            <div className="flex justify-between gap-4">
-                                <span className="text-zinc-500">Contraseña</span>
-                                <span className="text-white">{form.password}</span>
-                            </div>
-                            <div className="flex justify-between gap-4">
-                                <span className="text-zinc-500">Negocio</span>
-                                <span className="text-white">{result.business_name}</span>
-                            </div>
-                        </div>
-                        <p className="text-xs text-zinc-500 text-center">Guardá estas credenciales — la contraseña no se podrá ver de nuevo.</p>
-                        <button
-                            onClick={() => { onCreated(); onClose(); }}
-                            className="w-full py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-medium"
-                        >
-                            Listo
-                        </button>
-                    </div>
-                ) : (
-                    <div className="p-6 space-y-5">
-                        {/* Step indicator */}
-                        <div className="flex items-center gap-2">
-                            {STEPS.map((s, i) => (
-                                <React.Fragment key={s}>
-                                    <div className={`flex items-center gap-1.5 text-xs font-medium ${i === step ? 'text-violet-300' : i < step ? 'text-emerald-400' : 'text-zinc-600'}`}>
-                                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs border ${i === step ? 'bg-violet-600 border-violet-500 text-white' : i < step ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' : 'bg-white/5 border-white/10 text-zinc-600'}`}>
-                                            {i < step ? '✓' : i + 1}
-                                        </div>
-                                        {s}
-                                    </div>
-                                    {i < STEPS.length - 1 && <div className={`flex-1 h-px ${i < step ? 'bg-emerald-500/40' : 'bg-white/10'}`} />}
-                                </React.Fragment>
-                            ))}
-                        </div>
-
-                        {/* Step 0: Cuenta */}
-                        {step === 0 && (
-                            <div className="space-y-3">
-                                <div>
-                                    <label className={labelCls}>Nombre del negocio</label>
-                                    <input className={inputCls} value={form.business_name} onChange={e => set('business_name', e.target.value)} placeholder="Inmobiliaria Del Valle" />
-                                </div>
-                                <div>
-                                    <label className={labelCls}>Email del cliente</label>
-                                    <input className={inputCls} type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="cliente@negocio.com" />
-                                </div>
-                                <div>
-                                    <label className={labelCls}>Contraseña</label>
-                                    <div className="relative">
-                                        <input className={inputCls + ' pr-10'} type={showPass ? 'text' : 'password'} value={form.password} onChange={e => set('password', e.target.value)} placeholder="Mínimo 6 caracteres" />
-                                        <button type="button" onClick={() => setShowPass(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white">
-                                            {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                        </button>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className={labelCls}>Vertical</label>
-                                    <select className={inputCls + ' bg-zinc-900'} value={form.vertical} onChange={e => set('vertical', e.target.value)}>
-                                        {VERTICALS.map(v => <option key={v.value} value={v.value} className="bg-zinc-900">{v.label}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Step 1: Bot */}
-                        {step === 1 && (
-                            <div className="space-y-3">
-                                <div>
-                                    <label className={labelCls}>Nombre del asistente</label>
-                                    <input className={inputCls} value={form.assistant_name} onChange={e => set('assistant_name', e.target.value)} placeholder="Ana" />
-                                </div>
-                                <div>
-                                    <label className={labelCls}>Tono</label>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {TONES.map(t => (
-                                            <button key={t.value} onClick={() => set('tone', t.value)}
-                                                className={`py-2 rounded-xl text-xs border transition-all ${form.tone === t.value ? 'bg-violet-600/20 border-violet-500/50 text-violet-300' : 'bg-white/3 border-white/10 text-zinc-400 hover:border-white/20'}`}>
-                                                {t.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className={labelCls}>Especialidad / restricciones <span className="text-zinc-600">(opcional)</span></label>
-                                    <textarea className={inputCls} rows={3} value={form.specialty} onChange={e => set('specialty', e.target.value)} placeholder="Zona norte de Rosario, propiedades hasta $200.000 USD..." />
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Step 2: Conocimiento */}
-                        {step === 2 && (
-                            <div className="space-y-3">
-                                <div>
-                                    <label className={labelCls}>Google Sheets URL <span className="text-zinc-600">(opcional)</span></label>
-                                    <input className={inputCls} value={form.knowledge_base_url} onChange={e => set('knowledge_base_url', e.target.value)} placeholder="https://docs.google.com/spreadsheets/d/..." />
-                                    <p className="text-xs text-zinc-600 mt-1">El bot sincroniza automáticamente cada 30 minutos.</p>
-                                </div>
-                                <div>
-                                    <label className={labelCls}>Base de conocimiento manual <span className="text-zinc-600">(opcional)</span></label>
-                                    <textarea className={inputCls + ' font-mono'} rows={4} value={form.knowledge_base} onChange={e => set('knowledge_base', e.target.value)} placeholder="Pegá aquí el catálogo, precios, reglas del negocio..." />
-                                </div>
-                                <p className="text-xs text-zinc-600">Se puede completar o editar después desde Configuración.</p>
-                            </div>
-                        )}
-
-                        {error && <ErrorMsg text={error} />}
-
-                        {/* Navigation */}
-                        <div className="flex justify-between pt-1">
-                            {step > 0
-                                ? <button onClick={() => setStep(s => s - 1)} className="text-sm text-zinc-400 hover:text-white px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">Atrás</button>
-                                : <div />
-                            }
-                            {step < STEPS.length - 1
-                                ? <button onClick={() => setStep(s => s + 1)} disabled={!canNext()} className="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-medium disabled:opacity-40">Siguiente</button>
-                                : <button onClick={handleSubmit} disabled={loading || !canNext()} className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium disabled:opacity-40 flex items-center gap-2">
-                                    {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                                    Crear cliente
-                                  </button>
-                            }
-                        </div>
-                    </div>
-                )}
-            </div>
         </div>
     );
 }
