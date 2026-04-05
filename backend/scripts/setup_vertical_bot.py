@@ -48,11 +48,12 @@ config.update({
 tenant.business_config = config
 attributes.flag_modified(tenant, "business_config")
 
+template_id = template.id
 db.commit()
 db.close()
 
 print("[OK] Tenant 1 actualizado:")
-print(f"     template  → general_v1 (id={template.id})")
+print(f"     template  → general_v1 (id={template_id})")
 print(f"     agent_name → {config['agent_name']}")
 print(f"     tone       → {config['tone']}")
 print(f"     comm_style → {config['communication_style']}")
