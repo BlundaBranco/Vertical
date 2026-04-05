@@ -9,3 +9,4 @@ python-jose[cryptography]
 bcrypt
 APScheduler==3.10.4
 mercadopago
+python-multipart
