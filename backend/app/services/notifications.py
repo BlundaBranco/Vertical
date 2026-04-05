@@ -25,7 +25,7 @@ def send_email_notification(tenant, lead):
     clean_number = str(lead.whatsapp_id).replace("whatsapp:", "").replace("+", "").replace(" ", "")
     wa_link = f"https://wa.me/{clean_number}"
 
-    subject = f"[Ventra AI] Lead calificado: {nombre} — {tenant.name}"
+    subject = f"[Vertical AI] Lead calificado: {nombre} — {tenant.name}"
 
     # Construir sección de datos de forma genérica — funciona para cualquier vertical
     CAMPOS_IGNORAR = {"motivo_rechazo"}
@@ -48,7 +48,7 @@ Abrir chat en WhatsApp:  {wa_link}
 Ver en dashboard:        {DASHBOARD_URL}
 
 ---
-Ventra AI — Sistema de Agentes IA para WhatsApp
+Vertical AI — Sistema de Agentes IA para WhatsApp
 """
 
     try:
