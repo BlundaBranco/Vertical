@@ -25,8 +25,9 @@ if not tenant:
     sys.exit(1)
 
 old_template_id = tenant.template_id
-tenant.template_id = template.id
+new_template_id = template.id
+tenant.template_id = new_template_id
 db.commit()
 db.close()
 
-print(f"[OK] Tenant 1 migrado: template_id {old_template_id} → {template.id} (vertical_saas_v1)")
+print(f"[OK] Tenant 1 migrado: template_id {old_template_id} → {new_template_id} (vertical_saas_v1)")
