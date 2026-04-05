@@ -69,6 +69,7 @@ def get_leads(tenant_id: int, db: Session = Depends(get_db), current_user=Depend
             "zone": data.get("zona", "N/A"),
             "propertyType": data.get("tipo_propiedad", "N/A"),
             "rejectionReason": data.get("motivo_rechazo"),
+            "extractedData": data,
             "whatsappId": lead.whatsapp_id,
             "createdAt": lead.created_at.strftime("%d/%m/%Y"),
             "messages": messages

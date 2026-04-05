@@ -202,29 +202,52 @@ async def update_whatsapp_photo(
         raise HTTPException(status_code=400, detail="No hay número de WhatsApp vinculado")
 
     token = os.getenv("WHATSAPP_TOKEN")
+    app_id = os.getenv("FACEBOOK_APP_ID")
     pid = tenant.phone_number_id
     content = await file.read()
+    file_type = file.content_type or "image/jpeg"
 
-    # Paso 1: subir imagen a Meta
+    # Paso 1: iniciar sesión de Resumable Upload
+    session_res = requests.post(
+        f"https://graph.facebook.com/v21.0/{app_id}/uploads",
+        params={
+            "file_length": len(content),
+            "file_type": file_type,
+            "access_token": token,
+        },
+        timeout=10
+    )
+    if not session_res.ok:
+        err = session_res.json().get("error", {}).get("message", session_res.text)
+        raise HTTPException(status_code=400, detail=f"Error al iniciar upload: {err}")
+
+    upload_session_id = session_res.json().get("id")
+    if not upload_session_id:
+        raise HTTPException(status_code=400, detail="Meta no devolvió ID de sesión de upload")
+
+    # Paso 2: subir el archivo a la sesión
     upload_res = requests.post(
-        f"https://graph.facebook.com/v21.0/{pid}/media",
-        data={"messaging_product": "whatsapp", "type": file.content_type},
-        files={"file": (file.filename, content, file.content_type)},
-        headers={"Authorization": f"Bearer {token}"},
-        timeout=20
+        f"https://graph.facebook.com/v21.0/{upload_session_id}",
+        headers={
+            "Authorization": f"OAuth {token}",
+            "file_offset": "0",
+            "Content-Type": "application/octet-stream",
+        },
+        data=content,
+        timeout=30
     )
     if not upload_res.ok:
         err = upload_res.json().get("error", {}).get("message", upload_res.text)
-        raise HTTPException(status_code=400, detail=f"Error al subir imagen: {err}")
+        raise HTTPException(status_code=400, detail=f"Error al subir archivo: {err}")
 
-    media_id = upload_res.json().get("id")
-    if not media_id:
-        raise HTTPException(status_code=400, detail="Meta no devolvió un media ID")
+    handle = upload_res.json().get("h")
+    if not handle:
+        raise HTTPException(status_code=400, detail="Meta no devolvió handle del archivo")
 
-    # Paso 2: asignar como foto de perfil
+    # Paso 3: asignar como foto de perfil
     profile_res = requests.post(
         f"https://graph.facebook.com/v21.0/{pid}/whatsapp_business_profile",
-        json={"messaging_product": "whatsapp", "profile_picture_handle": media_id},
+        json={"messaging_product": "whatsapp", "profile_picture_handle": handle},
         headers={"Authorization": f"Bearer {token}"},
         timeout=10
     )

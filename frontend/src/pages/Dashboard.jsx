@@ -357,33 +357,37 @@ export default function Dashboard() {
                                     )}
                                 </div>
 
-                                {/* Datos extraídos */}
-                                {(selectedLead.budget !== 'N/A' || selectedLead.zone !== 'N/A' || selectedLead.propertyType !== 'N/A' || selectedLead.rejectionReason) && (
+                                {/* Datos extraídos — dinámico para cualquier vertical */}
+                                {selectedLead.extractedData && Object.values(selectedLead.extractedData).some(v => v !== null && v !== undefined && v !== false) && (
                                     <div className="flex flex-wrap gap-2">
-                                        {selectedLead.budget !== 'N/A' && (
-                                            <div className="flex items-center gap-1.5 bg-violet-500/10 border border-violet-500/20 px-2.5 py-1 rounded-lg">
-                                                <DollarSign className="w-3.5 h-3.5 text-violet-400" />
-                                                <span className="text-xs text-gray-300">Presupuesto: <span className="text-white font-medium">{selectedLead.budget}</span></span>
-                                            </div>
-                                        )}
-                                        {selectedLead.zone !== 'N/A' && (
-                                            <div className="flex items-center gap-1.5 bg-purple-500/10 border border-purple-500/20 px-2.5 py-1 rounded-lg">
-                                                <MapPin className="w-3.5 h-3.5 text-purple-400" />
-                                                <span className="text-xs text-gray-300">Zona: <span className="text-white font-medium">{selectedLead.zone}</span></span>
-                                            </div>
-                                        )}
-                                        {selectedLead.propertyType !== 'N/A' && (
-                                            <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
-                                                <Home className="w-3.5 h-3.5 text-emerald-400" />
-                                                <span className="text-xs text-gray-300">Tipo: <span className="text-white font-medium">{selectedLead.propertyType}</span></span>
-                                            </div>
-                                        )}
-                                        {selectedLead.rejectionReason && (
-                                            <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-lg">
-                                                <XCircle className="w-3.5 h-3.5 text-red-400" />
-                                                <span className="text-xs text-gray-300">Motivo: <span className="text-white font-medium">{selectedLead.rejectionReason}</span></span>
-                                            </div>
-                                        )}
+                                        {Object.entries(selectedLead.extractedData).map(([key, value]) => {
+                                            if (value === null || value === undefined || value === false) return null;
+                                            const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                                            const displayValue = typeof value === 'boolean' ? (value ? 'Sí' : 'No') : String(value);
+                                            if (key === 'motivo_rechazo') return (
+                                                <div key={key} className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-lg">
+                                                    <XCircle className="w-3.5 h-3.5 text-red-400" />
+                                                    <span className="text-xs text-gray-300">Motivo: <span className="text-white font-medium">{displayValue}</span></span>
+                                                </div>
+                                            );
+                                            if (key === 'listo_para_reunion' && value === true) return (
+                                                <div key={key} className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
+                                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                                    <span className="text-xs text-gray-300">Listo para reunión</span>
+                                                </div>
+                                            );
+                                            if (key === 'acepta_propuesta' && value === true) return (
+                                                <div key={key} className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
+                                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                                    <span className="text-xs text-gray-300">Acepta propuesta</span>
+                                                </div>
+                                            );
+                                            return (
+                                                <div key={key} className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg">
+                                                    <span className="text-xs text-gray-300">{label}: <span className="text-white font-medium">{displayValue}</span></span>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>

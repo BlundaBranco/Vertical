@@ -8,12 +8,13 @@ def check_lead_qualification(lead):
     """
     datos = lead.extracted_data or {}
 
-    # Un lead ya QUALIFIED no retrocede automáticamente — el operador decide manualmente
-    if lead.status == "QUALIFIED":
-        return "QUALIFIED"
-
+    # motivo_rechazo tiene precedencia absoluta — incluso sobre QUALIFIED
     if datos.get("motivo_rechazo"):
         return "LOST"
+
+    # Un lead ya QUALIFIED no retrocede sin motivo_rechazo
+    if lead.status == "QUALIFIED":
+        return "QUALIFIED"
 
     # Leer campos requeridos del template del tenant (multi-vertical)
     template = lead.tenant.template if lead.tenant else None
