@@ -46,10 +46,28 @@ def _seed_verticals():
                 name="general_v1",
                 assistant_name="Asistente",
                 system_prompt_base="Sos {assistant_name}, quien atiende consultas de {business_name} por WhatsApp.",
-                required_fields_schema=["nombre"],
+                required_fields_schema=["motivo_contacto"],
             ))
             db.commit()
             print("[SEED] Vertical 'general_v1' creado.")
+        if not db.query(VerticalTemplate).filter(VerticalTemplate.name == "vertical_saas_v1").first():
+            db.add(VerticalTemplate(
+                name="vertical_saas_v1",
+                assistant_name="Verty",
+                system_prompt_base="Sos {assistant_name}, quien califica potenciales clientes de {business_name} por WhatsApp.",
+                required_fields_schema=["listo_para_reunion"],
+            ))
+            db.commit()
+            print("[SEED] Vertical 'vertical_saas_v1' creado.")
+        if not db.query(VerticalTemplate).filter(VerticalTemplate.name == "web_sales_v1").first():
+            db.add(VerticalTemplate(
+                name="web_sales_v1",
+                assistant_name="Agente",
+                system_prompt_base="Sos {assistant_name}, quien califica prospectos para servicios de diseño web de {business_name} por WhatsApp.",
+                required_fields_schema=["acepta_propuesta"],
+            ))
+            db.commit()
+            print("[SEED] Vertical 'web_sales_v1' creado.")
     except Exception as e:
         print(f"[SEED] Error al crear verticales: {e}")
     finally:
