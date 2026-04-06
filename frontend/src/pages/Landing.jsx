@@ -48,12 +48,14 @@ export default function Landing() {
                             >
                                 Iniciar sesión
                             </button>
-                            <button
-                                onClick={() => navigate('/register')}
+                            <a
+                                href="https://wa.me/5493413436259"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="px-3 sm:px-5 py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-violet-600/25 whitespace-nowrap"
                             >
-                                Crear cuenta
-                            </button>
+                                Contactar
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -85,13 +87,15 @@ export default function Landing() {
                                 </p>
 
                                 <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-fade-in-up anim-d400">
-                                    <button
-                                        onClick={() => navigate('/register')}
+                                    <a
+                                        href="https://wa.me/5493413436259"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 px-6 py-3.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-violet-600/30"
                                     >
-                                        Probalo gratis
+                                        Contactar ventas
                                         <ArrowRight className="w-4 h-4" />
-                                    </button>
+                                    </a>
                                     <a
                                         href="#precios"
                                         className="flex items-center justify-center gap-2 px-6 py-3.5 border border-white/12 hover:border-violet-500/40 text-zinc-200 hover:text-white rounded-xl font-medium text-sm transition-all hover:scale-[1.02]"
@@ -351,12 +355,14 @@ export default function Landing() {
                                             </li>
                                         ))}
                                     </ul>
-                                    <button
-                                        onClick={() => navigate('/register')}
-                                        className="w-full py-3 border border-violet-500/35 text-violet-300 hover:bg-violet-500/10 rounded-xl text-sm font-medium transition-all hover:scale-[1.01]"
+                                    <a
+                                        href="https://wa.me/5493413436259"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-full py-3 border border-violet-500/35 text-violet-300 hover:bg-violet-500/10 rounded-xl text-sm font-medium transition-all hover:scale-[1.01] flex items-center justify-center"
                                     >
                                         Empezar
-                                    </button>
+                                    </a>
                                 </div>
                             </Reveal>
 
@@ -395,12 +401,14 @@ export default function Landing() {
                                                 </li>
                                             ))}
                                         </ul>
-                                        <button
-                                            onClick={() => navigate('/register')}
-                                            className="w-full py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-semibold transition-all hover:scale-[1.01] shadow-lg shadow-violet-600/30"
+                                        <a
+                                            href="https://wa.me/5493413436259"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="w-full py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-semibold transition-all hover:scale-[1.01] shadow-lg shadow-violet-600/30 flex items-center justify-center"
                                         >
                                             Empezar con Empleado Digital + Marketing
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                             </Reveal>
@@ -436,13 +444,15 @@ export default function Landing() {
                                 Sin contratos. Sin sorpresas.<br className="hidden sm:block" />
                                 Atendiendo clientes desde el primer día.
                             </p>
-                            <button
-                                onClick={() => navigate('/register')}
+                            <a
+                                href="https://wa.me/5493413436259"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2.5 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.03] active:scale-[0.98] shadow-2xl shadow-violet-600/50"
                             >
-                                Probalo gratis
+                                Contactar ventas
                                 <ArrowRight className="w-4 h-4" />
-                            </button>
+                            </a>
                             <div className="flex flex-wrap items-center justify-center gap-5 mt-7 text-xs text-zinc-500">
                                 <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/70" /> WhatsApp oficial</span>
                                 <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/70" /> Sin contratos</span>

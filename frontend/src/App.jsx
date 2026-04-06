@@ -27,7 +27,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+                <Route path="/register" element={<Navigate to="/login" replace />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/auth/google/callback" element={<GoogleCallback />} />
                 <Route path="/auth/facebook/callback" element={<FacebookCallback />} />

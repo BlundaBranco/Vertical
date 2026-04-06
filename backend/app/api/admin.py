@@ -87,10 +87,52 @@ def admin_tenants(db: Session = Depends(get_db), _=Depends(get_admin_user)):
     return result
 
 
+class TenantCreateRequest(BaseModel):
+    name: str
+    template_id: Optional[int] = None
+    phone_number_id: Optional[str] = None
+    waba_id: Optional[str] = None
+
+
+@router.post("/tenants", status_code=201)
+def admin_create_tenant(
+    payload: TenantCreateRequest,
+    db: Session = Depends(get_db),
+    _=Depends(get_admin_user)
+):
+    if payload.template_id is not None:
+        tmpl = db.query(VerticalTemplate).filter(VerticalTemplate.id == payload.template_id).first()
+        if not tmpl:
+            raise HTTPException(status_code=404, detail=f"Template ID {payload.template_id} no existe")
+        template_id = payload.template_id
+    else:
+        first_tmpl = db.query(VerticalTemplate).first()
+        if not first_tmpl:
+            raise HTTPException(status_code=500, detail="No hay templates disponibles en la base de datos")
+        template_id = first_tmpl.id
+
+    cfg = {}
+    if payload.waba_id:
+        cfg["waba_id"] = payload.waba_id
+
+    tenant = Tenant(
+        name=payload.name,
+        template_id=template_id,
+        phone_number_id=payload.phone_number_id or None,
+        business_config=cfg,
+    )
+    db.add(tenant)
+    db.commit()
+    db.refresh(tenant)
+    return {"id": tenant.id, "name": tenant.name, "template_id": tenant.template_id}
+
+
 class TenantUpdateRequest(BaseModel):
     name: Optional[str] = None
     bot_active: Optional[bool] = None
     template_name: Optional[str] = None
+    phone_number_id: Optional[str] = None
+    waba_id: Optional[str] = None
 
 
 @router.patch("/tenants/{tenant_id}")
@@ -100,6 +142,7 @@ def admin_update_tenant(
     db: Session = Depends(get_db),
     _=Depends(get_admin_user)
 ):
+    from sqlalchemy.orm.attributes import flag_modified
     tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
     if not tenant:
         raise HTTPException(status_code=404, detail="Tenant no encontrado")
@@ -113,13 +156,20 @@ def admin_update_tenant(
             raise HTTPException(status_code=404, detail=f"Template '{payload.template_name}' no existe")
         tenant.template_id = tmpl.id
 
-    if payload.bot_active is not None:
-        cfg = dict(tenant.business_config or {})
-        cfg["bot_active"] = payload.bot_active
-        tenant.business_config = cfg
+    cfg = dict(tenant.business_config or {})
 
-    from sqlalchemy.orm.attributes import flag_modified
+    if payload.bot_active is not None:
+        cfg["bot_active"] = payload.bot_active
+
+    if payload.waba_id is not None:
+        cfg["waba_id"] = payload.waba_id
+
+    tenant.business_config = cfg
     flag_modified(tenant, "business_config")
+
+    if payload.phone_number_id is not None:
+        tenant.phone_number_id = payload.phone_number_id or None
+
     db.commit()
     return {"status": "updated", "tenant_id": tenant_id}
 
@@ -163,6 +213,39 @@ def admin_users(db: Session = Depends(get_db), _=Depends(get_admin_user)):
         }
         for u in users
     ]
+
+
+class UserCreateRequest(BaseModel):
+    email: str
+    password: str
+    tenant_id: int
+
+
+@router.post("/users", status_code=201)
+def admin_create_user(
+    payload: UserCreateRequest,
+    db: Session = Depends(get_db),
+    _=Depends(get_admin_user)
+):
+    from app.services.auth_service import hash_password
+    tenant = db.query(Tenant).filter(Tenant.id == payload.tenant_id).first()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant no encontrado")
+
+    existing = db.query(User).filter(User.email == payload.email).first()
+    if existing:
+        raise HTTPException(status_code=409, detail=f"El email '{payload.email}' ya está registrado")
+
+    user = User(
+        email=payload.email,
+        password_hash=hash_password(payload.password),
+        tenant_id=payload.tenant_id,
+        is_admin=False,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return {"id": user.id, "email": user.email, "tenant_id": user.tenant_id}
 
 
 @router.delete("/users/{user_id}")

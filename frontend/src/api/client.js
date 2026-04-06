@@ -70,6 +70,14 @@ export async function restartLead(leadId) {
     return handleResponse(res);
 }
 
+export async function hardResetLead(leadId) {
+    const res = await fetch(`${BASE_URL}/leads/${leadId}/hard-reset`, {
+        method: "POST",
+        headers: authHeaders()
+    });
+    return handleResponse(res);
+}
+
 export async function fetchAnalytics(tenantId) {
     const res = await fetch(`${BASE_URL}/analytics/${tenantId}`, { headers: authHeaders() });
     return handleResponse(res);
@@ -199,6 +207,24 @@ export async function adminDeleteTenant(tenantId) {
     const res = await fetch(`${BASE_URL}/admin/tenants/${tenantId}`, {
         method: "DELETE",
         headers: authHeaders(),
+    });
+    return handleResponse(res);
+}
+
+export async function adminCreateTenant(data) {
+    const res = await fetch(`${BASE_URL}/admin/tenants`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+}
+
+export async function adminCreateUser(data) {
+    const res = await fetch(`${BASE_URL}/admin/users`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(data),
     });
     return handleResponse(res);
 }

@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import {
     fetchAdminDashboard, fetchAdminTenants, fetchAdminUsers,
     fetchAdminTemplates, adminUpdateTenant, adminDeleteTenant, adminDeleteUser,
+    adminCreateTenant, adminCreateUser,
     adminRequestOTP, adminVerifyOTP, adminRegisterNumber
 } from '../api/client';
 import { fetchMe, getToken } from '../api/auth';
-import { Users, Building2, BarChart3, Wifi, CheckCircle, AlertCircle, Loader2, Bot, Phone } from 'lucide-react';
+import { Users, Building2, BarChart3, Wifi, CheckCircle, AlertCircle, Loader2, Bot, Phone, Plus, X } from 'lucide-react';
 
 const MAIN_WABA_ID = '2412689112513021';
 
@@ -79,6 +80,99 @@ function DashboardTab() {
     );
 }
 
+// ─── New Client Modal ─────────────────────────────────────────────────────────
+function NewClientModal({ templates, onClose, onCreated }) {
+    const [form, setForm] = useState({ name: '', email: '', password: '', template_id: '' });
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState('');
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!form.name || !form.email || !form.password) { setError('Completá todos los campos.'); return; }
+        setSaving(true); setError('');
+        try {
+            const tenant = await adminCreateTenant({
+                name: form.name,
+                template_id: form.template_id ? parseInt(form.template_id) : undefined,
+            });
+            await adminCreateUser({
+                email: form.email,
+                password: form.password,
+                tenant_id: tenant.id,
+            });
+            onCreated();
+        } catch (e) {
+            setError(e.message);
+            setSaving(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
+            <div className="bg-[#0D0A1E] border border-white/12 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-5">
+                    <h2 className="text-base font-semibold text-white">Nuevo cliente</h2>
+                    <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors"><X className="w-4 h-4" /></button>
+                </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="text-xs text-zinc-400 mb-1 block">Nombre de la empresa</label>
+                        <input
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500/50"
+                            placeholder="Inmobiliaria García"
+                            value={form.name}
+                            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                            autoFocus
+                        />
+                    </div>
+                    <div>
+                        <label className="text-xs text-zinc-400 mb-1 block">Vertical</label>
+                        <select
+                            className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500/50"
+                            value={form.template_id}
+                            onChange={e => setForm(f => ({ ...f, template_id: e.target.value }))}
+                        >
+                            <option value="">Por defecto</option>
+                            {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.assistant_name})</option>)}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="text-xs text-zinc-400 mb-1 block">Email del cliente</label>
+                        <input
+                            type="email"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500/50"
+                            placeholder="cliente@empresa.com"
+                            value={form.email}
+                            onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                        />
+                    </div>
+                    <div>
+                        <label className="text-xs text-zinc-400 mb-1 block">Contraseña temporal</label>
+                        <input
+                            type="text"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm font-mono focus:outline-none focus:border-violet-500/50"
+                            placeholder="Ej: Vertical2025!"
+                            value={form.password}
+                            onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                        />
+                        <p className="text-xs text-zinc-600 mt-1">El cliente la cambia en su primer ingreso.</p>
+                    </div>
+                    {error && <ErrorMsg text={error} />}
+                    <div className="flex gap-3 pt-1">
+                        <button type="button" onClick={onClose} className="flex-1 py-2.5 border border-white/10 text-zinc-400 hover:text-white rounded-xl text-sm transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit" disabled={saving} className="flex-1 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2">
+                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                            {saving ? 'Creando...' : 'Crear cliente'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
 // ─── Tenants Tab ──────────────────────────────────────────────────────────────
 function TenantsTab() {
     const [tenants, setTenants] = useState([]);
@@ -87,24 +181,48 @@ function TenantsTab() {
     const [editing, setEditing] = useState(null);
     const [editForm, setEditForm] = useState({});
     const [saving, setSaving] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
-    useEffect(() => {
+    const load = () => {
+        setLoading(true);
         Promise.all([fetchAdminTenants(), fetchAdminTemplates()])
             .then(([t, tmpl]) => { setTenants(t); setTemplates(tmpl); })
             .catch(() => {})
             .finally(() => setLoading(false));
-    }, []);
+    };
+
+    useEffect(() => { load(); }, []);
 
     const startEdit = (t) => {
         setEditing(t.id);
-        setEditForm({ name: t.name, bot_active: t.bot_active, template_name: t.template });
+        setEditForm({
+            name: t.name,
+            bot_active: t.bot_active,
+            template_name: t.template,
+            phone_number_id: t.phone_number_id || '',
+            waba_id: t.waba_id === '—' ? '' : (t.waba_id || ''),
+        });
     };
 
     const saveEdit = async (tenantId) => {
         setSaving(true);
         try {
-            await adminUpdateTenant(tenantId, editForm);
-            setTenants(prev => prev.map(t => t.id === tenantId ? { ...t, ...editForm } : t));
+            const patch = {
+                name: editForm.name,
+                bot_active: editForm.bot_active,
+                template_name: editForm.template_name,
+                phone_number_id: editForm.phone_number_id || null,
+                waba_id: editForm.waba_id || null,
+            };
+            await adminUpdateTenant(tenantId, patch);
+            setTenants(prev => prev.map(t => t.id === tenantId ? {
+                ...t,
+                name: editForm.name,
+                bot_active: editForm.bot_active,
+                template: editForm.template_name,
+                phone_number_id: editForm.phone_number_id,
+                waba_id: editForm.waba_id,
+            } : t));
             setEditing(null);
         } catch (e) {
             alert(e.message);
@@ -126,96 +244,130 @@ function TenantsTab() {
     if (loading) return <Spinner />;
 
     return (
-        <div className="bg-white/3 border border-white/8 rounded-xl overflow-x-auto">
-            <table className="w-full text-sm min-w-[700px]">
-                <thead>
-                    <tr className="text-zinc-500 text-xs border-b border-white/5">
-                        <th className="text-left px-4 py-3">Cliente</th>
-                        <th className="text-left px-4 py-3">Vertical</th>
-                        <th className="text-left px-4 py-3">Teléfono</th>
-                        <th className="text-left px-4 py-3">Leads</th>
-                        <th className="text-left px-4 py-3">Calif.</th>
-                        <th className="text-left px-4 py-3">Bot</th>
-                        <th className="text-left px-4 py-3"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {tenants.map(t => (
-                        <tr key={t.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
-                            {editing === t.id ? (
-                                <>
-                                    <td className="px-4 py-2">
-                                        <input
-                                            className="bg-zinc-800 border border-zinc-600 rounded-lg px-2 py-1 text-white text-xs w-full"
-                                            value={editForm.name}
-                                            onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
-                                        />
-                                    </td>
-                                    <td className="px-4 py-2">
-                                        <select
-                                            className="bg-zinc-800 border border-zinc-600 rounded-lg px-2 py-1 text-white text-xs"
-                                            value={editForm.template_name}
-                                            onChange={e => setEditForm(f => ({ ...f, template_name: e.target.value }))}
-                                        >
-                                            {templates.map(tmpl => (
-                                                <option key={tmpl.id} value={tmpl.name}>{tmpl.name}</option>
-                                            ))}
-                                        </select>
-                                    </td>
-                                    <td className="px-4 py-2 text-zinc-400">{t.phone || '—'}</td>
-                                    <td className="px-4 py-2 text-zinc-400">{t.leads}</td>
-                                    <td className="px-4 py-2 text-zinc-400">{t.qualified}</td>
-                                    <td className="px-4 py-2">
-                                        <button
-                                            onClick={() => setEditForm(f => ({ ...f, bot_active: !f.bot_active }))}
-                                            className={`text-xs px-2 py-0.5 rounded-full border ${editForm.bot_active ? 'border-emerald-500/40 text-emerald-400' : 'border-zinc-600 text-zinc-500'}`}
-                                        >
-                                            {editForm.bot_active ? 'Activo' : 'Pausado'}
-                                        </button>
-                                    </td>
-                                    <td className="px-4 py-2">
-                                        <div className="flex gap-2">
-                                            <button onClick={() => saveEdit(t.id)} disabled={saving}
-                                                className="text-xs px-2 py-1 bg-violet-600 hover:bg-violet-700 text-white rounded-lg disabled:opacity-50">
-                                                {saving ? '...' : 'Guardar'}
-                                            </button>
-                                            <button onClick={() => setEditing(null)} className="text-xs px-2 py-1 text-zinc-400 hover:text-white">
-                                                Cancelar
-                                            </button>
-                                        </div>
-                                    </td>
-                                </>
-                            ) : (
-                                <>
-                                    <td className="px-4 py-3 text-white font-medium">{t.name}</td>
-                                    <td className="px-4 py-3 text-zinc-400 text-xs">{t.template}</td>
-                                    <td className="px-4 py-3 text-zinc-400 text-xs font-mono">{t.phone || '—'}</td>
-                                    <td className="px-4 py-3 text-zinc-300">{t.leads}</td>
-                                    <td className="px-4 py-3 text-emerald-400">{t.qualified}</td>
-                                    <td className="px-4 py-3">
-                                        <span className={`text-xs px-2 py-0.5 rounded-full border ${t.bot_active ? 'border-emerald-500/40 text-emerald-400' : 'border-zinc-600/40 text-zinc-500'}`}>
-                                            {t.bot_active ? 'Activo' : 'Pausado'}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <div className="flex gap-2">
-                                            <button onClick={() => startEdit(t)}
-                                                className="text-xs px-2 py-1 text-zinc-400 hover:text-white border border-white/10 hover:border-white/20 rounded-lg transition-colors">
-                                                Editar
-                                            </button>
-                                            <button onClick={() => deleteTenant(t)}
-                                                className="text-xs px-2 py-1 text-red-400/60 hover:text-red-400 border border-red-500/10 hover:border-red-500/30 rounded-lg transition-colors">
-                                                Eliminar
-                                            </button>
-                                        </div>
-                                    </td>
-                                </>
-                            )}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+        <>
+            {showModal && (
+                <NewClientModal
+                    templates={templates}
+                    onClose={() => setShowModal(false)}
+                    onCreated={() => { setShowModal(false); load(); }}
+                />
+            )}
+            <div className="space-y-4">
+                <div className="flex justify-end">
+                    <button
+                        onClick={() => setShowModal(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-xl transition-all"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Nuevo cliente
+                    </button>
+                </div>
+                <div className="bg-white/3 border border-white/8 rounded-xl overflow-x-auto">
+                    <table className="w-full text-sm min-w-[800px]">
+                        <thead>
+                            <tr className="text-zinc-500 text-xs border-b border-white/5">
+                                <th className="text-left px-4 py-3">Cliente</th>
+                                <th className="text-left px-4 py-3">Vertical</th>
+                                <th className="text-left px-4 py-3">Phone Number ID</th>
+                                <th className="text-left px-4 py-3">WABA ID</th>
+                                <th className="text-left px-4 py-3">Leads</th>
+                                <th className="text-left px-4 py-3">Bot</th>
+                                <th className="text-left px-4 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {tenants.map(t => (
+                                <tr key={t.id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
+                                    {editing === t.id ? (
+                                        <>
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    className="bg-zinc-800 border border-zinc-600 rounded-lg px-2 py-1 text-white text-xs w-full"
+                                                    value={editForm.name}
+                                                    onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <select
+                                                    className="bg-zinc-800 border border-zinc-600 rounded-lg px-2 py-1 text-white text-xs"
+                                                    value={editForm.template_name}
+                                                    onChange={e => setEditForm(f => ({ ...f, template_name: e.target.value }))}
+                                                >
+                                                    {templates.map(tmpl => (
+                                                        <option key={tmpl.id} value={tmpl.name}>{tmpl.name}</option>
+                                                    ))}
+                                                </select>
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    className="bg-zinc-800 border border-zinc-600 rounded-lg px-2 py-1 text-white text-xs font-mono w-40"
+                                                    value={editForm.phone_number_id}
+                                                    onChange={e => setEditForm(f => ({ ...f, phone_number_id: e.target.value }))}
+                                                    placeholder="ID numérico"
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    className="bg-zinc-800 border border-zinc-600 rounded-lg px-2 py-1 text-white text-xs font-mono w-40"
+                                                    value={editForm.waba_id}
+                                                    onChange={e => setEditForm(f => ({ ...f, waba_id: e.target.value }))}
+                                                    placeholder="WABA ID"
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2 text-zinc-400">{t.leads}</td>
+                                            <td className="px-4 py-2">
+                                                <button
+                                                    onClick={() => setEditForm(f => ({ ...f, bot_active: !f.bot_active }))}
+                                                    className={`text-xs px-2 py-0.5 rounded-full border ${editForm.bot_active ? 'border-emerald-500/40 text-emerald-400' : 'border-zinc-600 text-zinc-500'}`}
+                                                >
+                                                    {editForm.bot_active ? 'Activo' : 'Pausado'}
+                                                </button>
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => saveEdit(t.id)} disabled={saving}
+                                                        className="text-xs px-2 py-1 bg-violet-600 hover:bg-violet-700 text-white rounded-lg disabled:opacity-50">
+                                                        {saving ? '...' : 'Guardar'}
+                                                    </button>
+                                                    <button onClick={() => setEditing(null)} className="text-xs px-2 py-1 text-zinc-400 hover:text-white">
+                                                        Cancelar
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <td className="px-4 py-3 text-white font-medium">{t.name}</td>
+                                            <td className="px-4 py-3 text-zinc-400 text-xs">{t.template}</td>
+                                            <td className="px-4 py-3 text-zinc-400 text-xs font-mono">{t.phone_number_id || <span className="text-zinc-600">—</span>}</td>
+                                            <td className="px-4 py-3 text-zinc-400 text-xs font-mono">{t.waba_id !== '—' ? t.waba_id : <span className="text-zinc-600">—</span>}</td>
+                                            <td className="px-4 py-3 text-zinc-300">{t.leads} <span className="text-emerald-400">({t.qualified})</span></td>
+                                            <td className="px-4 py-3">
+                                                <span className={`text-xs px-2 py-0.5 rounded-full border ${t.bot_active ? 'border-emerald-500/40 text-emerald-400' : 'border-zinc-600/40 text-zinc-500'}`}>
+                                                    {t.bot_active ? 'Activo' : 'Pausado'}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => startEdit(t)}
+                                                        className="text-xs px-2 py-1 text-zinc-400 hover:text-white border border-white/10 hover:border-white/20 rounded-lg transition-colors">
+                                                        Editar
+                                                    </button>
+                                                    <button onClick={() => deleteTenant(t)}
+                                                        className="text-xs px-2 py-1 text-red-400/60 hover:text-red-400 border border-red-500/10 hover:border-red-500/30 rounded-lg transition-colors">
+                                                        Eliminar
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </>
+                                    )}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </>
     );
 }
 
