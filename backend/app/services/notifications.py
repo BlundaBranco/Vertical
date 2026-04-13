@@ -15,7 +15,15 @@ DASHBOARD_URL = os.getenv("DASHBOARD_URL", "https://somosvertical.ar/dashboard")
 
 
 def send_email_notification(tenant, lead):
-    """Envía un email al dueño del negocio cuando un lead pasa a QUALIFIED."""
+    """Envía un email al dueño del negocio cuando un lead pasa a QUALIFIED.
+
+    DESHABILITADO: DigitalOcean bloquea puertos SMTP (25, 465, 587).
+    Reactivar cuando se implemente envío vía REST API (SendGrid / Mailgun).
+    Para reactivar: borrar las dos líneas de abajo.
+    """
+    print(f"[NOTIF] Lead calificado: {(lead.extracted_data or {}).get('nombre', 'Sin nombre')} — {tenant.name} (email deshabilitado, pendiente migración a SendGrid)")
+    return
+
     if not all([NOTIFY_EMAIL, SMTP_USER, SMTP_PASS]):
         print("[NOTIF] Variables de email no configuradas — saltando envío.")
         return
