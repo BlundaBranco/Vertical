@@ -95,3 +95,20 @@ def restart_lead(lead_id: int, db: Session = Depends(get_db), current_user=Depen
 
     db.commit()
     return {"status": "ok", "lead_status": "QUALIFYING"}
+
+
+@router.post("/leads/{lead_id}/hard-reset")
+def hard_reset_lead(lead_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    """Hard reset: borra todas las conversaciones, limpia extracted_data y vuelve a NEW."""
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead no encontrado")
+    if lead.tenant_id != current_user.tenant_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+
+    db.query(Conversation).filter(Conversation.lead_id == lead.id).delete()
+    lead.status = "NEW"
+    lead.extracted_data = {}
+
+    db.commit()
+    return {"status": "ok", "lead_status": "NEW"}

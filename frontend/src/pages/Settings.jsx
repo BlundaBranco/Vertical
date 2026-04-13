@@ -387,6 +387,7 @@ export default function Settings() {
         whatsapp_phone: '',
         nationality: 'argentino',
         communication_style: 'estandar',
+        calendar_url: '',
         wa_about: '',
         wa_description: '',
         wa_email: '',
@@ -418,6 +419,7 @@ export default function Settings() {
                     whatsapp_phone: data.whatsapp_phone || '',
                     nationality: data.nationality || 'argentino',
                     communication_style: data.communication_style || 'estandar',
+                    calendar_url: data.calendar_url || '',
                     wa_about: data.wa_about || '',
                     wa_description: data.wa_description || '',
                     wa_email: data.wa_email || '',
@@ -623,6 +625,11 @@ export default function Settings() {
                             <textarea name="specialty" value={config.specialty} onChange={handleInput}
                                 rows={3} className={`${input} resize-none`}
                                 placeholder="Ej: Solo trabajamos en Zona Norte. Mínimo 2 ambientes." />
+                        </Field>
+
+                        <Field label="Link de agenda" hint="Google Calendar, Calendly u otro. El bot lo comparte cuando el cliente acepta reunirse.">
+                            <input name="calendar_url" value={config.calendar_url} onChange={handleInput}
+                                className={input} placeholder="https://calendar.app.google/..." />
                         </Field>
                     </div>
                 </section>

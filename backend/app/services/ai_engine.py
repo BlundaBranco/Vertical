@@ -95,46 +95,15 @@ def generate_response(tenant, lead, user_message: str, conversations=None):
     """
     PASE 2: El Conversador Dinámico.
     Construye el prompt basado en la configuración del cliente y responde.
+    Para vertical_saas_v1 usa un prompt comercial especializado en convertir a reuniones.
     """
     config = tenant.business_config or {}
+    template_name = tenant.template.name if tenant.template else ""
 
     business_name = tenant.name
     assistant_name = tenant.template.assistant_name or "Ana"
-
-    agent_ref = config.get("agent_name", "nuestro equipo de especialistas")
-    if agent_ref.lower() == "equipo":
-        agent_ref = "nuestro equipo de especialistas"
-
-    tone = config.get("tone", "cercano")
-    if tone not in ("cercano", "formal", "empatico"):
-        tone = "cercano"
-    specialty = config.get("specialty", "compra, venta y alquiler de propiedades")
-    rules = config.get("rules", "atender cordialmente todas las consultas")
-    catalog = config.get("catalog_url", "nuestro catálogo web")
-    knowledge_base = config.get("knowledge_base", "")
     nationality = config.get("nationality", "argentino")
     communication_style = config.get("communication_style", "estandar")
-
-    datos_extraidos = json.dumps(lead.extracted_data) if lead.extracted_data else "No tenemos datos aún."
-
-    # Campos requeridos dinámicos según el vertical del tenant
-    template = lead.tenant.template if lead.tenant else None
-    required_fields = (
-        template.required_fields_schema
-        if template and template.required_fields_schema
-        else ["nombre", "presupuesto", "zona"]
-    )
-    campos_objetivo = ", ".join(required_fields)
-
-    kb_section = ""
-    if knowledge_base and knowledge_base.strip():
-        kb_section = f"""
-BASE DE CONOCIMIENTO (INFORMACIÓN DE PROPIEDADES Y SERVICIOS):
-{knowledge_base}
-
-IMPORTANTE: Usá esta información para responder preguntas del cliente.
-Si no encontrás información específica en la base de conocimiento, NO inventes datos. Decí que vas a consultar y que te ponés en contacto.
-"""
 
     if nationality == "español":
         nationality_rules = """
@@ -175,12 +144,109 @@ ESTILO DE ESCRITURA — CRÍTICO:
 - No empieces el mensaje con el nombre del cliente si ya lo usaste recientemente
 - Variá la longitud de los mensajes — no todos del mismo tamaño"""
 
-    system_prompt = f"""Sos {assistant_name}, quien atiende consultas de {business_name} por WhatsApp.
+    # ── Prompt especializado para ventas de Vertical AI ──────────────────────
+    if template_name == "vertical_saas_v1":
+        specialty = config.get("specialty", "empleados digitales especializados para PyMEs en WhatsApp")
+        knowledge_base = config.get("knowledge_base", "")
+        calendar_url = config.get("calendar_url", "")
+        datos_extraidos = lead.extracted_data or {}
+        nombre = datos_extraidos.get("nombre", "")
+        rubro = datos_extraidos.get("rubro", "")
+
+        product_info = ""
+        if knowledge_base and knowledge_base.strip():
+            product_info = f"\nINFORMACIÓN DEL PRODUCTO:\n{knowledge_base}\n"
+        else:
+            product_info = f"""
+INFORMACIÓN DEL PRODUCTO:
+{business_name} crea empleados digitales especializados que atienden por WhatsApp como si fueran una persona real del equipo.
+Especialidad: {specialty}
+
+Capacidades reales del bot:
+- Responde en lenguaje natural, adaptado al rubro del cliente (inmobiliaria, clínica, concesionaria, etc.)
+- Entiende y procesa mensajes de voz (audios de WhatsApp)
+- Califica leads automáticamente — separa compradores reales de curiosos
+- Avisa al dueño solo cuando hay una oportunidad real, con todos los datos del cliente
+- Funciona 24/7 sin supervisión
+- Se configura sin código ni técnicos — el cliente solo usa un panel web
+- Integra con Google Sheets para sincronizar inventario o catálogo automáticamente
+- Cada bot se entrena con el lenguaje y las reglas específicas de ese negocio
+"""
+
+        calendar_section = ""
+        if calendar_url:
+            calendar_section = f"\nLINK DE AGENDA PARA REUNIÓN: {calendar_url}\nCuando el prospecto acepte reunirse, dáselo directamente en el mensaje.\n"
+
+        context_section = ""
+        if nombre:
+            context_section += f"Nombre del prospecto: {nombre}\n"
+        if rubro:
+            context_section += f"Rubro: {rubro}\n"
+
+        calendar_note = "Al aceptar, compartí el link de agenda directamente." if calendar_url else ""
+        context_block = f"CONTEXTO DEL PROSPECTO:\n{context_section}" if context_section else ""
+
+        system_prompt = f"""Sos {assistant_name}, parte del equipo comercial de {business_name}.
+Atendés consultas de empresas y emprendedores que llegan por WhatsApp.
+{product_info}{calendar_section}
+OBJETIVO PRINCIPAL: Convertir esta conversación en una reunión agendada.
+
+ESTRATEGIA (seguirla en orden según el estado de la conversación):
+1. Enganche — preguntá por su negocio. Entendé qué hacen, cuántos mensajes reciben, qué problema tienen con la atención al cliente.
+2. Valor — una vez que entendés su problema, explicá cómo el bot lo resuelve específicamente para su rubro. Sé concreto, no genérico.
+3. Demostración implícita — explicá las capacidades del bot de forma natural dentro de la conversación (no como lista). Por ejemplo: "de hecho el bot entiende audios, así que si un cliente te manda una nota de voz, lo procesa igual".
+4. Objeciones — si preguntan el precio, decí que eso lo ven en la reunión; no revelar nunca precios ni rangos. Si dudan, preguntá qué los frena.
+5. Cierre — proponé la reunión como el paso natural: "te muestro cómo quedaría para tu negocio puntual, te va bien esta semana?" {calendar_note}
+
+RESTRICCIONES CRÍTICAS:
+- NUNCA mencionar precios, costos, valores ni rangos de precio
+- NO inventar funcionalidades que no estén en la información del producto
+- NO desviarte del objetivo — cada mensaje debe avanzar hacia la reunión
+- Si el prospecto dice que no le interesa o que ya resolvió el tema: cerrá amablemente y no insistás
+
+{context_block}
+{style_rules}
+{nationality_rules}
+"""
+
+    # ── Prompt genérico para todos los demás verticales ──────────────────────
+    else:
+        agent_ref = config.get("agent_name", "nuestro equipo de especialistas")
+        if agent_ref.lower() == "equipo":
+            agent_ref = "nuestro equipo de especialistas"
+
+        tone = config.get("tone", "cercano")
+        if tone not in ("cercano", "formal", "empatico"):
+            tone = "cercano"
+        specialty = config.get("specialty", "compra, venta y alquiler de propiedades")
+        catalog = config.get("catalog_url", "nuestro catálogo web")
+        knowledge_base = config.get("knowledge_base", "")
+
+        datos_extraidos = json.dumps(lead.extracted_data) if lead.extracted_data else "No tenemos datos aún."
+
+        template = lead.tenant.template if lead.tenant else None
+        required_fields = (
+            template.required_fields_schema
+            if template and template.required_fields_schema
+            else ["nombre", "presupuesto", "zona"]
+        )
+        campos_objetivo = ", ".join(required_fields)
+
+        kb_section = ""
+        if knowledge_base and knowledge_base.strip():
+            kb_section = f"""
+BASE DE CONOCIMIENTO (INFORMACIÓN DE PROPIEDADES Y SERVICIOS):
+{knowledge_base}
+
+IMPORTANTE: Usá esta información para responder preguntas del cliente.
+Si no encontrás información específica en la base de conocimiento, NO inventes datos. Decí que vas a consultar y que te ponés en contacto.
+"""
+
+        system_prompt = f"""Sos {assistant_name}, quien atiende consultas de {business_name} por WhatsApp.
 Tu tono es {tone}.
 
 CONTEXTO DEL NEGOCIO:
 - Especialidad: {specialty}
-- Regla de oro: {rules}
 - Catálogo: {catalog}
 - Al cerrar la calificación, avisá que {agent_ref} los va a contactar.
 {kb_section}
@@ -198,7 +264,7 @@ REGLAS:
 {nationality_rules}
 """
 
-    print(f"Ventra AI generando respuesta para: {business_name} (Asistente: {assistant_name}, Tono: {tone}, Nacionalidad: {nationality}, Estilo: {communication_style})")
+    print(f"Vertical AI generando respuesta para: {business_name} (Asistente: {assistant_name}, Template: {template_name}, Estilo: {communication_style})")
 
     # Construir historial de conversación (últimos 10 turnos)
     history = []

@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
     MessageSquare, CheckCircle2, AlertCircle, Clock,
     Send, MapPin, DollarSign, Home, User, Bot,
-    TrendingUp, XCircle, RefreshCw, RotateCcw, Sparkles, Search, ChevronLeft, Ghost
+    TrendingUp, XCircle, RefreshCw, RotateCcw, Sparkles, Search, ChevronLeft, Ghost, Trash2
 } from 'lucide-react';
-import { fetchLeads, fetchStats, sendManualMessage, restartLead } from '../api/client';
+import { fetchLeads, fetchStats, sendManualMessage, restartLead, hardResetLead } from '../api/client';
 import { fetchMe, getToken } from '../api/auth';
 
 const REFRESH_INTERVAL = 10000;
@@ -154,6 +154,17 @@ export default function Dashboard() {
         setRestarting(true);
         try {
             await restartLead(selectedLead.id);
+            await loadData();
+        } finally {
+            setRestarting(false);
+        }
+    };
+
+    const handleHardReset = async () => {
+        if (!selectedLead || restarting) return;
+        setRestarting(true);
+        try {
+            await hardResetLead(selectedLead.id);
             await loadData();
         } finally {
             setRestarting(false);
@@ -344,17 +355,33 @@ export default function Dashboard() {
                                         </div>
                                     </div>
 
-                                    {/* Botón Retomar con IA */}
-                                    {(selectedLead.status === 'human_handoff' || selectedLead.status === 'lost' || selectedLead.status === 'zombie') && (
+                                    <div className="flex items-center gap-2 shrink-0">
+                                        {/* Botón Retomar con IA */}
+                                        {(selectedLead.status === 'human_handoff' || selectedLead.status === 'lost' || selectedLead.status === 'zombie') && (
+                                            <button
+                                                onClick={handleRestart}
+                                                disabled={restarting}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-500/10 border border-violet-500/30 text-violet-400 rounded-lg text-xs font-medium hover:bg-violet-500/20 transition-all disabled:opacity-40"
+                                            >
+                                                <RotateCcw className={`w-3.5 h-3.5 ${restarting ? 'animate-spin' : ''}`} />
+                                                {restarting ? 'Retomando...' : 'Retomar con IA'}
+                                            </button>
+                                        )}
+                                        {/* Botón Resetear Chat */}
                                         <button
-                                            onClick={handleRestart}
+                                            onClick={() => {
+                                                if (window.confirm('¿Resetear el chat? Se borrarán todas las conversaciones y datos extraídos.')) {
+                                                    handleHardReset();
+                                                }
+                                            }}
                                             disabled={restarting}
-                                            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-violet-500/10 border border-violet-500/30 text-violet-400 rounded-lg text-xs font-medium hover:bg-violet-500/20 transition-all disabled:opacity-40"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg text-xs font-medium hover:bg-red-500/20 transition-all disabled:opacity-40"
+                                            title="Borrar historial y reiniciar lead"
                                         >
-                                            <RotateCcw className={`w-3.5 h-3.5 ${restarting ? 'animate-spin' : ''}`} />
-                                            {restarting ? 'Retomando...' : 'Retomar con IA'}
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                            Resetear
                                         </button>
-                                    )}
+                                    </div>
                                 </div>
 
                                 {/* Datos extraídos — dinámico para cualquier vertical */}

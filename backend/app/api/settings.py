@@ -67,6 +67,7 @@ def get_settings(tenant_id: int, db: Session = Depends(get_db), current_user=Dep
         "bot_active": config.get("bot_active", True),
         "nationality": config.get("nationality", "argentino"),
         "communication_style": config.get("communication_style", "estandar"),
+        "calendar_url": config.get("calendar_url", ""),
         "vertical": tenant.template.name if tenant.template else "real_estate_v1",
         "wa_about": config.get("wa_about", wa_profile.get("about", "")),
         "wa_description": config.get("wa_description", wa_profile.get("description", "")),
@@ -97,6 +98,7 @@ def update_settings(tenant_id: int, payload: SettingsUpdate, db: Session = Depen
         "knowledge_base_url": payload.knowledge_base_url or "",
         "nationality": payload.nationality or "argentino",
         "communication_style": payload.communication_style or "estandar",
+        "calendar_url": payload.calendar_url or "",
         "bot_active": existing_config.get("bot_active", True),
     }
 

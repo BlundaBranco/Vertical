@@ -24,3 +24,4 @@ class SettingsUpdate(BaseModel):
     nationality: Optional[str] = "argentino"
     vertical: Optional[str] = None
     communication_style: Optional[str] = "estandar"
+    calendar_url: Optional[str] = None

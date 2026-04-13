@@ -88,19 +88,21 @@ export default function Landing() {
 
                                 <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-fade-in-up anim-d400">
                                     <a
-                                        href="https://wa.me/5493413436259"
+                                        href="https://wa.me/5493413436259?text=Hola%2C+quiero+probar+la+demo+del+bot+de+Vertical"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 px-6 py-3.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-violet-600/30"
                                     >
-                                        Contactar ventas
+                                        Probar demo gratuita
                                         <ArrowRight className="w-4 h-4" />
                                     </a>
                                     <a
-                                        href="#precios"
+                                        href="https://wa.me/5493413436259"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 px-6 py-3.5 border border-white/12 hover:border-violet-500/40 text-zinc-200 hover:text-white rounded-xl font-medium text-sm transition-all hover:scale-[1.02]"
                                     >
-                                        Ver precios
+                                        Contactar ventas
                                     </a>
                                 </div>
 
@@ -289,18 +291,18 @@ export default function Landing() {
                                 { icon: Users, title: 'Te avisa cuando hay oportunidad', desc: 'Cuando alguien está listo para comprar, te lo dice. Tu equipo entra justo cuando hace falta.', violet: false },
                                 { icon: MessageSquare, title: 'Vive en WhatsApp', desc: 'Tus clientes no instalan nada. Lo usan donde ya están, como si fuera una persona real.', violet: false },
                                 { icon: Shield, title: 'Nunca inventa información', desc: 'Solo responde con lo que vos le enseñaste. Sin errores de precios ni datos falsos.', violet: true },
-                            ].map(({ icon: Icon, title, desc, violet }, i) => (
-                                <Reveal key={title} style={{ transitionDelay: `${i * 100}ms` }}>
+                            ].map((feat, i) => (
+                                <Reveal key={feat.title} style={{ transitionDelay: `${i * 100}ms` }}>
                                     <div className={`group p-5 rounded-xl border transition-all duration-200 cursor-default hover:-translate-y-0.5 ${
-                                        violet
+                                        feat.violet
                                             ? 'bg-violet-950/35 border-violet-500/22 hover:border-violet-500/40 hover:bg-violet-950/50'
                                             : 'bg-white/[0.04] border-white/[0.10] hover:border-violet-500/30 hover:bg-violet-950/20'
                                     }`}>
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-3 ${violet ? 'bg-violet-500/25' : 'bg-white/[0.08]'}`}>
-                                            <Icon className={`w-4 h-4 ${violet ? 'text-violet-300' : 'text-zinc-200'}`} />
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-3 ${feat.violet ? 'bg-violet-500/25' : 'bg-white/[0.08]'}`}>
+                                            <feat.icon className={`w-4 h-4 ${feat.violet ? 'text-violet-300' : 'text-zinc-200'}`} />
                                         </div>
-                                        <h3 className="text-sm font-semibold text-white mb-1.5">{title}</h3>
-                                        <p className="text-xs text-zinc-300 leading-relaxed">{desc}</p>
+                                        <h3 className="text-sm font-semibold text-white mb-1.5">{feat.title}</h3>
+                                        <p className="text-xs text-zinc-300 leading-relaxed">{feat.desc}</p>
                                     </div>
                                 </Reveal>
                             ))}
@@ -308,115 +310,48 @@ export default function Landing() {
                     </div>
                 </section>
 
-                {/* ── Precios ───────────────────────────────────────────── */}
-                <section id="precios" className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+                {/* ── Demo CTA ──────────────────────────────────────────── */}
+                <section className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/15 to-transparent pointer-events-none" />
                     <div className="absolute inset-0 pointer-events-none">
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-violet-700/8 rounded-full blur-3xl" />
                     </div>
                     <div className="max-w-4xl mx-auto relative">
                         <Reveal className="text-center mb-12">
-                            <p className="text-xs text-violet-400 uppercase tracking-widest mb-4 font-medium">Precios</p>
+                            <p className="text-xs text-violet-400 uppercase tracking-widest mb-4 font-medium">Probalo antes de decidir</p>
                             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
-                                El mejor precio del mercado.
+                                Tu primer empleado digital,<br />listo en 24 horas.
                             </h2>
-                            <p className="text-zinc-400 text-sm">Sin sorpresas. Todo incluido desde el primer día.</p>
+                            <p className="text-zinc-400 text-sm max-w-xl mx-auto">Hablá con nosotros por WhatsApp y te mostramos cómo funciona en tu negocio puntual. Sin compromiso, sin técnicos.</p>
                         </Reveal>
 
-                        <div className="grid sm:grid-cols-2 gap-6">
-
-                            {/* Plan Esencial */}
-                            <Reveal style={{ transitionDelay: '100ms' }} className="h-full">
-                                <div className="h-full p-7 bg-white/[0.04] border border-white/[0.10] rounded-2xl flex flex-col">
-                                    <div className="mb-6">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <p className="text-xs text-zinc-400 font-medium uppercase tracking-widest">Empleado Digital</p>
-                                            <span className="text-xs bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-full font-medium">Precio de lanzamiento</span>
-                                        </div>
-                                        <div className="flex items-baseline gap-1.5 mb-1">
-                                            <span className="text-4xl font-bold text-white">$175.000</span>
-                                            <span className="text-zinc-400 text-sm">ARS/mes</span>
-                                        </div>
-                                        <p className="text-xs text-zinc-500 line-through">$350.000 ARS/mes</p>
-                                        <p className="text-xs text-amber-400 mt-1">Válido hasta el 30 de abril</p>
+                        <div className="grid sm:grid-cols-3 gap-5 mb-12">
+                            {[
+                                { icon: MessageSquare, title: 'Consulta inicial', desc: 'Nos contás tu negocio y qué problema querés resolver.', color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/20' },
+                                { icon: Zap, title: 'Lo configuramos', desc: 'Nuestro equipo arma el asistente a medida de tu industria.', color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20' },
+                                { icon: CheckCircle2, title: 'Arrancás', desc: 'El bot empieza a atender y vos solo recibís los leads calificados.', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+                            ].map((step, i) => (
+                                <Reveal key={step.title} style={{ transitionDelay: `${i * 100}ms` }}>
+                                    <div className={`p-5 rounded-xl border ${step.bg}`}>
+                                        <step.icon className={`w-5 h-5 ${step.color} mb-3`} />
+                                        <h3 className="text-sm font-semibold text-white mb-1.5">{step.title}</h3>
+                                        <p className="text-xs text-zinc-400 leading-relaxed">{step.desc}</p>
                                     </div>
-                                    <ul className="space-y-3 mb-8 flex-1">
-                                        {[
-                                            'Asistente de IA personalizado',
-                                            'WhatsApp activo 24/7',
-                                            'Conversaciones ilimitadas',
-                                            'Panel de control + Analytics',
-                                            'Sincronización con Google Sheets',
-                                            'Soporte por email',
-                                        ].map(item => (
-                                            <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
-                                                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                                                {item}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    <a
-                                        href="https://wa.me/5493413436259"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-full py-3 border border-violet-500/35 text-violet-300 hover:bg-violet-500/10 rounded-xl text-sm font-medium transition-all hover:scale-[1.01] flex items-center justify-center"
-                                    >
-                                        Empezar
-                                    </a>
-                                </div>
-                            </Reveal>
-
-                            {/* Plan Pro */}
-                            <Reveal style={{ transitionDelay: '200ms' }} className="h-full">
-                                <div className="relative h-full">
-                                    <div className="absolute -inset-3 bg-violet-500/20 rounded-2xl blur-2xl opacity-75" />
-                                    <div className="relative h-full p-7 bg-violet-950/60 border border-violet-500/30 rounded-2xl flex flex-col">
-                                        <div className="mb-6">
-                                            <div className="flex items-center justify-between mb-3">
-                                                <p className="text-xs text-violet-300 font-medium uppercase tracking-widest">Empleado Digital + Marketing</p>
-                                                <span className="text-xs bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-full font-medium">Precio de lanzamiento</span>
-                                            </div>
-                                            <div className="flex items-baseline gap-1.5 mb-1">
-                                                <span className="text-4xl font-bold text-white">$350.000</span>
-                                                <span className="text-zinc-400 text-sm">ARS/mes</span>
-                                            </div>
-                                            <p className="text-xs text-zinc-500 line-through">$700.000 ARS/mes</p>
-                                            <p className="text-xs text-amber-400 mt-1">Válido hasta el 30 de abril</p>
-                                        </div>
-                                        <ul className="space-y-3 mb-8 flex-1">
-                                            <li className="flex items-center gap-2.5 text-sm text-violet-300 font-medium">
-                                                <CheckCircle2 className="w-4 h-4 text-violet-400 shrink-0" />
-                                                Todo lo del plan Empleado Digital, más:
-                                            </li>
-                                            {[
-                                                'Gestión completa de marketing digital',
-                                                'Hasta 2 campañas publicitarias activas',
-                                                'Optimización y seguimiento semanal',
-                                                'Informes de resultados y métricas',
-                                                'Soporte prioritario',
-                                            ].map(item => (
-                                                <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
-                                                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                                                    {item}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                        <a
-                                            href="https://wa.me/5493413436259"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="w-full py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-sm font-semibold transition-all hover:scale-[1.01] shadow-lg shadow-violet-600/30 flex items-center justify-center"
-                                        >
-                                            Empezar con Empleado Digital + Marketing
-                                        </a>
-                                    </div>
-                                </div>
-                            </Reveal>
-
+                                </Reveal>
+                            ))}
                         </div>
 
-                        <Reveal>
-                            <p className="text-center text-xs text-zinc-600 mt-8">
+                        <Reveal className="text-center">
+                            <a
+                                href="https://wa.me/5493413436259?text=Hola%2C+quiero+probar+la+demo+del+bot+de+Vertical"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2.5 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-violet-600/35"
+                            >
+                                Probar demo gratuita
+                                <ArrowRight className="w-4 h-4" />
+                            </a>
+                            <p className="text-xs text-zinc-600 mt-4">
                                 ¿Tenés más de un negocio o necesitás algo a medida?{' '}
                                 <a href="mailto:info@somosvertical.ar" className="text-violet-400 hover:underline transition-colors">Escribinos</a>
                             </p>
@@ -438,19 +373,20 @@ export default function Landing() {
                                 Empezá hoy
                             </div>
                             <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-                                Tu asistente listo<br />en 24 horas.
+                                Nacimos para hacer<br />
+                                <span className="text-violet-400">crecer tu negocio.</span>
                             </h2>
                             <p className="text-zinc-300 text-sm mb-8 leading-relaxed">
                                 Sin contratos. Sin sorpresas.<br className="hidden sm:block" />
                                 Atendiendo clientes desde el primer día.
                             </p>
                             <a
-                                href="https://wa.me/5493413436259"
+                                href="https://wa.me/5493413436259?text=Hola%2C+quiero+probar+la+demo+del+bot+de+Vertical"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2.5 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.03] active:scale-[0.98] shadow-2xl shadow-violet-600/50"
                             >
-                                Contactar ventas
+                                Probar demo gratuita
                                 <ArrowRight className="w-4 h-4" />
                             </a>
                             <div className="flex flex-wrap items-center justify-center gap-5 mt-7 text-xs text-zinc-500">
