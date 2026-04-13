@@ -1,4 +1,5 @@
 import traceback
+import threading
 
 from sqlalchemy.orm import Session
 from app.models import Conversation
@@ -28,7 +29,11 @@ def process_message(tenant, lead, user_message: str, db: Session):
             lead.status = nuevo_estado
             db.commit()
             if nuevo_estado == "QUALIFIED":
-                flows.trigger_notification(tenant, lead)
+                threading.Thread(
+                    target=flows.trigger_notification,
+                    args=(tenant, lead),
+                    daemon=True
+                ).start()
             elif nuevo_estado == "LOST":
                 print(f"[LEAD] Lead PERDIDO: {lead.extracted_data.get('motivo_rechazo')}")
         elif lead.status == "NEW":

@@ -109,3 +109,90 @@ body {
 .anim-d400 { animation-delay: 0.4s; }
 .anim-d500 { animation-delay: 0.5s; }
 .anim-d600 { animation-delay: 0.6s; }
+.anim-d700 { animation-delay: 0.7s; }
+.anim-d800 { animation-delay: 0.8s; }
+
+/* ─── Animaciones adicionales ────────────────────────────────────────── */
+
+@keyframes shimmerSlide {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.90); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes glowPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50%       { opacity: 1;   transform: scale(1.08); }
+}
+
+@keyframes blobDrift {
+    0%,  100% { transform: translate(0, 0) scale(1); }
+    33%        { transform: translate(40px, -60px) scale(1.06); }
+    66%        { transform: translate(-30px, 30px) scale(0.96); }
+}
+
+@keyframes borderGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+    50%       { box-shadow: 0 0 30px 4px rgba(139, 92, 246, 0.35); }
+}
+
+@keyframes shimmerBtn {
+    0%   { left: -80%; }
+    100% { left: 120%; }
+}
+
+@keyframes tickerPop {
+    0%   { opacity: 0; transform: translateY(6px) scale(0.95); }
+    60%  { transform: translateY(-2px) scale(1.03); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Gradient text animado */
+.text-gradient-shimmer {
+    background: linear-gradient(90deg,
+        #c4b5fd 0%, #7c3aed 25%, #a78bfa 50%, #7c3aed 75%, #c4b5fd 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmerSlide 4s linear infinite;
+}
+
+/* Clases de animación */
+.animate-scale-in   { animation: scaleIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-glow-pulse { animation: glowPulse 2.5s ease-in-out infinite; }
+.animate-blob-drift { animation: blobDrift 12s ease-in-out infinite; }
+.animate-border-glow { animation: borderGlow 2.5s ease-in-out infinite; }
+.animate-ticker-pop  { animation: tickerPop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* CTA button shimmer sweep */
+.btn-shimmer {
+    position: relative;
+    overflow: hidden;
+}
+.btn-shimmer::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -80%;
+    width: 45%;
+    height: 200%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+    transform: skewX(-18deg);
+    animation: shimmerBtn 3.5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* Card con borde glow on hover */
+.card-hover-glow {
+    transition: box-shadow 0.3s, border-color 0.3s, transform 0.2s;
+}
+.card-hover-glow:hover {
+    box-shadow: 0 0 28px rgba(124, 58, 237, 0.22);
+    transform: translateY(-3px);
+}

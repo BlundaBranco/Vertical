@@ -3,14 +3,21 @@ import { ArrowRight, CheckCircle2, Zap, Shield, MessageSquare, Users, Sparkles, 
 import { useNavigate } from 'react-router-dom';
 import { useInView } from '../hooks/useInView';
 
-function Reveal({ children, className = '', style = {} }) {
+function Reveal({ children, className = '', style = {}, variant = 'up' }) {
     const [ref, inView] = useInView();
+    const variants = {
+        up:    { hidden: 'opacity-0 translate-y-6',  visible: 'opacity-100 translate-y-0' },
+        scale: { hidden: 'opacity-0 scale-95',        visible: 'opacity-100 scale-100' },
+        left:  { hidden: 'opacity-0 -translate-x-6', visible: 'opacity-100 translate-x-0' },
+        right: { hidden: 'opacity-0 translate-x-6',  visible: 'opacity-100 translate-x-0' },
+    };
+    const v = variants[variant] || variants.up;
     return (
         <div
             ref={ref}
             style={style}
-            className={`transition-[opacity,transform] duration-700 ease-out ${
-                inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+            className={`transition-[opacity,transform,filter] duration-700 ease-out ${
+                inView ? `${v.visible} blur-0` : `${v.hidden} blur-[2px]`
             } ${className}`}
         >
             {children}
@@ -27,9 +34,9 @@ export default function Landing() {
             {/* ── Fondo global ──────────────────────────────────────────── */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0 bg-grid" />
-                <div className="absolute -top-40 right-0 w-[800px] h-[800px] bg-violet-600/28 rounded-full blur-3xl" />
-                <div className="absolute top-1/3 -left-40 w-[600px] h-[600px] bg-indigo-600/18 rounded-full blur-3xl" />
-                <div className="absolute bottom-1/4 right-1/3 w-[500px] h-[500px] bg-violet-500/15 rounded-full blur-3xl" />
+                <div className="absolute -top-40 right-0 w-[800px] h-[800px] bg-violet-600/28 rounded-full blur-3xl animate-blob-drift" style={{ animationDelay: '0s' }} />
+                <div className="absolute top-1/3 -left-40 w-[600px] h-[600px] bg-indigo-600/18 rounded-full blur-3xl animate-blob-drift" style={{ animationDelay: '4s' }} />
+                <div className="absolute bottom-1/4 right-1/3 w-[500px] h-[500px] bg-violet-500/15 rounded-full blur-3xl animate-blob-drift" style={{ animationDelay: '8s' }} />
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,#060612_100%)]" />
             </div>
 
@@ -78,7 +85,7 @@ export default function Landing() {
 
                                 <h1 className="text-5xl sm:text-6xl font-bold tracking-tight leading-[1.08] mb-5 animate-fade-in-up anim-d200">
                                     Conseguí tu<br />
-                                    <span className="text-violet-400">Empleado Digital</span>
+                                    <span className="text-gradient-shimmer">Empleado Digital</span>
                                 </h1>
 
                                 <p className="text-lg text-zinc-300 mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0 animate-fade-in-up anim-d300">
@@ -91,7 +98,7 @@ export default function Landing() {
                                         href="https://wa.me/5493413436259?text=Hola%2C+quiero+probar+la+demo+del+bot+de+Vertical"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center justify-center gap-2 px-6 py-3.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-violet-600/30"
+                                        className="btn-shimmer flex items-center justify-center gap-2 px-6 py-3.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-violet-600/30"
                                     >
                                         Probar demo gratuita
                                         <ArrowRight className="w-4 h-4" />
@@ -116,10 +123,10 @@ export default function Landing() {
                             {/* Chat mockup */}
                             <div className="relative animate-slide-in-right anim-d300">
                                 <div className="relative animate-float">
-                                    <div className="absolute -inset-8 bg-violet-600/10 rounded-3xl blur-3xl" />
-                                    <div className="relative bg-[#0D0A1E]/90 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-5 shadow-2xl shadow-violet-900/30">
+                                    <div className="absolute -inset-8 bg-violet-600/12 rounded-3xl blur-3xl animate-glow-pulse" />
+                                    <div className="relative bg-[#0D0A1E]/90 backdrop-blur-sm border border-violet-500/30 rounded-2xl p-5 shadow-2xl shadow-violet-900/30 animate-border-glow">
                                         <div className="flex items-center gap-3 mb-4 pb-4 border-b border-white/[0.06]">
-                                            <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                                            <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30">
                                                 <span className="text-sm font-bold text-white">A</span>
                                             </div>
                                             <div>
@@ -131,19 +138,19 @@ export default function Landing() {
                                             </div>
                                         </div>
                                         <div className="space-y-3 text-sm">
-                                            <div className="max-w-[85%] bg-white/[0.07] border border-white/[0.08] rounded-xl px-3.5 py-2.5">
+                                            <div className="max-w-[85%] bg-white/[0.07] border border-white/[0.08] rounded-xl px-3.5 py-2.5 animate-fade-in anim-d400">
                                                 <p className="text-zinc-500 text-xs mb-1">Cliente · 10:23</p>
                                                 <p className="text-zinc-100">Hola, busco depto 2 ambientes en Palermo, hasta USD 200k</p>
                                             </div>
-                                            <div className="max-w-[85%] ml-auto bg-violet-500/18 border border-violet-500/30 rounded-xl px-3.5 py-2.5">
+                                            <div className="max-w-[85%] ml-auto bg-violet-500/18 border border-violet-500/30 rounded-xl px-3.5 py-2.5 animate-fade-in anim-d500">
                                                 <p className="text-violet-400 text-xs mb-1">Ana · 10:23</p>
                                                 <p className="text-zinc-100">Perfecto, tengo varias opciones. ¿Es para vivir o invertir?</p>
                                             </div>
-                                            <div className="max-w-[85%] bg-white/[0.07] border border-white/[0.08] rounded-xl px-3.5 py-2.5">
+                                            <div className="max-w-[85%] bg-white/[0.07] border border-white/[0.08] rounded-xl px-3.5 py-2.5 animate-fade-in anim-d600">
                                                 <p className="text-zinc-500 text-xs mb-1">Cliente · 10:24</p>
                                                 <p className="text-zinc-100">Para vivir, necesito para marzo</p>
                                             </div>
-                                            <div className="flex items-center gap-2 bg-emerald-500/12 border border-emerald-500/25 rounded-xl px-3 py-2.5">
+                                            <div className="flex items-center gap-2 bg-emerald-500/12 border border-emerald-500/25 rounded-xl px-3 py-2.5 animate-scale-in anim-d700">
                                                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                                                 <div>
                                                     <p className="text-xs text-emerald-300 font-semibold">¡Cliente listo! Equipo notificado.</p>
@@ -168,8 +175,8 @@ export default function Landing() {
                                     { value: '24/7', label: 'Siempre disponible', color: 'text-violet-400' },
                                     { value: '< 30 seg', label: 'Tiempo de respuesta', color: 'text-indigo-400' },
                                     { value: '0', label: 'Conocimientos técnicos', color: 'text-emerald-400' },
-                                ].map(({ value, label, color }) => (
-                                    <div key={label}>
+                                ].map(({ value, label, color }, i) => (
+                                    <div key={label} className="animate-ticker-pop" style={{ animationDelay: `${i * 0.15}s` }}>
                                         <p className={`text-2xl sm:text-3xl font-bold ${color} tracking-tight`}>{value}</p>
                                         <p className="text-xs text-zinc-400 mt-1">{label}</p>
                                     </div>
@@ -346,7 +353,7 @@ export default function Landing() {
                                 href="https://wa.me/5493413436259?text=Hola%2C+quiero+probar+la+demo+del+bot+de+Vertical"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2.5 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-violet-600/35"
+                                className="btn-shimmer inline-flex items-center gap-2.5 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-violet-600/35"
                             >
                                 Probar demo gratuita
                                 <ArrowRight className="w-4 h-4" />
@@ -374,7 +381,7 @@ export default function Landing() {
                             </div>
                             <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
                                 Nacimos para hacer<br />
-                                <span className="text-violet-400">crecer tu negocio.</span>
+                                <span className="text-gradient-shimmer">crecer tu negocio.</span>
                             </h2>
                             <p className="text-zinc-300 text-sm mb-8 leading-relaxed">
                                 Sin contratos. Sin sorpresas.<br className="hidden sm:block" />
@@ -384,7 +391,7 @@ export default function Landing() {
                                 href="https://wa.me/5493413436259?text=Hola%2C+quiero+probar+la+demo+del+bot+de+Vertical"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2.5 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.03] active:scale-[0.98] shadow-2xl shadow-violet-600/50"
+                                className="btn-shimmer inline-flex items-center gap-2.5 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-[1.03] active:scale-[0.98] shadow-2xl shadow-violet-600/50"
                             >
                                 Probar demo gratuita
                                 <ArrowRight className="w-4 h-4" />
